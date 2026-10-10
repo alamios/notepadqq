@@ -34,6 +34,7 @@
  * -> int scrollX - horizontal scroll position
  * -> int scrollY - vertical scroll position
  * -> string language - the display language of the document.
+ * -> string tabColor - optional, validated document presentation color identifier.
  * -> long int lastModified - optional, last modification date (in msecs since epoch) of the file point to in filePath
  * -> int active - optional, value is "1" if this tab is the open one in the tabview, otherwise "0".
  *
@@ -52,6 +53,7 @@ struct TabData {
     int scrollY = 0;
     bool active = false;
     QString language;
+    QString tabColor;
     qint64 lastModified = 0;
     bool customIndent = false;
     bool useTabs = false;
@@ -174,6 +176,7 @@ std::vector<TabData> SessionReader::readTabData()
             td.scrollX = attrs.value("scrollX").toInt();
             td.scrollY = attrs.value("scrollY").toInt();
             td.language = attrs.value("language").toString();
+            td.tabColor = attrs.value("tabColor").toString();
             td.lastModified = attrs.value("lastModified").toLongLong();
             td.active = attrs.value("active").toInt() != 0;
             td.customIndent = attrs.value("customIndent").toInt() != 0;
@@ -234,6 +237,8 @@ void SessionWriter::addTabData(const TabData& td)
     // set to a non-default value as to not clutter up the xml file.
     if (!td.language.isEmpty())
         attrs.push_back(QXmlStreamAttribute("language", td.language));
+    if (!td.tabColor.isEmpty())
+        attrs.push_back(QXmlStreamAttribute("tabColor", td.tabColor));
 
     if (td.lastModified != 0)
         attrs.push_back(QXmlStreamAttribute("lastModified", QString::number(td.lastModified)));
@@ -333,6 +338,7 @@ bool saveSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
             td.scrollY = scrollPos.second;
             td.active = tabWidget->currentEditor() == editor;
             td.language = editor->getLanguage()->id;
+            td.tabColor = editor->tabColor();
 
             // Cache the custom indentation state of the file
             if (editor->isUsingCustomIndentationMode()) {
@@ -495,6 +501,7 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
             // the UI will jump around changing the width of the tabs while they
             // are loading.
             auto loadingEditor = loadedDocs.first().first;
+            loadingEditor->setTabColor(tab.tabColor);
             // Reserve the real document URL before the asynchronous load finishes so a
             // command-line request can reuse this loading tab instead of opening a duplicate.
             if (!tab.filePath.isEmpty()) {

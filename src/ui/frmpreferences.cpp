@@ -188,6 +188,10 @@ void frmPreferences::saveLanguages()
 
 void frmPreferences::loadAppearanceTab()
 {
+    ui->chkCompactTabs->setChecked(m_settings.Appearance.getCompactTabs());
+    ui->spnMaximumTabWidth->setValue(m_settings.Appearance.getMaximumTabWidth());
+    ui->spnMaximumTabWidth->setEnabled(ui->chkCompactTabs->isChecked());
+    connect(ui->chkCompactTabs, &QCheckBox::toggled, ui->spnMaximumTabWidth, &QSpinBox::setEnabled);
     QList<Editor::Theme> themes = m_topEditorContainer->currentTabWidget()->currentEditor()->themes();
 
     ui->cmbColorScheme->addItem("Default", "default");
@@ -230,6 +234,8 @@ void frmPreferences::loadAppearanceTab()
 
 void frmPreferences::saveAppearanceTab()
 {
+    m_settings.Appearance.setCompactTabs(ui->chkCompactTabs->isChecked());
+    m_settings.Appearance.setMaximumTabWidth(ui->spnMaximumTabWidth->value());
     m_settings.Appearance.setColorScheme(ui->cmbColorScheme->currentData().toString());
 
     const QString fontFamily = ui->cmbFontFamilies->isEnabled() ? ui->cmbFontFamilies->currentFont().family() : "";
@@ -422,6 +428,8 @@ bool frmPreferences::applySettings()
     // Apply changes to currently opened editors
     for (MainWindow* w : MainWindow::instances()) {
         w->showExtensionsMenu(Extensions::ExtensionsLoader::extensionRuntimePresent());
+        for (int pane = 0; pane < w->topEditorContainer()->count(); ++pane)
+            w->topEditorContainer()->tabWidget(pane)->refreshTabAppearance();
 
         w->topEditorContainer()->forEachEditor([&](const int, const int, EditorTabWidget*, Editor* editor) {
             // Set new theme

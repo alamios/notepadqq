@@ -1,10 +1,70 @@
 #include "include/editortabwidget.h"
 
 #include "include/iconprovider.h"
+#include "include/nqqsettings.h"
 
 #include <QApplication>
 #include <QFileInfo>
 #include <QTabBar>
+#include <QPainter>
+
+namespace {
+
+// Keep Qt's native hit testing, close buttons, drag handling and active-tab style.
+class EditorTabBar : public QTabBar {
+public:
+    explicit EditorTabBar(QWidget* parent) : QTabBar(parent) {}
+
+    void refreshAppearance()
+    {
+        const auto& appearance = NqqSettings::getInstance().Appearance;
+        m_compact = appearance.getCompactTabs();
+        m_maximumWidth = qBound(96, appearance.getMaximumTabWidth(), 320);
+        setExpanding(false);
+        // Changing the elision policy invalidates Qt's cached tab size hints.
+        setElideMode(Qt::ElideNone);
+        setElideMode(Qt::ElideMiddle);
+        updateGeometry();
+        update();
+    }
+
+protected:
+    QSize tabSizeHint(int index) const override
+    {
+        QSize size = QTabBar::tabSizeHint(index);
+        if (m_compact) {
+            size.setWidth(qBound(72, size.width() - 12, m_maximumWidth));
+            size.setHeight(qMax(qMax(fontMetrics().height(), iconSize().height()) + 8,
+                                size.height() - 4));
+        } else {
+            size.setWidth(qMax(100, size.width()));
+        }
+        return size;
+    }
+
+    void paintEvent(QPaintEvent* event) override
+    {
+        QTabBar::paintEvent(event);
+        QPainter painter(this);
+        const QStringList ids = Editor::tabColorIds();
+        const QColor colors[] = {QColor("#e05252"), QColor("#e58b36"), QColor("#d5b52e"),
+                                 QColor("#48a868"), QColor("#438bd5"), QColor("#a477cc")};
+        for (int index = 0; index < count(); ++index) {
+            const int colorIndex = ids.indexOf(tabData(index).toString());
+            if (colorIndex < 0)
+                continue;
+            // A color band leaves native text, focus and dirty indicators readable.
+            const QRect rect = tabRect(index).adjusted(4, 2, -4, 0);
+            painter.fillRect(QRect(rect.left(), rect.top(), rect.width(), 3), colors[colorIndex]);
+        }
+    }
+
+private:
+    bool m_compact = true;
+    int m_maximumWidth = 160;
+};
+
+} // namespace
 
 #ifdef QT_DEBUG
 #include <QElapsedTimer>
@@ -13,6 +73,7 @@
 EditorTabWidget::EditorTabWidget(QWidget* parent)
     : QTabWidget(parent)
 {
+    setTabBar(new EditorTabBar(this));
     this->setContextMenuPolicy(Qt::CustomContextMenu);
     this->setDocumentMode(true);
     this->setTabsClosable(true);
@@ -23,13 +84,21 @@ EditorTabWidget::EditorTabWidget(QWidget* parent)
 
     connect(this, &EditorTabWidget::currentChanged, this, &EditorTabWidget::on_currentTabChanged);
 
-#ifdef Q_OS_MACOS
-    this->tabBar()->setExpanding(true);
     this->setUsesScrollButtons(true);
-#else
-    QString style = QString("QTabBar::tab{min-width:100px; height:24px;}");
-    setStyleSheet(style);
-#endif
+    refreshTabAppearance();
+}
+
+void EditorTabWidget::refreshTabAppearance()
+{ static_cast<EditorTabBar*>(tabBar())->refreshAppearance(); }
+
+void EditorTabWidget::on_tabColorChanged()
+{
+    auto* editor = qobject_cast<Editor*>(sender());
+    const int index = indexOf(editor);
+    if (index >= 0) {
+        tabBar()->setTabData(index, editor->tabColor());
+        tabBar()->update();
+    }
 }
 
 int EditorTabWidget::addEditorTab(bool setFocus, const QString& title)
@@ -38,6 +107,7 @@ int EditorTabWidget::addEditorTab(bool setFocus, const QString& title)
 void EditorTabWidget::connectEditorSignals(Editor* editor)
 {
     connect(editor, &Editor::cleanChanged, this, &EditorTabWidget::on_cleanChanged);
+    connect(editor, &Editor::tabColorChanged, this, &EditorTabWidget::on_tabColorChanged);
 
     connect(editor, &Editor::gotFocus, this, &EditorTabWidget::gotFocus);
 
@@ -49,6 +119,7 @@ void EditorTabWidget::connectEditorSignals(Editor* editor)
 void EditorTabWidget::disconnectEditorSignals(Editor* editor)
 {
     disconnect(editor, &Editor::cleanChanged, this, &EditorTabWidget::on_cleanChanged);
+    disconnect(editor, &Editor::tabColorChanged, this, &EditorTabWidget::on_tabColorChanged);
     disconnect(editor, &Editor::gotFocus, this, &EditorTabWidget::gotFocus);
     disconnect(editor, &Editor::mouseWheel, this, &EditorTabWidget::on_editorMouseWheel);
     disconnect(editor, &Editor::fileNameChanged, this, &EditorTabWidget::on_fileNameChanged);
@@ -70,6 +141,8 @@ void EditorTabWidget::setTabText(int index, const QString& text)
 {
     QTabWidget::setTabText(index, text);
     editor(index)->setTabName(text);
+    if (editor(index)->filePath().isEmpty())
+        setTabToolTip(index, text);
 }
 
 void EditorTabWidget::setTabText(Editor* editor, const QString& text)
@@ -79,6 +152,8 @@ void EditorTabWidget::setTabText(Editor* editor, const QString& text)
     if (idx >= 0) {
         QTabWidget::setTabText(idx, text);
         editor->setTabName(text);
+        if (editor->filePath().isEmpty())
+            setTabToolTip(idx, text);
     }
 }
 
@@ -136,6 +211,8 @@ int EditorTabWidget::rawAddEditorTab(
         source->removeTab(sourceTabIndex);
     }
     int index = addTab(editor, tabTitle);
+    tabBar()->setTabData(index, editor->tabColor());
+    setTabToolTip(index, tabTitle);
 
     this->connectEditorSignals(editor);
 

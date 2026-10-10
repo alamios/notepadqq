@@ -17,6 +17,8 @@
 #include "ui_mainwindow.h"
 
 #include <QClipboard>
+#include <QActionGroup>
+#include <QPointer>
 #include <QDesktopServices>
 #include <QFileDialog>
 #include <QInputDialog>
@@ -288,8 +290,32 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::setCurrentEditorLanguage(QString language)
 { m_editorUiController->setCurrentEditorLanguage(language); }
 
-void MainWindow::on_customTabContextMenuRequested(QPoint point, EditorTabWidget* /*tabWidget*/, int /*tabIndex*/)
-{ m_tabContextMenu->exec(point); }
+void MainWindow::on_customTabContextMenuRequested(QPoint point, EditorTabWidget* tabWidget, int tabIndex)
+{
+    QPointer<Editor> editor = tabWidget->editor(tabIndex);
+    if (!editor)
+        return;
+    QMenu colors(tr("Tab Color"), m_tabContextMenu);
+    QActionGroup group(&colors);
+    const QStringList ids = QStringList{QString()} + Editor::tabColorIds();
+    const QStringList labels = {tr("Default"), tr("Red"), tr("Orange"), tr("Yellow"),
+                                tr("Green"), tr("Blue"), tr("Purple")};
+    for (int i = 0; i < ids.size(); ++i) {
+        QAction* action = colors.addAction(labels[i]);
+        group.addAction(action);
+        action->setCheckable(true);
+        action->setChecked(editor->tabColor() == ids[i]);
+        connect(action, &QAction::triggered, this, [editor, color = ids[i]] {
+            if (editor)
+                editor->setTabColor(color);
+        });
+    }
+    QAction* separator = m_tabContextMenu->addSeparator();
+    m_tabContextMenu->addMenu(&colors);
+    m_tabContextMenu->exec(point);
+    m_tabContextMenu->removeAction(colors.menuAction());
+    delete separator;
+}
 
 void MainWindow::on_actionShow_Tabs_triggered(bool on)
 { m_editorUiController->setTabsVisible(on); }

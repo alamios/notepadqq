@@ -1,6 +1,7 @@
 # Initial fork design
 
-Status: comment toggling implemented; tab and diff designs remain proposals.
+Status: comment toggling, compact tabs and tab colors implemented;
+multiple-row tabs and document differences remain proposals.
 Maintainer: **alamios**.
 See [requirements](FORK_REQUIREMENTS.md) for user requests and acceptance criteria.
 
@@ -11,7 +12,7 @@ See [requirements](FORK_REQUIREMENTS.md) for user requests and acceptance criter
 | Editor host | `src/ui/EditorNS/editor.cpp`, `customqwebview.cpp` | Qt WebEngine hosts the editor and carries input/events |
 | Editor commands | `src/editor/app.js`, `classes/UiDriver.js`, `Messages.md` | Extend the existing message bridge rather than add a parallel API |
 | Engine | `src/editor/index.html`, `libs/codemirror` | CodeMirror is the default; optional Monaco exists behind `NQQ_USE_MONACO` |
-| Tabs | `src/ui/editortabwidget.cpp` | `QTabWidget` currently enforces a 100 px minimum width and 24 px height on Linux |
+| Tabs | `src/ui/editortabwidget.cpp` | Native `QTabWidget` with a compact `QTabBar` subclass and document color bands |
 | Split panes | `src/ui/topeditorcontainer.cpp`, `editoruicontroller.cpp` | Reuse existing horizontal splitter and move/clone behavior |
 | Preferences | `src/ui/frmpreferences.cpp`, `include/nqqsettings.h` | Reuse settings and shortcut conflict detection |
 | Sessions | `src/ui/Sessions/sessions.cpp`, `persistentcache.cpp` | XML stores views/tabs and references cached modified content |
@@ -97,23 +98,44 @@ exercise menu-action dispatch, real key events, comment/uncomment round trips,
 undo/redo boundaries, unsupported languages, and read-only behavior.
 
 Validation: `cmake --build --preset dev -j 4` and
-`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 23 passing
+`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 32 passing
 results, including 17 comment scenarios and an actual keyboard-shortcut test;
 the C++ correctness suite has 31 passing results. JavaScript syntax, UI XML,
 documentation links, and `git diff --check` were also verified. Manual desktop
 appearance and user shortcut preferences remain outside this automated review.
+The user has confirmed that comment toggling works in the installed fork.
 
 ## Tab presentation and metadata
 
-Implement compact sizing first by replacing the hardcoded style dimensions with
-settings for tab density and maximum title width. Preserve full titles/tooltips,
-close buttons, and the existing dirty icon.
+Compact sizing is implemented by `EditorTabBar`, a native `QTabBar` subclass.
+`Appearance/CompactTabs` defaults to true and `Appearance/MaximumTabWidth` to
+160 logical pixels, clamped to 96–320. Compact mode reduces padding and caps
+width; regular mode retains a 100-pixel minimum. Qt handles middle elision,
+selection, closing, scrolling and dragging. Appearance preferences update all
+open panes immediately. Full titles/path tooltips and dirty icons remain intact.
 
-Store a color identifier on the document's presentation metadata, independent
-of tab index. Persist it as an optional session attribute; missing/invalid
-values mean the default palette. Extend the move/clone policy and restoration
-explicitly so colors follow the document. Use a small theme-aware palette and
-the existing context-menu integration rather than coloring file contents.
+`Editor::tabColor()` holds a validated color identifier independently of tab
+indices and titles. Six colors plus Default are available in the tab context
+menu. The menu captures a guarded document pointer. The tab bar draws a color
+band above the native label, preserving theme text, focus and selection styles.
+`tabData` follows native reordering; explicit signal connection/disconnection
+and metadata initialization keep moved documents associated with their color.
+Color changes do not alter text, undo history or the document's dirty state.
+
+Sessions store non-default colors in an optional `tabColor` XML attribute.
+Missing or unknown values restore the default. The loader applies the color
+as soon as the editor is reserved, before asynchronous content loading finishes.
+The same format serves session saving and cached-document backups. Backup
+change detection must include color metadata even when text history is unchanged.
+This does not change recovery directories or cleanup policy.
+
+Tests cover live compact preferences, long names/tooltips, close-button presence,
+color painting, reordering and pane transfers, context-menu dispatch, clean-file
+sessions, modified-file and unsaved-document backups, legacy XML, invalid colors,
+and automatic backup updates after color-only changes. Both CTest targets pass
+(32 UI results and 31 C++ correctness results). Native Plasma/Wayland
+appearance remains a manual check. Upstream's clone-view action has no handler
+in this baseline; this milestone introduces no new clone behavior.
 
 Multiple rows require a dedicated tab-strip layout: changing a stylesheet alone
 does not create wrapping tabs. Prototype a Qt widget that owns visual rows while

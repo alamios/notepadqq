@@ -74,6 +74,7 @@ public:
     int formerTabIndex();
 
     QString generateTabTitleForUrl(const QUrl& filename) const;
+    void refreshTabAppearance();
 
 private:
     qreal m_zoomFactor = 1;
@@ -102,6 +103,7 @@ private slots:
     void on_editorMouseWheel(QWheelEvent* ev);
     void on_fileNameChanged(const QUrl&, const QUrl& newFileName);
     void on_currentTabChanged(int index);
+    void on_tabColorChanged();
 signals:
     void gotFocus();
     void editorAdded(int index);

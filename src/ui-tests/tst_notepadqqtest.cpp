@@ -2,6 +2,12 @@
 #include "include/editoruicontroller.h"
 #include "include/mainwindow.h"
 #include "include/notepadqq.h"
+#include "include/nqqsettings.h"
+#include "include/docengine.h"
+#include "include/Sessions/sessions.h"
+#include "include/Sessions/backupservice.h"
+#include "include/Sessions/persistentcache.h"
+#include "include/frmpreferences.h"
 
 #include <QCloseEvent>
 #include <QAction>
@@ -10,6 +16,14 @@
 #include <QJsonDocument>
 #include <QPointer>
 #include <QSettings>
+#include <QFile>
+#include <QTabBar>
+#include <QCheckBox>
+#include <QSpinBox>
+#include <QDialogButtonBox>
+#include <QPushButton>
+#include <QScopeGuard>
+#include <QMenu>
 #include <QString>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -33,6 +47,14 @@ private Q_SLOTS:
     void toggleComment_data();
     void toggleComment();
     void toggleCommentShortcut();
+    void compactTabsAndColors();
+    void tabColorSession_data();
+    void tabColorSession();
+    void legacyTabColorSession_data();
+    void legacyTabColorSession();
+    void tabAppearancePreferences();
+    void tabColorAutosave();
+    void tabColorContextMenu();
 
 private:
     QTemporaryDir m_settingsDirectory;
@@ -260,6 +282,239 @@ void NotepadqqTest::toggleCommentShortcut()
     QWidget* receiver = view->focusProxy() ? view->focusProxy() : view;
     QTest::keyClick(receiver, Qt::Key_C, Qt::ControlModifier | Qt::ShiftModifier);
     QTRY_COMPARE_WITH_TIMEOUT(evaluateEditor(view->page(), "editor.getValue()").toString(), QString("// one();"), 5000);
+}
+
+void NotepadqqTest::compactTabsAndColors()
+{
+    auto& appearance = NqqSettings::getInstance().Appearance;
+    appearance.setCompactTabs(true);
+    appearance.setMaximumTabWidth(160);
+    TopEditorContainer container;
+    container.resize(900, 400);
+    auto* tabs = container.currentTabWidget();
+    const QString longName = "a-very-long-document-name-that-should-be-elided.cpp";
+    tabs->addEditorTab(false, longName);
+    tabs->addEditorTab(false, "short.cpp");
+    container.show();
+    auto* bar = tabs->tabBar();
+    QTRY_VERIFY(bar->tabRect(0).width() <= 160);
+    const int compactWidth = bar->tabRect(0).width();
+    QCOMPARE(tabs->tabToolTip(0), longName);
+    QCOMPARE(tabs->tabText(0), longName);
+    QVERIFY(bar->tabButton(0, QTabBar::RightSide) || bar->tabButton(0, QTabBar::LeftSide));
+
+    appearance.setCompactTabs(false);
+    tabs->refreshTabAppearance();
+    QTRY_VERIFY(bar->tabRect(0).width() > compactWidth);
+    appearance.setCompactTabs(true);
+    appearance.setMaximumTabWidth(120);
+    tabs->refreshTabAppearance();
+    QTRY_VERIFY(bar->tabRect(0).width() <= 120);
+
+    auto* document = tabs->editor(0);
+    document->setTabColor("green");
+    QCOMPARE(bar->tabData(0).toString(), QString("green"));
+    const QImage rendered = bar->grab().toImage();
+    const QPoint band = bar->tabRect(0).topLeft() + QPoint(8, 3);
+    QCOMPARE(rendered.pixelColor(band * bar->devicePixelRatioF()), QColor("#48a868"));
+    bar->moveTab(0, 1);
+    QCOMPARE(tabs->editor(1), document);
+    QCOMPARE(bar->tabData(1).toString(), QString("green"));
+    auto* other = container.addTabWidget();
+    other->transferEditorTab(false, tabs, 1);
+    QCOMPARE(other->editor(0), document);
+    QCOMPARE(other->tabBar()->tabData(0).toString(), QString("green"));
+    document->setTabColor("blue");
+    QCOMPARE(other->tabBar()->tabData(0).toString(), QString("blue"));
+    QCOMPARE(bar->tabData(0).toString(), QString());
+    document->setTabColor("invalid");
+    QCOMPARE(document->tabColor(), QString());
+    QCOMPARE(other->tabBar()->tabData(0).toString(), QString());
+    appearance.setMaximumTabWidth(160);
+}
+
+void NotepadqqTest::tabColorSession_data()
+{
+    QTest::addColumn<bool>("savedFile");
+    QTest::addColumn<bool>("modified");
+    QTest::newRow("clean-file-session") << true << false;
+    QTest::newRow("modified-file-backup") << true << true;
+    QTest::newRow("unsaved-document-backup") << false << true;
+}
+
+void NotepadqqTest::tabColorSession()
+{
+    QFETCH(bool, savedFile);
+    QFETCH(bool, modified);
+    QTemporaryDir files;
+    QVERIFY(files.isValid());
+    const QString filePath = files.filePath("document.txt");
+    const QString sessionPath = files.filePath("session.xml");
+    const QString content = modified ? "unsaved changes\n" : "saved text\n";
+    if (savedFile) {
+        QFile file(filePath);
+        QVERIFY(file.open(QIODevice::WriteOnly));
+        file.write("saved text\n");
+    }
+
+    {
+        TopEditorContainer source;
+        DocEngine engine(&source);
+        auto* tabs = source.currentTabWidget();
+        tabs->addEditorTab(false, "document.txt");
+        auto* editor = tabs->editor(0);
+        auto* view = editor->findChild<QWebEngineView*>();
+        QVERIFY(view);
+        QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(view->page(), "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+        editor->setValue(content).wait();
+        if (!modified)
+            editor->markClean().wait();
+        if (savedFile)
+            editor->setFilePath(QUrl::fromLocalFile(filePath));
+        const bool cleanBefore = editor->isClean();
+        editor->setTabColor("purple");
+        QCOMPARE(editor->isClean(), cleanBefore);
+        QVERIFY(Sessions::saveSession(&engine, &source, sessionPath,
+            modified ? files.filePath("backup") : QString()));
+    }
+
+    TopEditorContainer restored;
+    DocEngine engine(&restored);
+    Sessions::loadSession(&engine, &restored, sessionPath);
+    auto* tabs = restored.currentTabWidget();
+    QCOMPARE(tabs->count(), 1);
+    auto* editor = tabs->editor(0);
+    QCOMPARE(editor->tabColor(), QString("purple"));
+    QCOMPARE(tabs->tabBar()->tabData(0).toString(), QString("purple"));
+    QTRY_COMPARE_WITH_TIMEOUT(editor->value(), content, 10000);
+    QTRY_COMPARE(editor->isClean(), !modified);
+}
+
+void NotepadqqTest::legacyTabColorSession_data()
+{
+    QTest::addColumn<QString>("attribute");
+    QTest::newRow("old-format") << QString();
+    QTest::newRow("unknown-color") << QString(" tabColor=\"not-a-color\"");
+}
+
+void NotepadqqTest::legacyTabColorSession()
+{
+    QFETCH(QString, attribute);
+    QTemporaryDir files;
+    QFile document(files.filePath("document.txt"));
+    QVERIFY(document.open(QIODevice::WriteOnly));
+    document.write("legacy\n");
+    document.close();
+    QFile session(files.filePath("session.xml"));
+    QVERIFY(session.open(QIODevice::WriteOnly));
+    session.write(QString("<Notepadqq><View><Tab filePath=\"%1\"%2/></View></Notepadqq>")
+                      .arg(document.fileName().toHtmlEscaped(), attribute).toUtf8());
+    session.close();
+    TopEditorContainer restored;
+    DocEngine engine(&restored);
+    Sessions::loadSession(&engine, &restored, session.fileName());
+    auto* tabs = restored.currentTabWidget();
+    QCOMPARE(tabs->count(), 1);
+    QCOMPARE(tabs->editor(0)->tabColor(), QString());
+    QTRY_COMPARE_WITH_TIMEOUT(tabs->editor(0)->value(), QString("legacy\n"), 10000);
+}
+
+void NotepadqqTest::tabAppearancePreferences()
+{
+    auto window = std::make_unique<MainWindow>(QStringList());
+    auto* view = window->currentEditor()->findChild<QWebEngineView*>();
+    QVERIFY(view);
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(view->page(), "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+    auto* tabs = window->topEditorContainer()->currentTabWidget();
+    tabs->setTabText(0, "a-very-long-name-for-the-preferences-test.txt");
+    window->resize(900, 400);
+    window->show();
+    frmPreferences preferences(window->topEditorContainer(), window.get());
+    auto* compact = preferences.findChild<QCheckBox*>("chkCompactTabs");
+    auto* width = preferences.findChild<QSpinBox*>("spnMaximumTabWidth");
+    auto* buttons = preferences.findChild<QDialogButtonBox*>("buttonBox");
+    QVERIFY(compact && width && buttons);
+    compact->setChecked(false);
+    QVERIFY(!width->isEnabled());
+    buttons->button(QDialogButtonBox::Apply)->click();
+    QVERIFY(!NqqSettings::getInstance().Appearance.getCompactTabs());
+    QTRY_VERIFY(tabs->tabBar()->tabRect(0).width() > 160);
+    compact->setChecked(true);
+    QVERIFY(width->isEnabled());
+    width->setValue(120);
+    buttons->button(QDialogButtonBox::Apply)->click();
+    QCOMPARE(NqqSettings::getInstance().Appearance.getMaximumTabWidth(), 120);
+    QTRY_VERIFY(tabs->tabBar()->tabRect(0).width() <= 120);
+    width->setValue(160);
+    buttons->button(QDialogButtonBox::Apply)->click();
+}
+
+void NotepadqqTest::tabColorAutosave()
+{
+    BackupService::clearBackupData();
+    auto cleanup = qScopeGuard([] { BackupService::disableAutosave(); });
+    auto window = std::make_unique<MainWindow>(QStringList());
+    auto* editor = window->currentEditor();
+    auto* view = editor->findChild<QWebEngineView*>();
+    QVERIFY(view);
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(view->page(), "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+    editor->setValue("autosaved text\n").wait();
+    const QString backupPath = PersistentCache::backupDirPath() +
+        QString("/window_%1/window.xml").arg(reinterpret_cast<uintptr_t>(window.get()));
+    auto backupXml = [&backupPath] {
+        QFile file(backupPath);
+        return file.open(QIODevice::ReadOnly) ? file.readAll() : QByteArray();
+    };
+    // MainWindow starts the configured timer; replace it with the test interval.
+    BackupService::disableAutosave();
+    BackupService::enableAutosave(1);
+    QTRY_VERIFY_WITH_TIMEOUT(!backupXml().isEmpty(), 5000);
+    const QString originalContent = editor->value();
+    editor->setTabColor("red");
+    QTRY_VERIFY_WITH_TIMEOUT(backupXml().contains("tabColor=\"red\""), 5000);
+    editor->setTabColor(QString());
+    QTRY_VERIFY_WITH_TIMEOUT(!backupXml().contains("tabColor="), 5000);
+    QCOMPARE(editor->value(), originalContent);
+}
+
+void NotepadqqTest::tabColorContextMenu()
+{
+    auto window = std::make_unique<MainWindow>(QStringList());
+    auto* tabs = window->topEditorContainer()->currentTabWidget();
+    tabs->currentEditor()->setTabColor("blue");
+    bool foundMenu = false;
+    bool checkedColor = false;
+    QTimer::singleShot(0, window.get(), [&] {
+        auto* popup = qobject_cast<QMenu*>(QApplication::activePopupWidget());
+        if (!popup)
+            return;
+        for (auto* action : popup->actions()) {
+            auto* submenu = action->menu();
+            if (!submenu || submenu->title() != "Tab Color")
+                continue;
+            foundMenu = true;
+            QAction* green = nullptr;
+            for (auto* color : submenu->actions()) {
+                if (color->text() == "Blue")
+                    checkedColor = color->isChecked();
+                if (color->text() == "Green")
+                    green = color;
+            }
+            if (green)
+                green->trigger();
+        }
+        popup->close();
+    });
+    // Bound even an unexpected menu failure, so CI never waits for user input.
+    QTimer::singleShot(2000, window.get(), [] {
+        if (auto* popup = QApplication::activePopupWidget())
+            popup->close();
+    });
+    QVERIFY(QMetaObject::invokeMethod(window.get(), "on_customTabContextMenuRequested", Qt::DirectConnection,
+        Q_ARG(QPoint, QPoint(10, 10)), Q_ARG(EditorTabWidget*, tabs), Q_ARG(int, 0)));
+    QVERIFY(foundMenu);
+    QVERIFY(checkedColor);
+    QCOMPARE(tabs->currentEditor()->tabColor(), QString("green"));
 }
 
 QTEST_MAIN(NotepadqqTest)

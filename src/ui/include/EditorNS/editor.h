@@ -85,6 +85,10 @@ signals:
 class Editor : public QWidget {
     Q_OBJECT
 public:
+    // Presentation metadata belongs to the document, not its current tab index.
+    QString tabColor() const { return m_tabColor; }
+    void setTabColor(const QString& color);
+    static QStringList tabColorIds();
     struct Theme {
         QString name;
         QString path;
@@ -474,6 +478,7 @@ private:
     AsyncRequestTracker* m_asyncRequestTracker = nullptr;
     QUrl m_filePath = QUrl();
     QString m_tabName;
+    QString m_tabColor;
     bool m_fileOnDiskChanged = false;
     bool m_loaded = false;
     bool m_supportsCommentToggle = false;
@@ -495,6 +500,7 @@ private slots:
     void on_proxyMessageReceived(QString msg, QVariant data);
 
 signals:
+    void tabColorChanged();
     void messageReceived(QString msg, QVariant data);
     void asyncReplyReceived(unsigned int id, QString msg, QVariant data);
     void gotFocus();

@@ -50,9 +50,23 @@ and each toggle is a separate undo step. Unsupported languages and read-only
 documents are left unchanged.
 
 This action currently supports the default CodeMirror backend. It is disabled
-for Monaco. Compact/colorable tabs, multiple-row tabs, and document comparisons
-remain planned. Tests use temporary settings and the actual Qt/WebEngine editor;
-a manual Plasma review of the interface remains pending.
+for Monaco. The user has confirmed that comment toggling works in the installed fork.
+
+**Compact tabs** are enabled by default. Adjust **Compact tabs** and **Maximum
+compact tab width** in **Settings > Preferences > Appearance**. The default
+maximum is 160 logical pixels; long titles are elided in the middle, with the
+full title or path available in the tooltip. Close buttons and dirty indicators
+remain visible. Disable compact mode for wider tabs.
+
+Right-click a tab and choose **Tab Color** to assign red, orange, yellow, green,
+blue, or purple, or **Default** to remove its color. A colored band keeps native
+text and active-tab styling readable. Colors follow reordered and moved tabs
+and are stored in sessions and automatic backups, including unsaved documents.
+Changing a color does not mark document contents as modified.
+
+Multiple-row tabs and document comparisons remain planned. Tests use temporary
+settings and the actual Qt/WebEngine editor; a manual Plasma review of the new
+tab appearance remains pending.
 
 #### Development setup on Kubuntu
 

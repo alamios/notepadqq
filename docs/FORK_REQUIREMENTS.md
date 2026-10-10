@@ -1,7 +1,7 @@
 # Fork requirements
 
-Recorded: 2026-10-10. Status: comment toggling implemented for CodeMirror;
-tab presentation and document comparison remain planned.
+Recorded: 2026-10-10. Status: comment toggling, compact tabs and tab colors
+implemented; multiple-row tabs and document comparison remain planned.
 
 ## Purpose and baseline
 
@@ -44,10 +44,10 @@ not a confirmed current defect.
 | BUG-01 | Monitor | Visible scrollbars and working mouse-wheel scrolling | Reported resolved by the user in 2.1; no fork fix planned |
 | BUG-02 | Monitor | Applying preferences must remain responsive | Reported resolved by the user in 2.1; no fork fix planned |
 | BUG-03 | Monitor | Restore current sessions without older duplicate copies | Assumed fixed in 2.1 by user direction; unverified and deferred |
-| EDIT-01 | P1 | `Ctrl+Shift+C` comments/uncomments lines and selected code blocks using the active language | Implemented for CodeMirror; automated Qt/WebEngine tests pass; manual Plasma review pending |
-| TABS-01 | P1 | Smaller tabs | Designed |
+| EDIT-01 | P1 | `Ctrl+Shift+C` comments/uncomments lines and selected code blocks using the active language | Implemented for CodeMirror; automated tests pass; user confirms it works in the installed fork |
+| TABS-01 | P1 | Smaller tabs | Implemented with configurable compact mode and maximum width; automated tests cover sizing and applying preferences; manual Plasma review pending |
 | TABS-02 | P2 | Tabs wrap into multiple rows | Designed; largest tab-layout change |
-| TABS-03 | P1 | User-selectable tab colors, preserved across restart | Designed |
+| TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
 | DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Designed |
 
 Additional requests can be added with stable IDs when the user recalls them.

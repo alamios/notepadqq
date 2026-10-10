@@ -189,6 +189,18 @@ QString Editor::tabName() const
 void Editor::setTabName(const QString& name)
 { m_tabName = name; }
 
+QStringList Editor::tabColorIds()
+{ return {"red", "orange", "yellow", "green", "blue", "purple"}; }
+
+void Editor::setTabColor(const QString& color)
+{
+    const QString normalized = tabColorIds().contains(color) ? color : QString();
+    if (m_tabColor == normalized)
+        return;
+    m_tabColor = normalized;
+    emit tabColorChanged();
+}
+
 QtPromise::QPromise<bool> Editor::isCleanP()
 {
     return asyncSendMessageWithResultP("C_FUN_IS_CLEAN", QVariant(0)).then([](QVariant v) { return v.toBool(); });

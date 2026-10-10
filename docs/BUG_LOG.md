@@ -8,10 +8,11 @@ warning alone is not a confirmed bug in this checkout.
 
 ## Current status
 
-The development baseline compiles with Qt 6.10.2 and passed both existing CTest
-targets. The comment feature passes automated Qt/WebEngine validation using
-temporary settings: 23 UI test results and 31 C++ correctness test results,
-with no failures. No manual Plasma interface review has been performed.
+The development fork compiles with Qt 6.10.2 and passes both CTest targets.
+Comment toggling, compact tabs and tab colors pass automated Qt/WebEngine
+validation using temporary settings: 32 UI test results and 31 C++ correctness
+test results, with no failures. The user confirms that comment toggling works
+in the installed fork. Manual Plasma review of the new tabs remains pending.
 New features are the current implementation priority.
 
 | ID | Affected build | Symptom | Status and evidence | Next action |
@@ -19,7 +20,8 @@ New features are the current implementation priority.
 | BUG-01 | Flatpak 1.4 | Missing scrollbar and non-working mouse wheel | User reports scrolling works in 2.1 | Monitor; reopen only if it recurs |
 | BUG-02 | apt `2.0.0~beta1-4.1build1` | Applying any preference hangs with high CPU use | User reports no hangs in 2.1; earlier high CPU was observed in the apt process | Monitor; reopen only if it recurs |
 | BUG-03 | Older installed build, reported in the Flatpak 1.4 context | After a crash, current sessions and older copies reopen together; files are not lost | Assumed fixed in 2.1 at the user's request; recovery has not been verified | Deferred; record recurrence if observed |
-| BUG-04 | Uncommitted EDIT-01 implementation | A repeated toggle did not remove inserted comments after selection movement; an intermediate selection-array fix also caused JavaScript errors | Fixed in the working tree with selection bookmarks and copied range data; final Qt/WebEngine regression suite passes | Closed for this implementation; not an upstream defect |
+| BUG-04 | EDIT-01 implementation, fixed in `9b4859b` | A repeated toggle did not remove inserted comments after selection movement; an intermediate selection-array fix also caused JavaScript errors | Fixed with selection bookmarks and copied range data; automated tests pass and the user confirms the installed feature works | Closed; not an upstream defect |
+| BUG-05 | Initial TABS-03 implementation | Changing only a tab color did not update its automatic backup | Reproduced by creating a backup, changing color without editing text and waiting for the next backup; change detection now includes color metadata; regression test passes for assigning and removing a color | Closed in the compact/color tabs milestone; not an upstream defect |
 
 ## Upstream crash warning
 

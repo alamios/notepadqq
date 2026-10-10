@@ -121,6 +121,8 @@ public:
     NQQ_SETTING(OverrideFontSize, int, 0)
     NQQ_SETTING(OverrideLineHeight, double, 0)
     NQQ_SETTING(ShowLineNumbers, bool, true)
+    NQQ_SETTING(CompactTabs, bool, true)
+    NQQ_SETTING(MaximumTabWidth, int, 160)
     END_CATEGORY(Appearance)
 
     BEGIN_CATEGORY(Search)
