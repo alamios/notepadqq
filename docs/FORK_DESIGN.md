@@ -1,7 +1,8 @@
 # Initial fork design
 
 Status: comments, compact/full-title tabs, colors, unsaved titles and multiple-row
-tabs implemented; document differences remain proposals.
+tabs and insertion previews implemented; telemetry removed. Document differences
+remain proposals.
 Maintainer: **alamios**.
 See [requirements](FORK_REQUIREMENTS.md) for user requests and acceptance criteria.
 
@@ -215,7 +216,8 @@ Twelve regression cases cover before/after, forward/backward movement, row
 trailing space, unchanged positions, outside drops, cancellation with editor
 focus, single-row mode and right-to-left layout. Tests verify marker geometry
 and pixels in the whole strip capture as well as final document identity/order.
-The preview artifact is `build/dev/tab-drag-preview.png`.
+The preview artifact is `build/dev/tab-drag-preview.png`. The user has accepted
+the installed drag behavior on Plasma.
 
 ### Translations
 

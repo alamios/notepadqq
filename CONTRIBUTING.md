@@ -20,6 +20,29 @@ The upstream submission process below applies when contributing changes back
 to upstream. Local fork work does not require publishing an upstream issue or
 pull request. Publishing this fork will require a separate `origin` remote.
 
+### Integrating the implemented fork features
+
+The current features can be integrated independently of the planned document
+comparison. The local primary branch is still named `master` and points to the
+baseline; `fork/development` descends from it. To establish `main` without
+rewriting history, run from a clean checkout:
+
+```sh
+git switch -c main master
+git merge --ff-only fork/development
+```
+
+If `main` already exists, switch to it instead of creating it. The fast-forward
+merge stops if its history has diverged; review those changes before merging.
+Keep the `upstream-baseline` tag unchanged. Repository creation, remote setup
+and publication are handled by the maintainer.
+
+Local validation covers Qt 6.10.2 on Kubuntu and both CTest targets (66 UI and
+28 C++ correctness results). The existing quality workflow targets both `main`
+and `master`; its other platforms, sanitizers and formatting checks have not
+been verified by this local test run. Publishing source does not establish a
+validated fork package or a separate upstream/fork application identity.
+
 Thanks for helping to make Notepadqq better! As a contributor, here are the guidelines we would like you to follow:
 
  - [Question or Problem?](#question)

@@ -1,4 +1,4 @@
-# <img src="https://user-images.githubusercontent.com/4319621/36906314-e3f99680-1e35-11e8-90fd-f959c9641f36.png" alt="Notepadqq" width="32" height="32" /> Notepadqq [![Build Status](https://github.com/notepadqq/notepadqq/actions/workflows/build-test.yml/badge.svg)](https://github.com/notepadqq/notepadqq/actions/workflows/build-test.yml) [![notepadqq](https://snapcraft.io/notepadqq/badge.svg)](https://snapcraft.io/notepadqq)
+# <img src="https://user-images.githubusercontent.com/4319621/36906314-e3f99680-1e35-11e8-90fd-f959c9641f36.png" alt="Notepadqq" width="32" height="32" /> Notepadqq — alamios fork
 
 > [!NOTE]
 > This fork is actively maintained by **alamios**. Development focuses on
@@ -94,8 +94,10 @@ saving a copy keeps the unsaved document's title.
 All new menu actions, dialog labels and appearance options have translations
 in the project's 14 supported languages, including Spanish. Document comparisons
 remain planned. Tests use temporary settings and the actual Qt/WebEngine editor.
-The user has validated the tab features on Plasma; the latest height refinement
-still needs desktop confirmation.
+The user has validated the tab features and insertion preview on Plasma.
+The current development suite has 66 passing UI results and 28 passing C++
+correctness results. Document comparison is not required for integrating the
+implemented features into the fork's main branch.
 
 #### Development setup on Kubuntu
 
@@ -149,8 +151,15 @@ Build it yourself
 
 #### Get the source
 
-    $ git clone --recursive https://github.com/notepadqq/notepadqq.git
-    $ cd notepadqq
+Clone this fork using its repository URL (replace the placeholder below):
+
+```sh
+git clone --recursive <fork-repository-url> notepadqq
+cd notepadqq
+```
+
+The original repository is `https://github.com/notepadqq/notepadqq.git`; cloning
+it gives upstream code without the features described above.
 
 #### Build
 
@@ -189,6 +198,9 @@ If the newest version of Qt isn't available on your distribution, you can use th
 
 Distribution Packages
 ---------------------
+
+The packages below are upstream distributions. They do not include this fork's
+features; build this repository to use them.
 
 #### Ubuntu, Debian, and others:
 

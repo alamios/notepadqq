@@ -1,7 +1,8 @@
 # Fork requirements
 
 Recorded: 2026-10-10. Status: comment toggling, compact tabs, tab colors and unsaved tab titles
-implemented, including multiple-row tabs; document comparison remains planned.
+implemented, including multiple-row tabs and insertion previews; telemetry is
+removed. Document comparison remains planned.
 
 ## Purpose and baseline
 
@@ -49,7 +50,7 @@ not a confirmed current defect.
 | TABS-02 | P2 | Tabs wrap into multiple rows | Implemented and enabled by default; tests cover resize/reflow, logical hit testing, selection, closing, context menus and cross-row dragging |
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
 | TABS-04 | P1 | User-defined titles for unsaved documents | Implemented in the tab context menu, with session and automatic backup persistence |
-| TABS-05 | P1 | Preview the insertion position while dragging a tab | Implemented: a four-pixel accent line at the exact before/after boundary in single-row and wrapped modes; Escape/outside drops cancel |
+| TABS-05 | P1 | Preview the insertion position while dragging a tab | Implemented and accepted by the user: a four-pixel accent line at the exact before/after boundary in single-row and wrapped modes; Escape/outside drops cancel |
 | DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Designed |
 | PRIV-01 | P1 | Remove upstream telemetry from the maintained fork | Implemented: collection/transmission code, timers, consent UI, settings and telemetry-only tests removed; legacy opt-in keys cleared at startup |
 

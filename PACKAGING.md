@@ -14,9 +14,12 @@ checkout, including uncommitted edits, without downloading source updates.
 
 ### Running with isolated data
 
-The first fork feature is available in the local development binary after
-building: **Edit > Toggle Comment**, default `Ctrl+Shift+C`, for CodeMirror.
-It has not been packaged into a fork AppImage or installed into the user menu.
+The implemented fork features are available after building or running
+`./update-fork.sh`; see the [README](README.md#implemented-fork-features). The
+maintainer has tested a local menu launcher targeting `build/install/dev`. That
+launcher is machine-local and is not created by the update script. A fresh
+checkout can run the binary with the isolated profile below. No fork AppImage
+or distribution package has been produced.
 
 Run fork builds from their build output before installing them. Keep the
 Flatpak, AppImage, and distribution package available until the fork passes

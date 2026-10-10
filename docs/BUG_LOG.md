@@ -13,11 +13,10 @@ Comment toggling, compact tabs, tab colors, unsaved titles and drag insertion
 previews pass automated Qt/WebEngine validation using temporary settings:
 66 UI test results and 28 C++ correctness
 test results, with no failures. The user confirms that comment toggling and the
-new tab features work in the installed fork. The latest four-pixel height
-reduction still needs native Plasma confirmation. Telemetry removal is verified
+new tab features work in the installed fork. The user accepts the latest tab
+dragging behavior on Plasma. Telemetry removal is verified
 in source and the built binary; legacy-key cleanup has regression coverage.
-Insertion previews have twelve regression cases; native Plasma drag appearance
-and interaction still need desktop confirmation.
+Insertion previews have twelve passing regression cases and user acceptance.
 New features are the current implementation priority.
 
 | ID | Affected build | Symptom | Status and evidence | Next action |
