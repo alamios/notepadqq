@@ -98,7 +98,7 @@ exercise menu-action dispatch, real key events, comment/uncomment round trips,
 undo/redo boundaries, unsupported languages, and read-only behavior.
 
 Validation: `cmake --build --preset dev -j 4` and
-`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 54 passing
+`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 66 passing
 results, including 17 comment scenarios and an actual keyboard-shortcut test;
 the C++ correctness suite has 28 passing results. JavaScript syntax, UI XML,
 documentation links, and `git diff --check` were also verified. Manual desktop
@@ -137,7 +137,7 @@ Tests cover live compact preferences, long names/tooltips, close-button presence
 color painting, reordering and pane transfers, context-menu dispatch, clean-file
 sessions, modified-file and unsaved-document backups, legacy XML, invalid colors,
 and automatic backup updates after color-only changes. Both CTest targets pass
-(54 UI results and 28 C++ correctness results). Native Plasma/Wayland
+(66 UI results and 28 C++ correctness results). Native Plasma/Wayland
 appearance remains a manual check. Upstream's clone-view action has no handler
 in this baseline; this milestone introduces no new clone behavior.
 
@@ -191,6 +191,31 @@ names, live preferences, resize/reflow, mapped clicks, keyboard traversal,
 closing, context menus and dragging between rows. An offscreen preview is saved
 as `build/dev/tab-rows-preview.png`. Actual Plasma/Wayland drag behavior and native
 styling still need desktop validation.
+
+### Tab insertion preview
+
+Both single-row and wrapped dragging use the same `dropTarget` calculation.
+Each visible row maps its tab midpoints to insertion boundaries in the flat
+model, including its beginning/end and empty trailing space. The destination
+index is corrected for removal of the source tab. Qt's immediate single-row
+reordering is disabled so no model mutation occurs during the preview.
+
+`TabInsertionMarker` is a four-pixel overlay in the application highlight color.
+It is mouse-transparent and raised above row widgets, including after queued
+row rebuilds. `TabRow` forwards moves after the platform drag threshold; the
+authoritative bar handles single-row moves directly. Both release paths call
+the same boundary calculation, hide the overlay and then reorder the Qt model.
+
+Escape is intercepted only while dragging, including when tab selection moves
+keyboard focus to the editor. Outside drops, settings changes, resize and model
+insertion/removal clear the preview and pending press state. No new preference
+or translated label is needed.
+
+Twelve regression cases cover before/after, forward/backward movement, row
+trailing space, unchanged positions, outside drops, cancellation with editor
+focus, single-row mode and right-to-left layout. Tests verify marker geometry
+and pixels in the whole strip capture as well as final document identity/order.
+The preview artifact is `build/dev/tab-drag-preview.png`.
 
 ### Translations
 

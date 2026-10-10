@@ -94,14 +94,29 @@ public:
     explicit TabRow(QWidget* parent) : SizedTabBar(parent) {}
     int first = 0;
     std::function<void(int, QPoint)> dropped;
+    std::function<void(int, QPoint)> dragged;
+    std::function<void()> canceled;
     std::function<void(int)> middleClosed;
     std::function<void(int)> traversed;
+    void resetDrag() { m_pressed = -1; m_dragging = false; }
 protected:
     void mousePressEvent(QMouseEvent* event) override
     {
         m_pressed = event->button() == Qt::LeftButton ? tabAt(event->position().toPoint()) : -1;
         m_origin = event->position().toPoint();
+        m_dragging = false;
         SizedTabBar::mousePressEvent(event);
+    }
+    void mouseMoveEvent(QMouseEvent* event) override
+    {
+        if (m_pressed >= 0 && (event->buttons() & Qt::LeftButton) &&
+            (m_dragging || (event->position().toPoint() - m_origin).manhattanLength() >= QApplication::startDragDistance())) {
+            m_dragging = true;
+            dragged(first + m_pressed, mapToParent(event->position().toPoint()));
+            event->accept();
+            return;
+        }
+        SizedTabBar::mouseMoveEvent(event);
     }
     void mouseReleaseEvent(QMouseEvent* event) override
     {
@@ -113,14 +128,23 @@ protected:
                 middleClosed(first + tab);
             return;
         }
-        if (pressed >= 0 && (event->position().toPoint() - m_origin).manhattanLength() >= QApplication::startDragDistance()) {
+        if (pressed >= 0 && (m_dragging || (event->position().toPoint() - m_origin).manhattanLength() >= QApplication::startDragDistance())) {
+            m_dragging = false;
             dropped(first + pressed, mapToParent(event->position().toPoint()));
             return;
         }
+        canceled();
         SizedTabBar::mouseReleaseEvent(event);
     }
     void keyPressEvent(QKeyEvent* event) override
     {
+        if (event->key() == Qt::Key_Escape) {
+            m_pressed = -1;
+            m_dragging = false;
+            canceled();
+            event->accept();
+            return;
+        }
         if (event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
             int delta = event->key() == Qt::Key_Right ? 1 : -1;
             if (layoutDirection() == Qt::RightToLeft)
@@ -133,7 +157,24 @@ protected:
     }
 private:
     int m_pressed = -1;
+    bool m_dragging = false;
     QPoint m_origin;
+};
+
+class TabInsertionMarker : public QWidget {
+public:
+    explicit TabInsertionMarker(QWidget* parent) : QWidget(parent)
+    {
+        setObjectName("tabInsertionMarker");
+        setAttribute(Qt::WA_TransparentForMouseEvents);
+        hide();
+    }
+protected:
+    void paintEvent(QPaintEvent*) override
+    {
+        QPainter painter(this);
+        painter.fillRect(rect(), QApplication::palette().highlight());
+    }
 };
 
 // The parent bar remains the authoritative flat model used by QTabWidget.
@@ -142,16 +183,21 @@ class EditorTabBar : public SizedTabBar {
 public:
     explicit EditorTabBar(QWidget* parent) : SizedTabBar(parent)
     {
+        m_marker = new TabInsertionMarker(this);
         connect(this, &QTabBar::currentChanged, this, [this] { scheduleLayout(); });
         connect(this, &QTabBar::tabMoved, this, [this] { scheduleLayout(); });
     }
 
     void refreshAppearance()
     {
+        cancelDrag();
         const auto& settings = NqqSettings::getInstance().Appearance;
         appearance = {settings.getCompactTabs(), settings.getShowFullTabTitles(),
                       settings.getWrapTabs(), qBound(96, settings.getMaximumTabWidth(), 320)};
         setExpanding(false);
+        // Both modes use the same insertion/drop calculation. Disable Qt's
+        // immediate reordering so the preview and final position agree.
+        setMovable(false);
         setUsesScrollButtons(!appearance.wrap);
         setElideMode(Qt::ElideNone);
         setElideMode(appearance.fullTitles ? Qt::ElideNone : Qt::ElideMiddle);
@@ -213,12 +259,60 @@ public:
     }
 
 protected:
+    bool eventFilter(QObject* watched, QEvent* event) override
+    {
+        if (m_dragging && event->type() == QEvent::KeyPress &&
+            static_cast<QKeyEvent*>(event)->key() == Qt::Key_Escape) {
+            cancelDrag();
+            return true;
+        }
+        return SizedTabBar::eventFilter(watched, event);
+    }
+    void mousePressEvent(QMouseEvent* event) override
+    {
+        m_pressed = event->button() == Qt::LeftButton ? tabAt(event->position().toPoint()) : -1;
+        m_origin = event->position().toPoint();
+        m_dragging = false;
+        SizedTabBar::mousePressEvent(event);
+    }
+    void mouseMoveEvent(QMouseEvent* event) override
+    {
+        if (m_pressed >= 0 && (event->buttons() & Qt::LeftButton) &&
+            (m_dragging || (event->position().toPoint() - m_origin).manhattanLength() >= QApplication::startDragDistance())) {
+            m_dragging = true;
+            previewDrop(event->position().toPoint());
+            event->accept();
+            return;
+        }
+        SizedTabBar::mouseMoveEvent(event);
+    }
+    void mouseReleaseEvent(QMouseEvent* event) override
+    {
+        const int pressed = m_pressed;
+        if (event->button() == Qt::LeftButton && pressed >= 0 &&
+            (m_dragging || (event->position().toPoint() - m_origin).manhattanLength() >= QApplication::startDragDistance())) {
+            finishDrop(pressed, event->position().toPoint());
+            event->accept();
+            return;
+        }
+        cancelDrag();
+        SizedTabBar::mouseReleaseEvent(event);
+    }
+    void keyPressEvent(QKeyEvent* event) override
+    {
+        if (event->key() == Qt::Key_Escape) {
+            cancelDrag();
+            event->accept();
+            return;
+        }
+        SizedTabBar::keyPressEvent(event);
+    }
     void resizeEvent(QResizeEvent* event) override
-    { SizedTabBar::resizeEvent(event); scheduleLayout(); }
+    { cancelDrag(); SizedTabBar::resizeEvent(event); scheduleLayout(); }
     void tabInserted(int index) override
-    { SizedTabBar::tabInserted(index); scheduleLayout(); }
+    { cancelDrag(); SizedTabBar::tabInserted(index); scheduleLayout(); }
     void tabRemoved(int index) override
-    { SizedTabBar::tabRemoved(index); scheduleLayout(); }
+    { cancelDrag(); SizedTabBar::tabRemoved(index); scheduleLayout(); }
     void tabLayoutChange() override { scheduleLayout(); }
     void paintEvent(QPaintEvent* event) override
     {
@@ -228,6 +322,84 @@ protected:
 private:
     QList<TabRow*> m_rows;
     bool m_pending = false;
+    TabInsertionMarker* m_marker = nullptr;
+    int m_pressed = -1;
+    bool m_dragging = false;
+    QPoint m_origin;
+
+    struct DropTarget {
+        int boundary = -1;
+        QRect marker;
+    };
+
+    DropTarget dropTarget(QPoint point) const
+    {
+        if (!rect().contains(point) || !count())
+            return {};
+        int first = 0, end = count();
+        if (appearance.wrap) {
+            bool found = false;
+            for (auto* row : m_rows) {
+                if (!row->isHidden() && row->geometry().contains(point)) {
+                    first = row->first;
+                    end = first + row->count();
+                    found = true;
+                    break;
+                }
+            }
+            if (!found || first == end)
+                return {};
+        }
+        const bool rtl = layoutDirection() == Qt::RightToLeft;
+        for (int index = first; index < end; ++index) {
+            const QRect tab = visualRect(index);
+            const bool before = rtl ? point.x() > tab.center().x() : point.x() < tab.center().x();
+            if (before || index == end - 1) {
+                const int boundary = before ? index : index + 1;
+                const int x = before ? (rtl ? tab.right() + 1 : tab.left()) :
+                                       (rtl ? tab.left() : tab.right() + 1);
+                return {boundary, QRect(qBound(0, x - 2, qMax(0, width() - 4)),
+                                        tab.top() + 2, 4, qMax(1, tab.height() - 4))};
+            }
+        }
+        return {};
+    }
+
+    void previewDrop(QPoint point)
+    {
+        // Selecting a tab may focus its editor. Capture Escape during the drag
+        // even when keyboard focus has moved away from the strip.
+        m_dragging = true;
+        qApp->installEventFilter(this);
+        const DropTarget target = dropTarget(point);
+        if (target.boundary < 0) {
+            m_marker->hide();
+            return;
+        }
+        m_marker->setGeometry(target.marker);
+        m_marker->show();
+        m_marker->raise();
+    }
+
+    void cancelDrag()
+    {
+        qApp->removeEventFilter(this);
+        m_pressed = -1;
+        m_dragging = false;
+        if (m_marker) m_marker->hide();
+        for (auto* row : m_rows) row->resetDrag();
+    }
+
+    void finishDrop(int from, QPoint point)
+    {
+        const DropTarget target = dropTarget(point);
+        cancelDrag();
+        if (target.boundary < 0 || from < 0 || from >= count())
+            return;
+        const int to = target.boundary - (from < target.boundary ? 1 : 0);
+        if (to != from)
+            moveTab(from, to);
+    }
 
     void rebuildRows()
     {
@@ -277,9 +449,10 @@ private:
                     if (count()) setCurrentIndex((currentIndex() + delta + count()) % count());
                 };
                 row->dropped = [this](int from, QPoint point) {
-                    const int to = visualTabAt(point);
-                    if (to >= 0 && to != from) moveTab(from, to);
+                    finishDrop(from, point);
                 };
+                row->dragged = [this](int, QPoint point) { previewDrop(point); };
+                row->canceled = [this] { cancelDrag(); };
                 m_rows.append(row);
             }
             QSignalBlocker blocker(row);
@@ -310,6 +483,7 @@ private:
             ++rowNumber;
         }
         for (int i = rowNumber; i < m_rows.size(); ++i) m_rows[i]->hide();
+        if (m_marker->isVisible()) m_marker->raise();
         updateGeometry();
         update();
     }

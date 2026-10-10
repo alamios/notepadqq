@@ -53,6 +53,8 @@ private Q_SLOTS:
     void toggleCommentShortcut();
     void compactTabsAndColors();
     void wrappingTabs();
+    void tabInsertionPreview_data();
+    void tabInsertionPreview();
     void forkTranslations_data();
     void forkTranslations();
     void removesLegacyTelemetrySettings();
@@ -423,6 +425,104 @@ void NotepadqqTest::wrappingTabs()
     appearance.setWrapTabs(false);
     tabs->refreshTabAppearance();
     QTRY_VERIFY(tabs->tabBar()->usesScrollButtons());
+    appearance.setShowFullTabTitles(false);
+}
+
+void NotepadqqTest::tabInsertionPreview_data()
+{
+    QTest::addColumn<bool>("wrap");
+    QTest::addColumn<bool>("rtl");
+    QTest::addColumn<int>("from");
+    QTest::addColumn<int>("target");
+    QTest::addColumn<int>("side"); // -1 before, 1 after, 2 end, 3 outside, 4 Escape
+    QTest::addColumn<int>("expected");
+    QTest::newRow("rows-before") << true << false << 0 << 4 << -1 << 3;
+    QTest::newRow("rows-after") << true << false << 0 << 4 << 1 << 4;
+    QTest::newRow("rows-backwards") << true << false << 7 << 1 << -1 << 1;
+    QTest::newRow("rows-end") << true << false << 0 << 7 << 2 << 7;
+    QTest::newRow("rows-no-op") << true << false << 2 << 2 << -1 << 2;
+    QTest::newRow("rows-outside") << true << false << 0 << 4 << 3 << 0;
+    QTest::newRow("rows-cancel") << true << false << 0 << 4 << 4 << 0;
+    QTest::newRow("single-before") << false << false << 0 << 4 << -1 << 3;
+    QTest::newRow("single-after") << false << false << 0 << 4 << 1 << 4;
+    QTest::newRow("single-backwards") << false << false << 7 << 1 << 1 << 2;
+    QTest::newRow("single-cancel") << false << false << 0 << 4 << 4 << 0;
+    QTest::newRow("rows-rtl") << true << true << 0 << 4 << 1 << 4;
+}
+
+void NotepadqqTest::tabInsertionPreview()
+{
+    QFETCH(bool, wrap);
+    QFETCH(bool, rtl);
+    QFETCH(int, from);
+    QFETCH(int, target);
+    QFETCH(int, side);
+    QFETCH(int, expected);
+    auto& appearance = NqqSettings::getInstance().Appearance;
+    appearance.setShowFullTabTitles(true);
+    appearance.setWrapTabs(wrap);
+    TopEditorContainer container;
+    container.setLayoutDirection(rtl ? Qt::RightToLeft : Qt::LeftToRight);
+    container.resize(wrap ? 420 : 1400, 500);
+    auto* tabs = container.currentTabWidget();
+    for (int i = 0; i < 8; ++i)
+        tabs->addEditorTab(false, "Document " + QString::number(i));
+    container.show();
+    QTRY_VERIFY(!tabs->visualTabRect(target).isEmpty());
+    auto* marker = tabs->findChild<QWidget*>("tabInsertionMarker");
+    QVERIFY(marker);
+    QVERIFY(!marker->isVisible());
+    const QPoint origin = tabs->visualTabRect(from).center();
+    const QRect destination = tabs->visualTabRect(target);
+    QPoint point = destination.center();
+    const bool before = side == -1;
+    point.setX((before != rtl) ? destination.left() + destination.width()/4 :
+                                destination.right() - destination.width()/4);
+    if (side == 2)
+        point.setX(rtl ? 4 : tabs->width() - 4);
+    if (side == 3)
+        point.setX(tabs->width() + 20);
+    QTabBar* receiver = tabs->tabBar();
+    if (wrap) {
+        for (auto* row : tabs->tabBar()->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly))
+            if (row->isVisible() && row->geometry().contains(origin - tabs->tabBar()->pos())) receiver = row;
+    }
+    auto* document = tabs->editor(from);
+    QTest::mousePress(receiver, Qt::LeftButton, Qt::NoModifier, receiver->mapFrom(tabs, origin));
+    QVERIFY(!marker->isVisible());
+    const QPoint local = receiver->mapFrom(tabs, point);
+    QMouseEvent move(QEvent::MouseMove, QPointF(local), QPointF(receiver->mapToGlobal(local)),
+        Qt::NoButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(receiver, &move);
+    QCOMPARE(tabs->editor(from), document); // Preview never changes document order.
+    if (side == 3) {
+        QVERIFY(!marker->isVisible());
+    } else {
+        QVERIFY(marker->isVisible());
+        QCOMPARE(marker->width(), 4);
+        const QImage painted = marker->grab().toImage();
+        QCOMPARE(painted.pixelColor(1, 1), QApplication::palette().highlight().color());
+        if (side == -1 || side == 1 || side == 4) {
+            const bool visualBefore = (side == -1) != rtl;
+            const int boundary = visualBefore ? destination.left() : destination.right() + 1;
+            QVERIFY(qAbs(marker->mapTo(tabs, QPoint(2, 0)).x() - boundary) <= 2);
+        }
+        if (wrap && !rtl && side == 1 && from == 0) {
+            const QPixmap preview = tabs->grab(QRect(0, 0, tabs->width(), tabs->tabBar()->height()));
+            const QPoint pixel = marker->mapTo(tabs, QPoint(2, 2));
+            QCOMPARE(preview.toImage().pixelColor(pixel * preview.devicePixelRatio()), QApplication::palette().highlight().color());
+            QVERIFY(preview.save(QCoreApplication::applicationDirPath() + "/tab-drag-preview.png"));
+        }
+    }
+    if (side == 4) {
+        QTest::keyClick(tabs->editor(from), Qt::Key_Escape);
+        QVERIFY(!marker->isVisible());
+    }
+    QTest::mouseRelease(receiver, Qt::LeftButton, Qt::NoModifier, local);
+    QVERIFY(!marker->isVisible());
+    QCOMPARE(tabs->editor(expected), document);
+    QCOMPARE(tabs->count(), 8);
+    appearance.setWrapTabs(false);
     appearance.setShowFullTabTitles(false);
 }
 

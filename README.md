@@ -64,6 +64,10 @@ is also enabled by default: overflow tabs move to the next row, keeping their
 document order. Resize the window to reflow the rows, drag tabs between rows
 to reorder them, or disable wrapping to use a single row with scroll buttons.
 A single title wider than a pane uses scroll buttons within its row.
+Dragging shows a thick line at the insertion point before or after the hovered
+tab, including the end of a row. The document order changes on release at that
+exact boundary. Escape cancels the drag; releasing outside the strip leaves
+the order unchanged. The indicator works in both wrapped and single-row mode.
 
 **Compact tabs** reduces padding. To shorten long titles, turn off **Always
 show full tab titles** and set **Maximum compact tab width** (160 logical pixels

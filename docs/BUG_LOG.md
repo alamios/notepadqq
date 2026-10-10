@@ -9,12 +9,15 @@ warning alone is not a confirmed bug in this checkout.
 ## Current status
 
 The development fork compiles with Qt 6.10.2 and passes both CTest targets.
-Comment toggling, compact tabs, tab colors and unsaved titles pass automated Qt/WebEngine
-validation using temporary settings: 54 UI test results and 28 C++ correctness
+Comment toggling, compact tabs, tab colors, unsaved titles and drag insertion
+previews pass automated Qt/WebEngine validation using temporary settings:
+66 UI test results and 28 C++ correctness
 test results, with no failures. The user confirms that comment toggling and the
 new tab features work in the installed fork. The latest four-pixel height
 reduction still needs native Plasma confirmation. Telemetry removal is verified
 in source and the built binary; legacy-key cleanup has regression coverage.
+Insertion previews have twelve regression cases; native Plasma drag appearance
+and interaction still need desktop confirmation.
 New features are the current implementation priority.
 
 | ID | Affected build | Symptom | Status and evidence | Next action |

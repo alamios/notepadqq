@@ -49,6 +49,7 @@ not a confirmed current defect.
 | TABS-02 | P2 | Tabs wrap into multiple rows | Implemented and enabled by default; tests cover resize/reflow, logical hit testing, selection, closing, context menus and cross-row dragging |
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
 | TABS-04 | P1 | User-defined titles for unsaved documents | Implemented in the tab context menu, with session and automatic backup persistence |
+| TABS-05 | P1 | Preview the insertion position while dragging a tab | Implemented: a four-pixel accent line at the exact before/after boundary in single-row and wrapped modes; Escape/outside drops cancel |
 | DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Designed |
 | PRIV-01 | P1 | Remove upstream telemetry from the maintained fork | Implemented: collection/transmission code, timers, consent UI, settings and telemetry-only tests removed; legacy opt-in keys cleared at startup |
 
@@ -108,6 +109,17 @@ and survive sessions and automatic backups, even for clean empty documents.
 Identical titles and characters unsuitable for filenames must remain safe.
 After saving, use the real filename; saving a copy keeps the custom title.
 Existing sessions without title metadata continue to use automatic names.
+
+### TABS-05: insertion preview
+
+After the drag threshold, show a thick vertical line between the tabs where
+the dragged document will be inserted. Choose before or after based on the
+hovered tab's midpoint; include insertion at the start/end of rows. Use one
+calculation for preview and drop, adjusting the destination index after source
+removal. Preserve order until release, hide the marker after release/cancel,
+and leave order unchanged for outside drops or Escape. Support both single-row
+and wrapped modes and right-to-left layout. The marker must remain above tabs
+and close buttons without intercepting mouse events.
 
 ### DIFF-01: comparison
 
