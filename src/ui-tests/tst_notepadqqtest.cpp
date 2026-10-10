@@ -55,6 +55,7 @@ private Q_SLOTS:
     void wrappingTabs();
     void forkTranslations_data();
     void forkTranslations();
+    void removesLegacyTelemetrySettings();
     void tabColorSession_data();
     void tabColorSession();
     void legacyTabColorSession_data();
@@ -451,6 +452,24 @@ void NotepadqqTest::forkTranslations()
     }
 }
 
+void NotepadqqTest::removesLegacyTelemetrySettings()
+{
+    QSettings settings;
+    settings.setValue("NotepadqqVersion", "2.2.0");
+    settings.setValue("CollectStatistics", true);
+    settings.setValue("LastStatisticTransmissionTime", 123456);
+    settings.setValue("StatisticsDialogShown", 1);
+    settings.setValue("Appearance/MaximumTabWidth", 160);
+    settings.sync();
+    NqqSettings::ensureBackwardsCompatibility();
+    settings.sync();
+    QVERIFY(!settings.contains("CollectStatistics"));
+    QVERIFY(!settings.contains("LastStatisticTransmissionTime"));
+    QVERIFY(!settings.contains("StatisticsDialogShown"));
+    QCOMPARE(settings.value("Appearance/MaximumTabWidth").toInt(), 160);
+    QCOMPARE(settings.value("NotepadqqVersion").toString(), QString("2.2.0"));
+}
+
 void NotepadqqTest::tabColorSession_data()
 {
     QTest::addColumn<bool>("savedFile");
@@ -548,6 +567,7 @@ void NotepadqqTest::tabAppearancePreferences()
     window->resize(900, 400);
     window->show();
     frmPreferences preferences(window->topEditorContainer(), window.get());
+    QVERIFY(!preferences.findChild<QCheckBox*>("chkCollectStatistics"));
     auto* full = preferences.findChild<QCheckBox*>("chkShowFullTabTitles");
     auto* wrap = preferences.findChild<QCheckBox*>("chkWrapTabs");
     QVERIFY(full && wrap);

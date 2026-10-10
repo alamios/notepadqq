@@ -1877,36 +1877,6 @@ Do you want to save it anyway?</source>
         <source>Notepadqq will ask for root privileges whenever they are needed if either &apos;kdesu&apos; or &apos;gksu&apos; are installed. Running Notepadqq as root is not recommended. Use --allow-root if you really want to.</source>
         <translation>如果安装了&apos;kdesu&apos;或&apos;gksu&apos;，Notepadqq将在需要时申请root权限。不推荐以root身份运行Notepadqq。如果你真的想以root权限启动请使用--allow-root。</translation>
     </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="122"/>
-        <source>Do you want to help?</source>
-        <translation>你是否需要帮助？</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="124"/>
-        <source>You can help to improve Notepadqq by allowing us to collect &lt;b&gt;anonymous statistics&lt;/b&gt;.</source>
-        <translation>通过允许我们收集&lt;b&gt;匿名统计信息&lt;/b&gt;，您可以帮助改进Notepadqq。</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="125"/>
-        <source>What will we collect?</source>
-        <translation>我们会收集什么？</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="126"/>
-        <source>We will collect information such as the version of Qt, the version of the OS, or the number of extensions.&lt;br&gt;You don&apos;t have to trust us: Notepadqq is open source, so you can %1check by yourself%2 :)</source>
-        <translation>我们将收集的信息包括Qt版本，操作系统版本，或扩展的数量的版本。&lt;br&gt;你不必信任我们：Notepadqq是开源的，所以你可以通过%1自己检查%2 :)</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="133"/>
-        <source>Okay, I agree</source>
-        <translation>好的，我同意</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="134"/>
-        <source>No</source>
-        <translation>不</translation>
-    </message>
 </context>
 <context>
     <name>SearchInstance</name>
@@ -2088,11 +2058,6 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.ui" line="86"/>
         <source>Extensions</source>
         <translation>扩展</translation>
-    </message>
-    <message>
-        <location filename="../ui/frmpreferences.ui" line="110"/>
-        <source>Collect and transmit anonymous statistics to improve Notepadqq</source>
-        <translation>收集并传输匿名统计信息以改善Notepadqq</translation>
     </message>
     <message>
         <location filename="../ui/frmpreferences.ui" line="117"/>

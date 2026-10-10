@@ -94,8 +94,6 @@ set(NQQ_APP_SOURCES
     src/ui/Search/filereplacer.cpp
     src/ui/Search/searchobjects.cpp
     src/ui/Search/searchinstance.cpp
-    src/ui/stats.cpp
-    src/ui/statsruntime.cpp
     src/ui/localsockethelpers.cpp
     src/ui/commandlineopenruntime.cpp
     src/ui/Sessions/backupservice.cpp
@@ -152,8 +150,6 @@ set(NQQ_APP_HEADERS
     src/ui/include/Search/searchobjects.h
     src/ui/include/Search/filereplacer.h
     src/ui/include/Search/searchinstance.h
-    src/ui/include/stats.h
-    src/ui/include/statsruntime.h
     src/ui/include/localsockethelpers.h
     src/ui/include/commandlineopenruntime.h
     src/ui/include/Sessions/backupservice.h
@@ -411,7 +407,6 @@ if(NQQ_BUILD_TESTS)
         src/ui/Search/searchhelpers.cpp
         src/ui/Search/searchobjects.cpp
         src/ui/Search/searchstring.cpp
-        src/ui/statsruntime.cpp
         src/ui/localsockethelpers.cpp
         src/ui/include/localsockethelpers.h
         src/ui/commandlineopenruntime.cpp

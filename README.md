@@ -41,6 +41,11 @@ are recorded in the bug log before fixes are proposed.
 
 #### Implemented fork features
 
+**No telemetry:** the fork has removed upstream's statistics collection and
+network transmission code, scheduling timers, consent dialog and preferences
+control. Legacy telemetry settings are removed at startup. Existing editor
+preferences and sessions remain intact.
+
 **Toggle Comment** is available under **Edit**, with default shortcut
 `Ctrl+Shift+C`. Change the binding in **Settings > Preferences > Shortcuts**.
 An empty selection toggles the current line; full-line selections toggle those
@@ -64,6 +69,9 @@ A single title wider than a pane uses scroll buttons within its row.
 show full tab titles** and set **Maximum compact tab width** (160 logical pixels
 by default). Long titles then use middle elision; the full title/path remains
 in the tooltip. The width control is disabled while full titles are enabled.
+It appears directly below the full-title checkbox. Tab heights use four fewer
+logical pixels than the initial multiple-row implementation, reducing the gap
+below the color band while preserving icon and text space.
 
 Right-click a tab and choose **Tab Color** to assign red, orange, yellow, green,
 blue, or purple, or **Default** to remove its color. A colored band keeps native
@@ -81,8 +89,9 @@ saving a copy keeps the unsaved document's title.
 
 All new menu actions, dialog labels and appearance options have translations
 in the project's 14 supported languages, including Spanish. Document comparisons
-remain planned. Tests use temporary settings and the actual Qt/WebEngine editor;
-manual Plasma review of the new tab appearance remains pending.
+remain planned. Tests use temporary settings and the actual Qt/WebEngine editor.
+The user has validated the tab features on Plasma; the latest height refinement
+still needs desktop confirmation.
 
 #### Development setup on Kubuntu
 

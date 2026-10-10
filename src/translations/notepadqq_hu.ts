@@ -1884,36 +1884,6 @@ Biztosan menteni szeretné?</translation>
         <translation>Érvénytelen</translation>
     </message>
     <message>
-        <location filename="../ui/stats.cpp" line="126"/>
-        <source>Would you like to help?</source>
-        <translation>Szeretne segíteni nekünk?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="128"/>
-        <source>You can help to improve Notepadqq by allowing us to collect &lt;b&gt;anonymous statistics&lt;/b&gt;.</source>
-        <translation>Segíthet a Notepadqq fejlesztésében, ha engedélyezi nekünk a &lt;b&gt;névtelen statisztikák&lt;/b&gt; gyűjtését.</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="129"/>
-        <source>What will we collect?</source>
-        <translation>Milyen adatokat fogunk gyűjteni?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="130"/>
-        <source>We will collect information such as the version of Qt, the version of the OS, or the number of extensions.&lt;br&gt;You don&apos;t have to trust us: Notepadqq is open source, so you can %1check by yourself%2 😊</source>
-        <translation>Információkat fogunk gyűjteni például a Qt verziójáról, az operációs rendszer verziójáról vagy a bővítmények számáról.&lt;br&gt;Ha nem bízik meg bennünk: a Notepadqq nyílt forráskódú, így %1saját maga is ellenőrizheti%2 :)</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="137"/>
-        <source>Okay, I agree</source>
-        <translation>Rendben, beleegyezek</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="138"/>
-        <source>No</source>
-        <translation>Nem</translation>
-    </message>
-    <message>
         <location filename="../ui/Sessions/backupservice.cpp" line="107"/>
         <source>Notepadqq was not closed properly. Do you want to recover unsaved changes?</source>
         <translation>A Notepadqq bezárása nem megfelelően ment végbe. Szeretné visszaállítani a nem mentett változásokat?</translation>
@@ -2121,11 +2091,6 @@ A Notepadqq rootként való futtatása nem ajánlott. Ha mindenképpen szükség
         <location filename="../ui/frmpreferences.ui" line="86"/>
         <source>Extensions</source>
         <translation>Bővítmények</translation>
-    </message>
-    <message>
-        <location filename="../ui/frmpreferences.ui" line="110"/>
-        <source>Collect and transmit anonymous statistics to improve Notepadqq</source>
-        <translation>Névtelen statisztikák gyűjtése és továbbítása a Notepadqq javítása érdekében</translation>
     </message>
     <message>
         <location filename="../ui/frmpreferences.ui" line="117"/>

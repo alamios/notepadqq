@@ -10,6 +10,11 @@ void NqqSettings::ensureBackwardsCompatibility()
 {
     QSettings s;
 
+    // The maintained fork has no telemetry. Discard upstream opt-in state even
+    // when no version migration is needed; leave all other preferences intact.
+    for (const auto* key : {"CollectStatistics", "LastStatisticTransmissionTime", "StatisticsDialogShown"})
+        s.remove(key);
+
     // Check the Nqq version, if it's below 0.53.0 we're using the old settings.
     const QString nqqVersion = s.value("NotepadqqVersion").toString();
     const QStringList versionList = nqqVersion.split(".");

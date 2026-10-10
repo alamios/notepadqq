@@ -8,7 +8,6 @@
 #include "include/notepadqq.h"
 #include "include/nqqsettings.h"
 #include "include/singleapplication.h"
-#include "include/stats.h"
 
 #include <QDateTime>
 #include <QFileInfo>
@@ -180,10 +179,6 @@ int main(int argc, char* argv[])
     qint64 __aet_elapsed = __aet_timer.nsecsElapsed();
     qDebug() << QString("Started in " + QString::number(__aet_elapsed / 1000 / 1000) + "msec").toStdString().c_str();
 #endif
-
-    // Initialize stats, but delay so that we are sure that
-    // any dialog will open on top of MainWindow without blocking it.
-    QTimer::singleShot(0, []() { Stats::init(); });
 
     auto retVal = a.exec();
 

@@ -52,7 +52,7 @@ protected:
         if (appearance.compact && !appearance.fullTitles)
             width = qMin(width, appearance.maximumWidth);
         // Reserve a separate color band and two pixels before label/icon content.
-        return QSize(qMax(72, width), height + (appearance.compact ? 14 : 18));
+        return QSize(qMax(72, width), height + (appearance.compact ? 10 : 14));
     }
 
     QSize minimumTabSizeHint(int index) const override { return tabSizeHint(index); }

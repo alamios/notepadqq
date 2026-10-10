@@ -1898,36 +1898,6 @@ Wilt u het tóch opslaan?</translation>
         <source>Running Notepadqq as root is not recommended. Use --allow-root if you really want to.</source>
         <translation>Notepadqq starten als administrator wordt afgeraden. Gebruik --allow-root als u zeker weet dat u dit wilt doen.</translation>
     </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="120"/>
-        <source>Do you want to help?</source>
-        <translation>Wilt u helpen?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="122"/>
-        <source>You can help to improve Notepadqq by allowing us to collect &lt;b&gt;anonymous statistics&lt;/b&gt;.</source>
-        <translation>U kunt ons helpen Notepadqq te verbeteren door &lt;b&gt;anonieme statistieken&lt;/b&gt; te versturen.</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="123"/>
-        <source>What will we collect?</source>
-        <translation>Wat verzamelen we?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="124"/>
-        <source>We will collect information such as the version of Qt, the version of the OS, or the number of extensions.&lt;br&gt;You don&apos;t have to trust us: Notepadqq is open source, so you can %1check by yourself%2 :)</source>
-        <translation>We verzamelen informatie, zoals de gebruikte Qt-versie, de gebruikte besturingssysteemversie en het aantal uitbreidingen.&lt;br&gt;U hoeft ons niet te vertrouwen: Notepadqq is opensource, u kunt de %1broncode nalopen%2 :)</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="131"/>
-        <source>Okay, I agree</source>
-        <translation>Ik ga akkoord</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="132"/>
-        <source>No</source>
-        <translation>Nee</translation>
-    </message>
 </context>
 <context>
     <name>SearchInstance</name>
@@ -2114,11 +2084,6 @@ Wilt u het tóch opslaan?</translation>
         <location filename="../ui/frmpreferences.ui" line="110"/>
         <source>Check Qt version at startup</source>
         <translation>Qt-versie controleren bij opstarten</translation>
-    </message>
-    <message>
-        <location filename="../ui/frmpreferences.ui" line="117"/>
-        <source>Collect and transmit anonymous statistics to improve Notepadqq</source>
-        <translation>Anonieme statistieken verzamelen en versturen om Notepadqq te verbeteren</translation>
     </message>
     <message>
         <location filename="../ui/frmpreferences.ui" line="124"/>

@@ -1897,36 +1897,6 @@ Do you want to save it anyway?</source>
         <source>Notepadqq will ask for root privileges whenever they are needed if either &apos;kdesu&apos; or &apos;gksu&apos; are installed. Running Notepadqq as root is not recommended. Use --allow-root if you really want to.</source>
         <translation>&apos;gksu&apos; や &apos;kdesu&apos; がインストールされている場合、Notepadq は必要に応じて root 権限を要求します。Notepadqq を root として実行することはお勧めできません。権限が本当に必要な場合は --allow-root を使用してください。</translation>
     </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="126"/>
-        <source>Would you like to help?</source>
-        <translation>手伝っていただけますか?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="128"/>
-        <source>You can help to improve Notepadqq by allowing us to collect &lt;b&gt;anonymous statistics&lt;/b&gt;.</source>
-        <translation>&lt;b&gt;匿名の統計&lt;/b&gt;の収集を許可することで、Notepadqq の改善を手伝うことができます。</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="129"/>
-        <source>What will we collect?</source>
-        <translation>私達は何を収集するのでしょうか?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="130"/>
-        <source>We will collect information such as the version of Qt, the version of the OS, or the number of extensions.&lt;br&gt;You don&apos;t have to trust us: Notepadqq is open source, so you can %1check by yourself%2 😊</source>
-        <translation>Qt のバージョン、OS のバージョン、拡張機能の数などの情報を収集します。&lt;br&gt;私達を信用する必要はありません。Notepadqq はオープンソースですので、%1あなた自身の目で確認する%2ことができます 😊</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="137"/>
-        <source>Okay, I agree</source>
-        <translation>はい、同意します</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="138"/>
-        <source>No</source>
-        <translation>いいえ</translation>
-    </message>
 </context>
 <context>
     <name>SearchInstance</name>
@@ -2108,11 +2078,6 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.ui" line="86"/>
         <source>Extensions</source>
         <translation>拡張機能</translation>
-    </message>
-    <message>
-        <location filename="../ui/frmpreferences.ui" line="110"/>
-        <source>Collect and transmit anonymous statistics to improve Notepadqq</source>
-        <translation>Notepadqq の改善のために匿名の統計を収集して送信する</translation>
     </message>
     <message>
         <location filename="../ui/frmpreferences.ui" line="117"/>

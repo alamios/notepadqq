@@ -50,6 +50,7 @@ not a confirmed current defect.
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
 | TABS-04 | P1 | User-defined titles for unsaved documents | Implemented in the tab context menu, with session and automatic backup persistence |
 | DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Designed |
+| PRIV-01 | P1 | Remove upstream telemetry from the maintained fork | Implemented: collection/transmission code, timers, consent UI, settings and telemetry-only tests removed; legacy opt-in keys cleared at startup |
 
 Additional requests can be added with stable IDs when the user recalls them.
 
@@ -58,6 +59,11 @@ default, offer a checkbox to enable elision/max-width sizing, leave a gap betwee
 color bands and icons, and translate every new option. These are implemented;
 all 14 existing locale catalogs include the fork's new strings. Manual desktop
 review remains pending after the user's width/spacing report.
+
+Further refinements: place the maximum-width control immediately below the
+full-title checkbox and reduce excess vertical spacing below the color band.
+Both are implemented. The user has praised the multiple-row implementation;
+the new height adjustment still needs native desktop confirmation.
 
 ## Existing behavior to preserve
 

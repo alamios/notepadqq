@@ -98,9 +98,9 @@ exercise menu-action dispatch, real key events, comment/uncomment round trips,
 undo/redo boundaries, unsupported languages, and read-only behavior.
 
 Validation: `cmake --build --preset dev -j 4` and
-`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 53 passing
+`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 54 passing
 results, including 17 comment scenarios and an actual keyboard-shortcut test;
-the C++ correctness suite has 31 passing results. JavaScript syntax, UI XML,
+the C++ correctness suite has 28 passing results. JavaScript syntax, UI XML,
 documentation links, and `git diff --check` were also verified. Manual desktop
 appearance and user shortcut preferences remain outside this automated review.
 The user has confirmed that comment toggling works in the installed fork.
@@ -137,7 +137,7 @@ Tests cover live compact preferences, long names/tooltips, close-button presence
 color painting, reordering and pane transfers, context-menu dispatch, clean-file
 sessions, modified-file and unsaved-document backups, legacy XML, invalid colors,
 and automatic backup updates after color-only changes. Both CTest targets pass
-(53 UI results and 31 C++ correctness results). Native Plasma/Wayland
+(54 UI results and 28 C++ correctness results). Native Plasma/Wayland
 appearance remains a manual check. Upstream's clone-view action has no handler
 in this baseline; this milestone introduces no new clone behavior.
 
@@ -199,6 +199,29 @@ tab colors, unsaved-title dialog and appearance controls. Source strings and
 project documentation remain English. UI tests load each compiled `.qm` file
 and verify every new entry; the Spanish catalog is also installed in a test to
 check Qt's runtime lookup. Building `ui-tests` depends on translation generation.
+
+## Telemetry removal
+
+The maintained fork removes upstream telemetry entirely. `stats.cpp`,
+`statsruntime.cpp` and their headers no longer exist or appear in CMake. Startup
+and preference application no longer initialize telemetry. The collection
+checkbox, consent dialog and telemetry-only translation entries are removed.
+The legacy collection, transmission timestamp and consent-state settings are
+removed during startup compatibility handling, even when no version migration
+is otherwise needed. No other preferences or session storage are changed.
+
+The three upstream telemetry-only correctness tests and their fake network
+fixtures are removed along with the code they exercised. A regression test
+checks removal of legacy opt-in keys while retaining unrelated preferences;
+the preferences integration test verifies the checkbox is absent. Source and
+binary checks verify that the upstream telemetry endpoint is absent. Qt Network
+remains necessary for unrelated editor/extension functionality.
+
+The maximum-width preference now sits directly below the full-title checkbox.
+Tab height padding is reduced by four logical pixels in both density modes;
+label painting retains the reserved band area. The existing row-preview test
+covers the resulting rendering without additional tests for the layout-only
+change.
 
 ## Two-document differences
 

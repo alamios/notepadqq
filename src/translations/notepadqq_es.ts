@@ -1908,36 +1908,6 @@ Do you want to save it anyway?</source>
         <source>Notepadqq will ask for root privileges whenever they are needed if either &apos;kdesu&apos; or &apos;gksu&apos; are installed. Running Notepadqq as root is not recommended. Use --allow-root if you really want to.</source>
         <translation>Notepadqq solicitará privilegios de root cuando sea necesario si &apos;kdesu&apos; o &apos;gksu&apos; están instalados. No se recomienda ejecutar Notepadqq como root. Use --allow-root si realmente quiere hacerlo.</translation>
     </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="126"/>
-        <source>Would you like to help?</source>
-        <translation>¿Le gustaría ayudar?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="128"/>
-        <source>You can help to improve Notepadqq by allowing us to collect &lt;b&gt;anonymous statistics&lt;/b&gt;.</source>
-        <translation>Puede ayudar a mejorar Notepadqq permitiéndonos recopilar &lt;b&gt;estadísticas anónimas&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="129"/>
-        <source>What will we collect?</source>
-        <translation>¿Qué recopilamos?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="130"/>
-        <source>We will collect information such as the version of Qt, the version of the OS, or the number of extensions.&lt;br&gt;You don&apos;t have to trust us: Notepadqq is open source, so you can %1check by yourself%2 😊</source>
-        <translation>Recopilamos informaciones tales como la versión de Qt, la versión del SO, o el número de extensiones.&lt;br&gt;No tiene por qué creernos: Notepadqq es software de código abierto, así que puede %1 comprobarlo por sí mismo%2 😊</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="137"/>
-        <source>Okay, I agree</source>
-        <translation>Bien, estoy de acuerdo</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="138"/>
-        <source>No</source>
-        <translation>No</translation>
-    </message>
 </context>
 <context>
     <name>SearchInstance</name>
@@ -2119,11 +2089,6 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.ui" line="86"/>
         <source>Extensions</source>
         <translation>Extensiones</translation>
-    </message>
-    <message>
-        <location filename="../ui/frmpreferences.ui" line="110"/>
-        <source>Collect and transmit anonymous statistics to improve Notepadqq</source>
-        <translation>Recopilar y enviar estadísticas anónimas para mejorar Notepadqq</translation>
     </message>
     <message>
         <location filename="../ui/frmpreferences.ui" line="117"/>

@@ -1893,36 +1893,6 @@ Do you want to save it anyway?</source>
         <translation>Запускати Notepadqq як root не рекомендовано. Використовуйте --allow-root якщо ви все ж бажаєте зробити це.</translation>
     </message>
     <message>
-        <location filename="../ui/stats.cpp" line="120"/>
-        <source>Do you want to help?</source>
-        <translation>Потрібна допомога?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="122"/>
-        <source>You can help to improve Notepadqq by allowing us to collect &lt;b&gt;anonymous statistics&lt;/b&gt;.</source>
-        <translation>Ви можете допомогти вдосконалити Notepadqq дозволивши збирати нам &lt;b&gt;анонімну статистику&lt;/b&gt;.</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="123"/>
-        <source>What will we collect?</source>
-        <translation>Що ми збираємо?</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="124"/>
-        <source>We will collect information such as the version of Qt, the version of the OS, or the number of extensions.&lt;br&gt;You don&apos;t have to trust us: Notepadqq is open source, so you can %1check by yourself%2 :)</source>
-        <translation>Ми збираємо таку інформацію, як версія Qt, версія ОС або кількість розширень.&lt;br&gt;Ви можете не довіряти нам: Notepadqq має відкритий вихідний код, тому ви можете %1перевірити самостійно%2 :)</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="131"/>
-        <source>Okay, I agree</source>
-        <translation>Добре, я згоден</translation>
-    </message>
-    <message>
-        <location filename="../ui/stats.cpp" line="132"/>
-        <source>No</source>
-        <translation>Ні</translation>
-    </message>
-    <message>
         <location filename="../ui/Sessions/backupservice.cpp" line="105"/>
         <source>Notepadqq was not closed properly. Do you want to recover unsaved changes?</source>
         <translation>Notepadqq не було закрито належним чином. Бажаєте відновити незбережені зміни?</translation>
@@ -2113,11 +2083,6 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.ui" line="110"/>
         <source>Check Qt version at startup</source>
         <translation>Перевіряти версію Qt при запуску</translation>
-    </message>
-    <message>
-        <location filename="../ui/frmpreferences.ui" line="117"/>
-        <source>Collect and transmit anonymous statistics to improve Notepadqq</source>
-        <translation>Збирати та передавати анонімну статистику для покращення Notepadqq</translation>
     </message>
     <message>
         <location filename="../ui/frmpreferences.ui" line="124"/>
