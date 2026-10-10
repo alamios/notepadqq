@@ -75,6 +75,8 @@ public:
 
     QString generateTabTitleForUrl(const QUrl& filename) const;
     void refreshTabAppearance();
+    QRect visualTabRect(int index) const;
+    int tabAtPosition(QPoint point) const;
 
 private:
     qreal m_zoomFactor = 1;

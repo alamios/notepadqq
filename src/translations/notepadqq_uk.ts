@@ -1553,6 +1553,58 @@ Do you want to save it anyway?</source>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Помилка при спробі зберегти сеанс. Спробуйте інше ім&apos;я файлу.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Перемкнути &amp;коментар</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Закоментувати або розкоментувати поточний рядок чи вибраний код</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Колір вкладки</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Типовий</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Червоний</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Помаранчевий</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Жовтий</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелений</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синій</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Фіолетовий</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Задати заголовок вкладки...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Задати заголовок вкладки</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Заголовок:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2242,6 +2294,26 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.cpp" line="594"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>Очистити існуючу історію зараз?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Компактні вкладки</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Максимальна ширина компактних вкладок:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Завжди показувати повні заголовки вкладок</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Розміщувати вкладки в кілька рядів</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

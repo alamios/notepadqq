@@ -1,7 +1,7 @@
 # Initial fork design
 
-Status: comment toggling, compact tabs, tab colors and unsaved tab titles implemented;
-multiple-row tabs and document differences remain proposals.
+Status: comments, compact/full-title tabs, colors, unsaved titles and multiple-row
+tabs implemented; document differences remain proposals.
 Maintainer: **alamios**.
 See [requirements](FORK_REQUIREMENTS.md) for user requests and acceptance criteria.
 
@@ -98,7 +98,7 @@ exercise menu-action dispatch, real key events, comment/uncomment round trips,
 undo/redo boundaries, unsupported languages, and read-only behavior.
 
 Validation: `cmake --build --preset dev -j 4` and
-`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 38 passing
+`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 53 passing
 results, including 17 comment scenarios and an actual keyboard-shortcut test;
 the C++ correctness suite has 31 passing results. JavaScript syntax, UI XML,
 documentation links, and `git diff --check` were also verified. Manual desktop
@@ -107,12 +107,16 @@ The user has confirmed that comment toggling works in the installed fork.
 
 ## Tab presentation and metadata
 
-Compact sizing is implemented by `EditorTabBar`, a native `QTabBar` subclass.
-`Appearance/CompactTabs` defaults to true and `Appearance/MaximumTabWidth` to
-160 logical pixels, clamped to 96–320. Compact mode reduces padding and caps
-width; regular mode retains a 100-pixel minimum. Qt handles middle elision,
-selection, closing, scrolling and dragging. Appearance preferences update all
-open panes immediately. Full titles/path tooltips and dirty icons remain intact.
+Tab widths are measured from the full text, icon and close-button sizes, with
+explicit padding. `minimumTabSizeHint()` uses the same size so native styles
+cannot shrink tabs until even short names are elided. Compact density is enabled
+by default. `Appearance/ShowFullTabTitles` defaults to true: names use natural
+width without a cap. When it is false, compact widths are capped by
+`Appearance/MaximumTabWidth` (160 logical pixels by default, clamped to 96–320).
+The width control is enabled only for compact, elided titles. Preferences update
+all open panes immediately. Native labels are painted below the color band,
+leaving a gap before icons; dirty indicators and close buttons retain native
+rendering and hit testing.
 
 `Editor::tabColor()` holds a validated color identifier independently of tab
 indices and titles. Six colors plus Default are available in the tab context
@@ -133,7 +137,7 @@ Tests cover live compact preferences, long names/tooltips, close-button presence
 color painting, reordering and pane transfers, context-menu dispatch, clean-file
 sessions, modified-file and unsaved-document backups, legacy XML, invalid colors,
 and automatic backup updates after color-only changes. Both CTest targets pass
-(38 UI results and 31 C++ correctness results). Native Plasma/Wayland
+(53 UI results and 31 C++ correctness results). Native Plasma/Wayland
 appearance remains a manual check. Upstream's clone-view action has no handler
 in this baseline; this milestone introduces no new clone behavior.
 
@@ -163,19 +167,38 @@ lifecycle. Tests cover accepted/canceled dialogs, saved-file disablement,
 reordering, transfers, Save/Save Copy, metadata-only backup updates, and duplicate
 arbitrary titles on dirty and clean-empty session round trips.
 
-### Multiple-row tabs (planned)
+### Multiple-row tabs
 
-Multiple rows require a dedicated tab-strip layout: changing a stylesheet alone
-does not create wrapping tabs. Prototype a Qt widget that owns visual rows while
-the logical document list remains flat. Keep one authoritative mapping from
-document identity to logical index. Route selection, close, drag/drop, and
-context menus through that mapping. Adapt `EditorTabWidget` and
-`TopEditorContainer`, which currently query `QTabBar::tabAt()` and related
-signals. Avoid independent document stacks per row. Single-row mode remains
-available and uses the same document model.
+`Appearance/WrapTabs` defaults to true. `EditorTabBar` remains the authoritative
+flat `QTabBar` used by `QTabWidget`; child `TabRow` bars present successive ranges
+of that model. Width changes greedily reflow rows in logical order. Size hints
+reserve the combined row height above the document stack, avoiding independent
+editor stacks per row. A single oversized title gets scrolling within its row.
+Single-row mode keeps the native bar and scroll buttons.
 
-Test row layout/resize, cross-row reordering, keyboard navigation, active/dirty
-indicators, color persistence, clone/move behavior, long names, and scaling.
+Selection, keyboard traversal, wheel selection, close buttons, middle clicks,
+context menus and double clicks map row-local positions back to logical indices.
+Cross-row drag release calls the authoritative bar's `moveTab`, so Qt reorders
+its associated document stack. A custom selected state draws exactly the active
+logical tab; inactive rows do not show a second selected document. Rebuilds are
+queued and reuse row widgets to avoid destroying an event source during signals.
+`EditorTabWidget::visualTabRect` and `tabAtPosition` expose the visual mapping;
+`TopEditorContainer` uses it for context menus. Document titles, colors, sessions
+and pane transfers retain the existing flat model.
+
+Regression tests check exact capped widths, readable short titles, default full
+names, live preferences, resize/reflow, mapped clicks, keyboard traversal,
+closing, context menus and dragging between rows. An offscreen preview is saved
+as `build/dev/tab-rows-preview.png`. Actual Plasma/Wayland drag behavior and native
+styling still need desktop validation.
+
+### Translations
+
+All 14 existing Qt translation catalogs include the new comment action/tooltip,
+tab colors, unsaved-title dialog and appearance controls. Source strings and
+project documentation remain English. UI tests load each compiled `.qm` file
+and verify every new entry; the Spanish catalog is also installed in a test to
+check Qt's runtime lookup. Building `ui-tests` depends on translation generation.
 
 ## Two-document differences
 

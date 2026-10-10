@@ -1557,6 +1557,58 @@ Czy chcesz go zapisać mimo to?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Błąd podczas próby zapisu sesji. Proszę wybrać inną nazwę pliku.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Przełącz &amp;komentarz</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Zakomentuj lub odkomentuj bieżący wiersz albo zaznaczony kod</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Kolor karty</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Domyślny</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Czerwony</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Pomarańczowy</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Żółty</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zielony</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Niebieski</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Fioletowy</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Ustaw tytuł karty...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Ustaw tytuł karty</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Tytuł:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2236,6 +2288,26 @@ Czy chcesz go zapisać mimo to?</translation>
         <location filename="../ui/frmpreferences.cpp" line="590"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>Czy chciałbyś teraz wyczyścić historię?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Kompaktowe karty</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Maksymalna szerokość kompaktowych kart:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Zawsze pokazuj pełne tytuły kart</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Rozmieść karty w wielu wierszach</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

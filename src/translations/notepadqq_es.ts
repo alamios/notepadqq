@@ -1564,6 +1564,58 @@ Do you want to save it anyway?</source>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Error al intentar guardar esta sesión. Pruebe con un nombre de archivo diferente.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Alternar &amp;comentario</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Comentar o descomentar la línea actual o el código seleccionado</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Color de la pestaña</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Predeterminado</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Rojo</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Naranja</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Amarillo</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Morado</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Cambiar título de la pestaña...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Cambiar título de la pestaña</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Título:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2248,6 +2300,26 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.cpp" line="590"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>¿Quiere limpiar el historial existente ahora?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Pestañas compactas</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Ancho máximo de las pestañas compactas:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Mostrar siempre los títulos completos de las pestañas</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Distribuir las pestañas en varias filas</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

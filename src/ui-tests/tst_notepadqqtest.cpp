@@ -10,6 +10,7 @@
 #include "include/frmpreferences.h"
 
 #include <QCloseEvent>
+#include <QContextMenuEvent>
 #include <QAction>
 #include <QEventLoop>
 #include <QJsonArray>
@@ -26,6 +27,7 @@
 #include <QScopeGuard>
 #include <QMenu>
 #include <QInputDialog>
+#include <QTranslator>
 #include <QString>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -50,6 +52,9 @@ private Q_SLOTS:
     void toggleComment();
     void toggleCommentShortcut();
     void compactTabsAndColors();
+    void wrappingTabs();
+    void forkTranslations_data();
+    void forkTranslations();
     void tabColorSession_data();
     void tabColorSession();
     void legacyTabColorSession_data();
@@ -76,6 +81,8 @@ void NotepadqqTest::initTestCase()
     QCoreApplication::setApplicationName("Notepadqq-tests");
     QSettings::setDefaultFormat(QSettings::IniFormat);
     QSettings::setPath(QSettings::IniFormat, QSettings::UserScope, m_settingsDirectory.path());
+    QVERIFY(NqqSettings::getInstance().Appearance.getShowFullTabTitles());
+    QVERIFY(NqqSettings::getInstance().Appearance.getWrapTabs());
 }
 
 void NotepadqqTest::cleanupTestCase()
@@ -295,6 +302,8 @@ void NotepadqqTest::compactTabsAndColors()
 {
     auto& appearance = NqqSettings::getInstance().Appearance;
     appearance.setCompactTabs(true);
+    appearance.setShowFullTabTitles(false);
+    appearance.setWrapTabs(false);
     appearance.setMaximumTabWidth(160);
     TopEditorContainer container;
     container.resize(900, 400);
@@ -305,7 +314,9 @@ void NotepadqqTest::compactTabsAndColors()
     container.show();
     auto* bar = tabs->tabBar();
     QTRY_VERIFY(bar->tabRect(0).width() <= 160);
+    QCOMPARE(bar->tabRect(0).width(), 160);
     const int compactWidth = bar->tabRect(0).width();
+    QVERIFY(bar->tabRect(1).width() >= bar->fontMetrics().horizontalAdvance("short.cpp") + 40);
     QCOMPARE(tabs->tabToolTip(0), longName);
     QCOMPARE(tabs->tabText(0), longName);
     QVERIFY(bar->tabButton(0, QTabBar::RightSide) || bar->tabButton(0, QTabBar::LeftSide));
@@ -317,6 +328,7 @@ void NotepadqqTest::compactTabsAndColors()
     appearance.setMaximumTabWidth(120);
     tabs->refreshTabAppearance();
     QTRY_VERIFY(bar->tabRect(0).width() <= 120);
+    QCOMPARE(bar->tabRect(0).width(), 120);
 
     auto* document = tabs->editor(0);
     document->setTabColor("green");
@@ -338,6 +350,105 @@ void NotepadqqTest::compactTabsAndColors()
     QCOMPARE(document->tabColor(), QString());
     QCOMPARE(other->tabBar()->tabData(0).toString(), QString());
     appearance.setMaximumTabWidth(160);
+}
+
+void NotepadqqTest::wrappingTabs()
+{
+    auto& appearance = NqqSettings::getInstance().Appearance;
+    appearance.setShowFullTabTitles(true);
+    appearance.setWrapTabs(true);
+    appearance.setCompactTabs(true);
+    TopEditorContainer container;
+    container.resize(420, 500);
+    auto* tabs = container.currentTabWidget();
+    for (int i = 0; i < 8; ++i)
+        tabs->addEditorTab(false, "Document " + QString::number(i));
+    for (int i = 0; i < 8; ++i)
+        tabs->editor(i)->setTabColor(EditorNS::Editor::tabColorIds()[i % 6]);
+    container.show();
+    QTRY_VERIFY(tabs->visualTabRect(7).top() > tabs->visualTabRect(0).top());
+    for (int i = 0; i < tabs->count(); ++i) {
+        const QRect rect = tabs->visualTabRect(i);
+        QVERIFY(rect.width() >= tabs->fontMetrics().horizontalAdvance(tabs->tabText(i)) + 40);
+        QCOMPARE(tabs->tabAtPosition(rect.center()), i);
+    }
+    auto rows = tabs->tabBar()->findChildren<QTabBar*>(QString(), Qt::FindDirectChildrenOnly);
+    QTabBar* last = nullptr;
+    for (auto* row : rows)
+        if (row->isVisible() && (!last || row->y() > last->y())) last = row;
+    QVERIFY(last);
+    QTest::mouseClick(last, Qt::LeftButton, Qt::NoModifier, last->tabRect(last->count()-1).center());
+    QCOMPARE(tabs->currentIndex(), 7);
+    QTest::keyClick(last, Qt::Key_Right);
+    QCOMPARE(tabs->currentIndex(), 0);
+    QTest::keyClick(last, Qt::Key_Left);
+    QCOMPARE(tabs->currentIndex(), 7);
+    QSignalSpy context(&container, &TopEditorContainer::customTabContextMenuRequested);
+    QTest::mouseClick(last, Qt::RightButton, Qt::NoModifier, last->tabRect(last->count()-1).center());
+    // Some offscreen platforms synthesize context-menu events separately.
+    QContextMenuEvent menuEvent(QContextMenuEvent::Mouse, last->tabRect(last->count()-1).center());
+    QApplication::sendEvent(last, &menuEvent);
+    QVERIFY(!context.isEmpty());
+    QCOMPARE(context.last().at(2).toInt(), 7);
+    QVERIFY(tabs->grab(QRect(0, 0, tabs->width(), tabs->tabBar()->height()))
+        .save(QCoreApplication::applicationDirPath() + "/tab-rows-preview.png"));
+    QSignalSpy close(tabs, &QTabWidget::tabCloseRequested);
+    QTest::mouseClick(last, Qt::MiddleButton, Qt::NoModifier, last->tabRect(last->count()-1).center());
+    QCOMPARE(close.count(), 1);
+    QCOMPARE(close.takeFirst().first().toInt(), 7);
+    QWidget* button = last->tabButton(last->count()-1, QTabBar::RightSide);
+    if (!button) button = last->tabButton(last->count()-1, QTabBar::LeftSide);
+    QVERIFY(button);
+    QTest::mouseClick(button, Qt::LeftButton);
+    QCOMPARE(close.count(), 1);
+    QCOMPARE(close.takeFirst().first().toInt(), 7);
+    // Drop the first tab on a tab in another row; the flat document order follows.
+    auto* moved = tabs->editor(0);
+    const QPoint source = tabs->visualTabRect(0).center();
+    const QPoint target = tabs->visualTabRect(5).center();
+    QTabBar* first = nullptr;
+    for (auto* row : rows)
+        if (row->isVisible() && row->y() == 0) first = row;
+    QVERIFY(first);
+    QTest::mousePress(first, Qt::LeftButton, Qt::NoModifier, first->mapFrom(tabs, source));
+    QTest::mouseMove(first, first->mapFrom(tabs, target));
+    QTest::mouseRelease(first, Qt::LeftButton, Qt::NoModifier, first->mapFrom(tabs, target));
+    QCOMPARE(tabs->editor(5), moved);
+    tabs->closeEditorTab(3);
+    QTRY_VERIFY(!tabs->visualTabRect(6).isEmpty());
+    QTRY_COMPARE(tabs->tabAtPosition(tabs->visualTabRect(6).center()), 6);
+    container.resize(1600, 500);
+    QTRY_COMPARE(tabs->visualTabRect(6).top(), tabs->visualTabRect(0).top());
+    appearance.setWrapTabs(false);
+    tabs->refreshTabAppearance();
+    QTRY_VERIFY(tabs->tabBar()->usesScrollButtons());
+    appearance.setShowFullTabTitles(false);
+}
+
+void NotepadqqTest::forkTranslations_data()
+{
+    QTest::addColumn<QString>("locale");
+    for (const QString& locale : {"de", "es", "fr", "hu", "it", "ja", "nl", "pl", "pt", "ru", "sl", "sv", "uk", "zh"})
+        QTest::newRow(qPrintable(locale)) << locale;
+}
+
+void NotepadqqTest::forkTranslations()
+{
+    QFETCH(QString, locale);
+    QTranslator translator;
+    QVERIFY(translator.load(QCoreApplication::applicationDirPath() + "/notepadqq_" + locale + ".qm"));
+    for (const char* source : {"Toggle &Comment", "Comment or uncomment the current line or selected code",
+        "Tab Color", "Default", "Red", "Orange", "Yellow", "Green", "Blue", "Purple",
+        "Set Tab Title...", "Set Tab Title", "Title:"})
+        QVERIFY2(!translator.translate("MainWindow", source).isEmpty(), source);
+    for (const char* source : {"Compact tabs", "Maximum compact tab width:",
+        "Always show full tab titles", "Wrap tabs into multiple rows", " px"})
+        QVERIFY2(!translator.translate("frmPreferences", source).isEmpty(), source);
+    if (locale == "es") {
+        QCoreApplication::installTranslator(&translator);
+        QCOMPARE(QCoreApplication::translate("MainWindow", "Tab Color"), QString("Color de la pestaña"));
+        QCoreApplication::removeTranslator(&translator);
+    }
 }
 
 void NotepadqqTest::tabColorSession_data()
@@ -437,6 +548,11 @@ void NotepadqqTest::tabAppearancePreferences()
     window->resize(900, 400);
     window->show();
     frmPreferences preferences(window->topEditorContainer(), window.get());
+    auto* full = preferences.findChild<QCheckBox*>("chkShowFullTabTitles");
+    auto* wrap = preferences.findChild<QCheckBox*>("chkWrapTabs");
+    QVERIFY(full && wrap);
+    full->setChecked(false);
+    wrap->setChecked(false);
     auto* compact = preferences.findChild<QCheckBox*>("chkCompactTabs");
     auto* width = preferences.findChild<QSpinBox*>("spnMaximumTabWidth");
     auto* buttons = preferences.findChild<QDialogButtonBox*>("buttonBox");
@@ -452,6 +568,11 @@ void NotepadqqTest::tabAppearancePreferences()
     buttons->button(QDialogButtonBox::Apply)->click();
     QCOMPARE(NqqSettings::getInstance().Appearance.getMaximumTabWidth(), 120);
     QTRY_VERIFY(tabs->tabBar()->tabRect(0).width() <= 120);
+    full->setChecked(true);
+    QVERIFY(!width->isEnabled());
+    buttons->button(QDialogButtonBox::Apply)->click();
+    QTRY_VERIFY(tabs->tabBar()->tabRect(0).width() > 120);
+    full->setChecked(false);
     width->setValue(160);
     buttons->button(QDialogButtonBox::Apply)->click();
 }

@@ -190,8 +190,14 @@ void frmPreferences::loadAppearanceTab()
 {
     ui->chkCompactTabs->setChecked(m_settings.Appearance.getCompactTabs());
     ui->spnMaximumTabWidth->setValue(m_settings.Appearance.getMaximumTabWidth());
-    ui->spnMaximumTabWidth->setEnabled(ui->chkCompactTabs->isChecked());
-    connect(ui->chkCompactTabs, &QCheckBox::toggled, ui->spnMaximumTabWidth, &QSpinBox::setEnabled);
+    ui->chkShowFullTabTitles->setChecked(m_settings.Appearance.getShowFullTabTitles());
+    ui->chkWrapTabs->setChecked(m_settings.Appearance.getWrapTabs());
+    const auto updateWidthControl = [this] {
+        ui->spnMaximumTabWidth->setEnabled(ui->chkCompactTabs->isChecked() && !ui->chkShowFullTabTitles->isChecked());
+    };
+    connect(ui->chkCompactTabs, &QCheckBox::toggled, this, updateWidthControl);
+    connect(ui->chkShowFullTabTitles, &QCheckBox::toggled, this, updateWidthControl);
+    updateWidthControl();
     QList<Editor::Theme> themes = m_topEditorContainer->currentTabWidget()->currentEditor()->themes();
 
     ui->cmbColorScheme->addItem("Default", "default");
@@ -236,6 +242,8 @@ void frmPreferences::saveAppearanceTab()
 {
     m_settings.Appearance.setCompactTabs(ui->chkCompactTabs->isChecked());
     m_settings.Appearance.setMaximumTabWidth(ui->spnMaximumTabWidth->value());
+    m_settings.Appearance.setShowFullTabTitles(ui->chkShowFullTabTitles->isChecked());
+    m_settings.Appearance.setWrapTabs(ui->chkWrapTabs->isChecked());
     m_settings.Appearance.setColorScheme(ui->cmbColorScheme->currentData().toString());
 
     const QString fontFamily = ui->cmbFontFamilies->isEnabled() ? ui->cmbFontFamilies->currentFont().family() : "";

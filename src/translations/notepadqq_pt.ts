@@ -1564,6 +1564,58 @@ Você deseja salvá-lo mesmo assim?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Erro ao tentar salvar esta sessão. Por favor, tente um nome de arquivo diferente.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Alternar &amp;comentário</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Comentar ou descomentar a linha atual ou o código selecionado</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Cor da aba</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Padrão</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Vermelho</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Laranja</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Amarelo</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Azul</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Roxo</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Definir título da aba...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Definir título da aba</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Título:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2248,6 +2300,26 @@ Você deseja salvá-lo mesmo assim?</translation>
         <location filename="../ui/frmpreferences.cpp" line="590"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>Gostaria de limpar o histórico existente agora?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Abas compactas</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Largura máxima das abas compactas:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Sempre mostrar os títulos completos das abas</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Distribuir as abas em várias linhas</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

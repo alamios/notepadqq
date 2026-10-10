@@ -7,44 +7,74 @@
 #include <QFileInfo>
 #include <QTabBar>
 #include <QPainter>
+#include <QTimer>
+#include <QKeyEvent>
+#include <QSignalBlocker>
+#include <QStylePainter>
+#include <QStyleOptionTab>
 
 namespace {
 
-// Keep Qt's native hit testing, close buttons, drag handling and active-tab style.
-class EditorTabBar : public QTabBar {
-public:
-    explicit EditorTabBar(QWidget* parent) : QTabBar(parent) {}
+struct TabAppearance {
+    bool compact = true;
+    bool fullTitles = true;
+    bool wrap = true;
+    int maximumWidth = 160;
+};
 
-    void refreshAppearance()
-    {
-        const auto& appearance = NqqSettings::getInstance().Appearance;
-        m_compact = appearance.getCompactTabs();
-        m_maximumWidth = qBound(96, appearance.getMaximumTabWidth(), 320);
-        setExpanding(false);
-        // Changing the elision policy invalidates Qt's cached tab size hints.
-        setElideMode(Qt::ElideNone);
-        setElideMode(Qt::ElideMiddle);
-        updateGeometry();
-        update();
-    }
+class SizedTabBar : public QTabBar {
+public:
+    explicit SizedTabBar(QWidget* parent) : QTabBar(parent) {}
+    TabAppearance appearance;
+    int activeTab = -1;
+    bool customSelection = false;
+    QSize naturalSize(int index) const { return tabSizeHint(index); }
 
 protected:
     QSize tabSizeHint(int index) const override
     {
-        QSize size = QTabBar::tabSizeHint(index);
-        if (m_compact) {
-            size.setWidth(qBound(72, size.width() - 12, m_maximumWidth));
-            size.setHeight(qMax(qMax(fontMetrics().height(), iconSize().height()) + 8,
-                                size.height() - 4));
-        } else {
-            size.setWidth(qMax(100, size.width()));
+        // Native label painting reserves its own horizontal margins. Reducing
+        // those only in the size hint clips text even with elision disabled.
+        const int nativePadding = qMax(24, style()->pixelMetric(QStyle::PM_TabBarTabHSpace, nullptr, this));
+        const int padding = nativePadding + (appearance.compact ? 0 : 12);
+        int width = fontMetrics().horizontalAdvance(tabText(index)) + padding;
+        int height = fontMetrics().height();
+        if (!tabIcon(index).isNull()) {
+            width += iconSize().width() + 6;
+            height = qMax(height, iconSize().height());
         }
-        return size;
+        for (auto side : {QTabBar::LeftSide, QTabBar::RightSide}) {
+            if (auto* button = tabButton(index, side)) {
+                width += button->sizeHint().width() + 6;
+                height = qMax(height, button->sizeHint().height());
+            }
+        }
+        if (appearance.compact && !appearance.fullTitles)
+            width = qMin(width, appearance.maximumWidth);
+        // Reserve a separate color band and two pixels before label/icon content.
+        return QSize(qMax(72, width), height + (appearance.compact ? 14 : 18));
     }
+
+    QSize minimumTabSizeHint(int index) const override { return tabSizeHint(index); }
 
     void paintEvent(QPaintEvent* event) override
     {
-        QTabBar::paintEvent(event);
+        Q_UNUSED(event)
+        QStylePainter native(this);
+        for (int index = 0; index < count(); ++index) {
+            QStyleOptionTab option;
+            initStyleOption(&option, index);
+            if (customSelection) {
+                option.state.setFlag(QStyle::State_Selected, index == activeTab);
+                option.state.setFlag(QStyle::State_HasFocus, index == activeTab && hasFocus());
+                option.selectedPosition = index == activeTab - 1 ? QStyleOptionTab::NextIsSelected :
+                    index == activeTab + 1 ? QStyleOptionTab::PreviousIsSelected : QStyleOptionTab::NotAdjacent;
+            }
+            native.drawControl(QStyle::CE_TabBarTabShape, option);
+            option.rect.adjust(0, 6, 0, 0);
+            native.drawControl(QStyle::CE_TabBarTabLabel, option);
+        }
+        native.end();
         QPainter painter(this);
         const QStringList ids = Editor::tabColorIds();
         const QColor colors[] = {QColor("#e05252"), QColor("#e58b36"), QColor("#d5b52e"),
@@ -53,15 +83,236 @@ protected:
             const int colorIndex = ids.indexOf(tabData(index).toString());
             if (colorIndex < 0)
                 continue;
-            // A color band leaves native text, focus and dirty indicators readable.
             const QRect rect = tabRect(index).adjusted(4, 2, -4, 0);
             painter.fillRect(QRect(rect.left(), rect.top(), rect.width(), 3), colors[colorIndex]);
         }
     }
+};
 
+class TabRow : public SizedTabBar {
+public:
+    explicit TabRow(QWidget* parent) : SizedTabBar(parent) {}
+    int first = 0;
+    std::function<void(int, QPoint)> dropped;
+    std::function<void(int)> middleClosed;
+    std::function<void(int)> traversed;
+protected:
+    void mousePressEvent(QMouseEvent* event) override
+    {
+        m_pressed = event->button() == Qt::LeftButton ? tabAt(event->position().toPoint()) : -1;
+        m_origin = event->position().toPoint();
+        SizedTabBar::mousePressEvent(event);
+    }
+    void mouseReleaseEvent(QMouseEvent* event) override
+    {
+        const int pressed = m_pressed;
+        m_pressed = -1;
+        if (event->button() == Qt::MiddleButton) {
+            const int tab = tabAt(event->position().toPoint());
+            if (tab >= 0)
+                middleClosed(first + tab);
+            return;
+        }
+        if (pressed >= 0 && (event->position().toPoint() - m_origin).manhattanLength() >= QApplication::startDragDistance()) {
+            dropped(first + pressed, mapToParent(event->position().toPoint()));
+            return;
+        }
+        SizedTabBar::mouseReleaseEvent(event);
+    }
+    void keyPressEvent(QKeyEvent* event) override
+    {
+        if (event->key() == Qt::Key_Left || event->key() == Qt::Key_Right) {
+            int delta = event->key() == Qt::Key_Right ? 1 : -1;
+            if (layoutDirection() == Qt::RightToLeft)
+                delta = -delta;
+            traversed(delta);
+            event->accept();
+            return;
+        }
+        SizedTabBar::keyPressEvent(event);
+    }
 private:
-    bool m_compact = true;
-    int m_maximumWidth = 160;
+    int m_pressed = -1;
+    QPoint m_origin;
+};
+
+// The parent bar remains the authoritative flat model used by QTabWidget.
+// Child bars only present successive ranges; every event maps to a logical index.
+class EditorTabBar : public SizedTabBar {
+public:
+    explicit EditorTabBar(QWidget* parent) : SizedTabBar(parent)
+    {
+        connect(this, &QTabBar::currentChanged, this, [this] { scheduleLayout(); });
+        connect(this, &QTabBar::tabMoved, this, [this] { scheduleLayout(); });
+    }
+
+    void refreshAppearance()
+    {
+        const auto& settings = NqqSettings::getInstance().Appearance;
+        appearance = {settings.getCompactTabs(), settings.getShowFullTabTitles(),
+                      settings.getWrapTabs(), qBound(96, settings.getMaximumTabWidth(), 320)};
+        setExpanding(false);
+        setUsesScrollButtons(!appearance.wrap);
+        setElideMode(Qt::ElideNone);
+        setElideMode(appearance.fullTitles ? Qt::ElideNone : Qt::ElideMiddle);
+        scheduleLayout();
+        updateGeometry();
+        update();
+    }
+
+    QRect visualRect(int index) const
+    {
+        if (!appearance.wrap)
+            return tabRect(index);
+        for (auto* row : m_rows) {
+            if (!row->isHidden() && index >= row->first && index < row->first + row->count())
+                return row->tabRect(index - row->first).translated(row->pos());
+        }
+        return {};
+    }
+
+    int visualTabAt(QPoint point) const
+    {
+        if (!appearance.wrap)
+            return tabAt(point);
+        for (auto* row : m_rows) {
+            if (!row->isHidden() && row->geometry().contains(point)) {
+                const int local = row->tabAt(point - row->pos());
+                return local < 0 ? -1 : row->first + local;
+            }
+        }
+        return -1;
+    }
+
+    QSize sizeHint() const override
+    {
+        if (!appearance.wrap)
+            return SizedTabBar::sizeHint();
+        const int available = qMax(1, parentWidget()->contentsRect().width());
+        int rows = count() > 0 ? 1 : 0, used = 0, height = 0;
+        for (int index = 0; index < count(); ++index) {
+            const QSize size = naturalSize(index);
+            if (used && used + size.width() > available) {
+                ++rows;
+                used = 0;
+            }
+            used += size.width();
+            height = qMax(height, size.height());
+        }
+        return QSize(available, rows * height);
+    }
+    QSize minimumSizeHint() const override
+    { return appearance.wrap ? QSize(0, sizeHint().height()) : SizedTabBar::minimumSizeHint(); }
+
+    void scheduleLayout()
+    {
+        if (m_pending)
+            return;
+        m_pending = true;
+        QTimer::singleShot(0, this, [this] { m_pending = false; rebuildRows(); });
+    }
+
+protected:
+    void resizeEvent(QResizeEvent* event) override
+    { SizedTabBar::resizeEvent(event); scheduleLayout(); }
+    void tabInserted(int index) override
+    { SizedTabBar::tabInserted(index); scheduleLayout(); }
+    void tabRemoved(int index) override
+    { SizedTabBar::tabRemoved(index); scheduleLayout(); }
+    void tabLayoutChange() override { scheduleLayout(); }
+    void paintEvent(QPaintEvent* event) override
+    {
+        if (!appearance.wrap)
+            SizedTabBar::paintEvent(event);
+    }
+private:
+    QList<TabRow*> m_rows;
+    bool m_pending = false;
+
+    void rebuildRows()
+    {
+        if (!appearance.wrap) {
+            for (auto* row : m_rows)
+                row->hide();
+        }
+        for (int index = 0; index < count(); ++index)
+            for (auto side : {QTabBar::LeftSide, QTabBar::RightSide})
+                if (auto* button = tabButton(index, side))
+                    button->setVisible(!appearance.wrap);
+        if (!appearance.wrap)
+            return;
+        const int available = qMax(1, parentWidget()->contentsRect().width());
+        int index = 0, rowNumber = 0, y = 0;
+        while (index < count()) {
+            TabRow* row;
+            if (rowNumber < m_rows.size()) {
+                row = m_rows[rowNumber];
+            } else {
+                row = new TabRow(this);
+                row->customSelection = true;
+                row->setExpanding(false);
+                row->setUsesScrollButtons(false);
+                row->setDocumentMode(true);
+                row->setTabsClosable(true);
+                row->setContextMenuPolicy(Qt::CustomContextMenu);
+                connect(row, &QTabBar::tabBarClicked, this, [this, row](int tab) {
+                    if (tab >= 0) setCurrentIndex(row->first + tab);
+                    emit tabBarClicked(tab < 0 ? -1 : row->first + tab);
+                });
+                connect(row, &QTabBar::currentChanged, this, [this, row](int tab) {
+                    if (tab >= 0) setCurrentIndex(row->first + tab);
+                });
+                connect(row, &QTabBar::tabBarDoubleClicked, this, [this, row](int tab) {
+                    emit tabBarDoubleClicked(tab < 0 ? -1 : row->first + tab);
+                });
+                connect(row, &QTabBar::tabCloseRequested, this, [this, row](int tab) {
+                    emit tabCloseRequested(row->first + tab);
+                });
+                connect(row, &QWidget::customContextMenuRequested, this, [this, row](QPoint point) {
+                    auto* widget = qobject_cast<EditorTabWidget*>(parentWidget());
+                    if (widget) emit widget->customContextMenuRequested(row->mapTo(widget, point));
+                });
+                row->middleClosed = [this](int tab) { emit tabCloseRequested(tab); };
+                row->traversed = [this](int delta) {
+                    if (count()) setCurrentIndex((currentIndex() + delta + count()) % count());
+                };
+                row->dropped = [this](int from, QPoint point) {
+                    const int to = visualTabAt(point);
+                    if (to >= 0 && to != from) moveTab(from, to);
+                };
+                m_rows.append(row);
+            }
+            QSignalBlocker blocker(row);
+            row->appearance = appearance;
+            row->setIconSize(iconSize());
+            row->activeTab = currentIndex() - index;
+            row->setElideMode(appearance.fullTitles ? Qt::ElideNone : Qt::ElideMiddle);
+            while (row->count()) row->removeTab(0);
+            row->first = index;
+            int used = 0, height = 0;
+            while (index < count()) {
+                const QSize size = naturalSize(index);
+                if (used && used + size.width() > available) break;
+                const int tab = row->addTab(tabIcon(index), tabText(index));
+                row->setTabData(tab, tabData(index));
+                row->setTabToolTip(tab, tabToolTip(index));
+                if (index == currentIndex()) row->setCurrentIndex(tab);
+                used += size.width();
+                height = qMax(height, size.height());
+                ++index;
+            }
+            if (currentIndex() < row->first || currentIndex() >= index)
+                row->setCurrentIndex(-1);
+            row->setUsesScrollButtons(used > available);
+            row->setGeometry(0, y, available, height);
+            row->show();
+            y += height;
+            ++rowNumber;
+        }
+        for (int i = rowNumber; i < m_rows.size(); ++i) m_rows[i]->hide();
+        updateGeometry();
+        update();
+    }
 };
 
 } // namespace
@@ -91,12 +342,19 @@ EditorTabWidget::EditorTabWidget(QWidget* parent)
 void EditorTabWidget::refreshTabAppearance()
 { static_cast<EditorTabBar*>(tabBar())->refreshAppearance(); }
 
+QRect EditorTabWidget::visualTabRect(int index) const
+{ return static_cast<EditorTabBar*>(tabBar())->visualRect(index).translated(tabBar()->pos()); }
+
+int EditorTabWidget::tabAtPosition(QPoint point) const
+{ return static_cast<EditorTabBar*>(tabBar())->visualTabAt(point - tabBar()->pos()); }
+
 void EditorTabWidget::on_tabColorChanged()
 {
     auto* editor = qobject_cast<Editor*>(sender());
     const int index = indexOf(editor);
     if (index >= 0) {
         tabBar()->setTabData(index, editor->tabColor());
+        static_cast<EditorTabBar*>(tabBar())->scheduleLayout();
         tabBar()->update();
     }
 }
@@ -347,7 +605,7 @@ void EditorTabWidget::on_editorMouseWheel(QWheelEvent* ev)
 void EditorTabWidget::mouseReleaseEvent(QMouseEvent* ev)
 {
     if (ev->button() == Qt::MiddleButton) {
-        int index = tabBar()->tabAt(ev->pos());
+        int index = tabAtPosition(ev->position().toPoint());
 
         if (index != -1) {
             emit tabCloseRequested(index);

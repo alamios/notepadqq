@@ -1556,6 +1556,58 @@ Vuoi salvare comunque?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Riscontrato errore cercando di salvare questa sessione. Provare un altro nome.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Attiva/disattiva &amp;commento</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Commenta o decommenta la riga corrente o il codice selezionato</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Colore della scheda</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Predefinito</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Rosso</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Arancione</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Giallo</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Verde</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blu</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Viola</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Imposta titolo della scheda...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Imposta titolo della scheda</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Titolo:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2235,6 +2287,26 @@ Vuoi salvare comunque?</translation>
         <location filename="../ui/frmpreferences.cpp" line="590"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>Vuoi cancellare la cronologia esistente adesso?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Schede compatte</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Larghezza massima delle schede compatte:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Mostra sempre i titoli completi delle schede</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Disponi le schede su più righe</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

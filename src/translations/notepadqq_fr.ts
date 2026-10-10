@@ -1230,6 +1230,58 @@ Voulez-vous tout de même l&apos;enregistrer ?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Erreur en essayant de sauvegarder cette session. Essayez avec un nom différent.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Basculer le &amp;commentaire</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Commenter ou décommenter la ligne actuelle ou le code sélectionné</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Couleur de l’onglet</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Par défaut</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Rouge</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Orange</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Jaune</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Vert</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Bleu</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Violet</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Définir le titre de l’onglet...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Définir le titre de l’onglet</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Titre :</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -1627,6 +1679,26 @@ Voulez-vous tout de même l&apos;enregistrer ?</translation>
         <location filename="../ui/frmpreferences.cpp" line="388"/>
         <source>Browse</source>
         <translation>Parcourir</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Onglets compacts</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Largeur maximale des onglets compacts :</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Toujours afficher les titres complets des onglets</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Répartir les onglets sur plusieurs lignes</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

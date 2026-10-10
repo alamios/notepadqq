@@ -1555,6 +1555,58 @@ Wollen Sie dennoch speichern?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Sitzung konnte nicht gespeichert werden. Versuchen Sie einen anderen Dateinamen.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>&amp;Kommentar umschalten</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Aktuelle Zeile oder ausgewählten Code kommentieren oder Kommentar entfernen</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Tab-Farbe</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Rot</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Orange</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Gelb</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grün</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blau</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Violett</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Tab-Titel festlegen...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Tab-Titel festlegen</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Titel:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2248,6 +2300,26 @@ Erweiterungen ist EXPERIMENTELL.</translation>
         <location filename="../ui/frmpreferences.cpp" line="594"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>Soll der Verlauf jetzt gelöscht werden?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Kompakte Tabs</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Maximale Breite kompakter Tabs:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Tab-Titel immer vollständig anzeigen</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Tabs auf mehrere Zeilen verteilen</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

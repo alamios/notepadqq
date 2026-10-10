@@ -339,6 +339,7 @@ if(NQQ_BUILD_TESTS)
         ${NQQ_APP_FORMS}
         ${NQQ_GENERATED_ICONS_QRC}
     )
+    add_dependencies(ui-tests notepadqq_translations)
     if(APPLE)
         set_target_properties(ui-tests PROPERTIES MACOSX_BUNDLE TRUE)
     endif()

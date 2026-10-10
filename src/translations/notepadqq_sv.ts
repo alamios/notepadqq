@@ -1248,6 +1248,58 @@ Vill du spara den i alla fall?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Kunde inte spara den här sessionen. Försök med ett annat filnamn.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Växla &amp;kommentar</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Kommentera eller avkommentera aktuell rad eller markerad kod</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Flikfärg</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Röd</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Orange</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Gul</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Grön</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blå</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Lila</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Ange fliktitel...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Ange fliktitel</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Titel:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -1695,6 +1747,26 @@ Vill du spara den i alla fall?</translation>
         <location filename="../ui/frmpreferences.cpp" line="436"/>
         <source>Browse</source>
         <translation>Bläddra</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Kompakta flikar</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Maximal bredd för kompakta flikar:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Visa alltid fullständiga fliktitlar</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Fördela flikar på flera rader</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

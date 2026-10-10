@@ -123,6 +123,8 @@ public:
     NQQ_SETTING(ShowLineNumbers, bool, true)
     NQQ_SETTING(CompactTabs, bool, true)
     NQQ_SETTING(MaximumTabWidth, int, 160)
+    NQQ_SETTING(ShowFullTabTitles, bool, true)
+    NQQ_SETTING(WrapTabs, bool, true)
     END_CATEGORY(Appearance)
 
     BEGIN_CATEGORY(Search)

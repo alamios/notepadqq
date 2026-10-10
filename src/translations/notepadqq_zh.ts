@@ -1538,6 +1538,58 @@ Do you want to save it anyway?</source>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>会话保存错误，请尝试使用一个不同的文件名。</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>切换注释(&amp;C)</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>注释或取消注释当前行或所选代码</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>标签页颜色</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>默认</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>红色</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>橙色</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>黄色</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>绿色</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>蓝色</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>紫色</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>设置标签页标题...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>设置标签页标题</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>标题：</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2217,6 +2269,26 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.cpp" line="590"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>你是否想清除存在的历史记录吗？</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>紧凑标签页</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>紧凑标签页最大宽度：</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>始终显示完整标签页标题</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>将标签页排列成多行</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

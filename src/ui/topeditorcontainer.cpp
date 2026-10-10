@@ -111,7 +111,7 @@ void TopEditorContainer::on_customContextMenuRequested(QPoint point)
     if (!tabWidget)
         return;
 
-    int index = tabWidget->tabBar()->tabAt(point);
+    int index = tabWidget->tabAtPosition(point);
 
     if (index != -1) {
         tabWidget->setFocus();

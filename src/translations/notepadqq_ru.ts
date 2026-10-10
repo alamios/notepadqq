@@ -1230,6 +1230,58 @@ Do you want to save it anyway?</source>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Ошибка во время сохранения сессии. Пожалуйста, попробуйте другое имя файла.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Переключить &amp;комментарий</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Закомментировать или раскомментировать текущую строку или выделенный код</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Цвет вкладки</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>По умолчанию</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Красный</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Оранжевый</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Жёлтый</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Зелёный</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Синий</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Фиолетовый</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Задать заголовок вкладки...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Задать заголовок вкладки</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Заголовок:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -1628,6 +1680,26 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.cpp" line="388"/>
         <source>Browse</source>
         <translation>Обзор</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Компактные вкладки</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Максимальная ширина компактных вкладок:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Всегда показывать полные заголовки вкладок</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Размещать вкладки в несколько рядов</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

@@ -1,7 +1,7 @@
 # Fork requirements
 
 Recorded: 2026-10-10. Status: comment toggling, compact tabs, tab colors and unsaved tab titles
-implemented; multiple-row tabs and document comparison remain planned.
+implemented, including multiple-row tabs; document comparison remains planned.
 
 ## Purpose and baseline
 
@@ -46,12 +46,18 @@ not a confirmed current defect.
 | BUG-03 | Monitor | Restore current sessions without older duplicate copies | Assumed fixed in 2.1 by user direction; unverified and deferred |
 | EDIT-01 | P1 | `Ctrl+Shift+C` comments/uncomments lines and selected code blocks using the active language | Implemented for CodeMirror; automated tests pass; user confirms it works in the installed fork |
 | TABS-01 | P1 | Smaller tabs | Implemented with configurable compact mode and maximum width; automated tests cover sizing and applying preferences; manual Plasma review pending |
-| TABS-02 | P2 | Tabs wrap into multiple rows | Designed; largest tab-layout change |
+| TABS-02 | P2 | Tabs wrap into multiple rows | Implemented and enabled by default; tests cover resize/reflow, logical hit testing, selection, closing, context menus and cross-row dragging |
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
 | TABS-04 | P1 | User-defined titles for unsaved documents | Implemented in the tab context menu, with session and automatic backup persistence |
 | DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Designed |
 
 Additional requests can be added with stable IDs when the user recalls them.
+
+Follow-up tab requirements (2026-10-10): show full titles at natural width by
+default, offer a checkbox to enable elision/max-width sizing, leave a gap between
+color bands and icons, and translate every new option. These are implemented;
+all 14 existing locale catalogs include the fork's new strings. Manual desktop
+review remains pending after the user's width/spacing report.
 
 ## Existing behavior to preserve
 

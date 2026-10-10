@@ -10,7 +10,7 @@ warning alone is not a confirmed bug in this checkout.
 
 The development fork compiles with Qt 6.10.2 and passes both CTest targets.
 Comment toggling, compact tabs, tab colors and unsaved titles pass automated Qt/WebEngine
-validation using temporary settings: 38 UI test results and 31 C++ correctness
+validation using temporary settings: 53 UI test results and 31 C++ correctness
 test results, with no failures. The user confirms that comment toggling works
 in the installed fork. Manual Plasma review of the new tabs remains pending.
 New features are the current implementation priority.
@@ -22,6 +22,9 @@ New features are the current implementation priority.
 | BUG-03 | Older installed build, reported in the Flatpak 1.4 context | After a crash, current sessions and older copies reopen together; files are not lost | Assumed fixed in 2.1 at the user's request; recovery has not been verified | Deferred; record recurrence if observed |
 | BUG-04 | EDIT-01 implementation, fixed in `9b4859b` | A repeated toggle did not remove inserted comments after selection movement; an intermediate selection-array fix also caused JavaScript errors | Fixed with selection bookmarks and copied range data; automated tests pass and the user confirms the installed feature works | Closed; not an upstream defect |
 | BUG-05 | Initial TABS-03 implementation | Changing only a tab color did not update its automatic backup | Reproduced by creating a backup, changing color without editing text and waiting for the next backup; change detection now includes color metadata; regression test passes for assigning and removing a color | Closed in the compact/color tabs milestone; not an upstream defect |
+| BUG-06 | Compact tabs through `295409b` | Tabs stay too narrow even with available space; the width setting appears ineffective | User report on Plasma; earlier tests checked only upper bounds. Size hints now measure the complete label, icons and buttons, and minimum hints prevent unwanted shrinking. Tests verify exact capped widths and enough room for short names | Fixed in this implementation; native Plasma confirmation pending |
+| BUG-07 | Colored tabs through `295409b` | Color band touches the save icon | User report; tab sizing now reserves a band area and native labels are painted below it | Fixed in this implementation; native Plasma confirmation pending |
+| BUG-08 | Fork options through `295409b` | New actions and options lack translations | Missing catalog entries confirmed; all new strings now have translations in the 14 supported locales, with compiled-catalog tests | Closed in this implementation |
 
 ## Upstream crash warning
 

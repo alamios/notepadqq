@@ -52,11 +52,18 @@ documents are left unchanged.
 This action currently supports the default CodeMirror backend. It is disabled
 for Monaco. The user has confirmed that comment toggling works in the installed fork.
 
-**Compact tabs** are enabled by default. Adjust **Compact tabs** and **Maximum
-compact tab width** in **Settings > Preferences > Appearance**. The default
-maximum is 160 logical pixels; long titles are elided in the middle, with the
-full title or path available in the tooltip. Close buttons and dirty indicators
-remain visible. Disable compact mode for wider tabs.
+**Tab appearance** is configurable in **Settings > Preferences > Appearance**.
+**Always show full tab titles** is enabled by default: tabs adapt to their names
+and retain space for icons and close buttons. **Wrap tabs into multiple rows**
+is also enabled by default: overflow tabs move to the next row, keeping their
+document order. Resize the window to reflow the rows, drag tabs between rows
+to reorder them, or disable wrapping to use a single row with scroll buttons.
+A single title wider than a pane uses scroll buttons within its row.
+
+**Compact tabs** reduces padding. To shorten long titles, turn off **Always
+show full tab titles** and set **Maximum compact tab width** (160 logical pixels
+by default). Long titles then use middle elision; the full title/path remains
+in the tooltip. The width control is disabled while full titles are enabled.
 
 Right-click a tab and choose **Tab Color** to assign red, orange, yellow, green,
 blue, or purple, or **Default** to remove its color. A colored band keeps native
@@ -72,9 +79,10 @@ automatic backups, including empty titled tabs. Naming a tab changes no text
 or undo history. Saving the document uses the real filename as its tab title;
 saving a copy keeps the unsaved document's title.
 
-Multiple-row tabs and document comparisons remain planned. Tests use temporary
-settings and the actual Qt/WebEngine editor; a manual Plasma review of the new
-tab appearance remains pending.
+All new menu actions, dialog labels and appearance options have translations
+in the project's 14 supported languages, including Spanish. Document comparisons
+remain planned. Tests use temporary settings and the actual Qt/WebEngine editor;
+manual Plasma review of the new tab appearance remains pending.
 
 #### Development setup on Kubuntu
 

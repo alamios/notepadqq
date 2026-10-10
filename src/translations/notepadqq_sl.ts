@@ -1227,6 +1227,58 @@ Ali želite spremembe vseeno shraniti?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Prišlo je do napake med poskusom shranjevanja seje. Poskusite uporabiti drugo ime datoteke.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>Preklopi &amp;komentar</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Komentiraj ali odkomentiraj trenutno vrstico ali izbrano kodo</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Barva zavihka</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Privzeto</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Rdeča</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranžna</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Rumena</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zelena</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Modra</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Vijolična</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Nastavi naslov zavihka...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Nastavi naslov zavihka</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Naslov:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -1624,6 +1676,26 @@ Ali želite spremembe vseeno shraniti?</translation>
         <location filename="../ui/frmpreferences.cpp" line="388"/>
         <source>Browse</source>
         <translation>Prebrskaj</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Strnjeni zavihki</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Največja širina strnjenih zavihkov:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Vedno pokaži celotne naslove zavihkov</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Razporedi zavihke v več vrstic</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

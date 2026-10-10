@@ -1558,6 +1558,58 @@ Do you want to save it anyway?</source>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>このセッションの保存中にエラーが発生しました。別のファイル名を入力してください。</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>&amp;コメントの切り替え</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>現在の行または選択したコードをコメント化／解除</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>タブの色</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>既定</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>赤</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>オレンジ</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>黄</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>緑</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>青</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>紫</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>タブのタイトルを設定...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>タブのタイトルを設定</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>タイトル:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2237,6 +2289,26 @@ Do you want to save it anyway?</source>
         <location filename="../ui/frmpreferences.cpp" line="590"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>既存の履歴を消去しますか?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>コンパクトなタブ</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>コンパクトなタブの最大幅:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>タブのタイトルを常にすべて表示</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>タブを複数行に配置</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

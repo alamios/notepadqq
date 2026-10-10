@@ -1564,6 +1564,58 @@ Biztosan menteni szeretné?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Hiba a munkamenet mentése közben. Kérem, próbálja meg egy másik fájlnévvel.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>&amp;Megjegyzés váltása</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Az aktuális sor vagy a kijelölt kód megjegyzéssé alakítása vagy visszaállítása</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Fül színe</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Alapértelmezett</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Piros</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Narancssárga</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Sárga</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Zöld</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Kék</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Lila</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Fül címének beállítása...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Fül címének beállítása</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Cím:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2250,6 +2302,26 @@ A Notepadqq rootként való futtatása nem ajánlott. Ha mindenképpen szükség
         <location filename="../ui/frmpreferences.cpp" line="590"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>Szeretné törölni a meglévő előzményeket?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Kompakt fülek</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Kompakt fülek maximális szélessége:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Mindig a teljes fülcím megjelenítése</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Fülek elrendezése több sorban</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>

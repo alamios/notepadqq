@@ -1554,6 +1554,58 @@ Wilt u het tóch opslaan?</translation>
         <source>Error while trying to save this session. Please try a different file name.</source>
         <translation>Deze sessie kan niet worden opgeslagen. Kies een andere bestandsnaam.</translation>
     </message>
+    <message>
+        <source>Toggle &amp;Comment</source>
+        <translation>&amp;Commentaar aan/uit</translation>
+    </message>
+    <message>
+        <source>Comment or uncomment the current line or selected code</source>
+        <translation>Huidige regel of geselecteerde code als commentaar markeren of herstellen</translation>
+    </message>
+    <message>
+        <source>Tab Color</source>
+        <translation>Tabkleur</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Standaard</translation>
+    </message>
+    <message>
+        <source>Red</source>
+        <translation>Rood</translation>
+    </message>
+    <message>
+        <source>Orange</source>
+        <translation>Oranje</translation>
+    </message>
+    <message>
+        <source>Yellow</source>
+        <translation>Geel</translation>
+    </message>
+    <message>
+        <source>Green</source>
+        <translation>Groen</translation>
+    </message>
+    <message>
+        <source>Blue</source>
+        <translation>Blauw</translation>
+    </message>
+    <message>
+        <source>Purple</source>
+        <translation>Paars</translation>
+    </message>
+    <message>
+        <source>Set Tab Title...</source>
+        <translation>Tabtitel instellen...</translation>
+    </message>
+    <message>
+        <source>Set Tab Title</source>
+        <translation>Tabtitel instellen</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation>Titel:</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2244,6 +2296,26 @@ Wilt u het tóch opslaan?</translation>
         <location filename="../ui/frmpreferences.cpp" line="594"/>
         <source>Would you like to clear the existing history now?</source>
         <translation>Wilt u de geschiedenis nu wissen?</translation>
+    </message>
+    <message>
+        <source>Compact tabs</source>
+        <translation>Compacte tabs</translation>
+    </message>
+    <message>
+        <source>Maximum compact tab width:</source>
+        <translation>Maximale breedte van compacte tabs:</translation>
+    </message>
+    <message>
+        <source>Always show full tab titles</source>
+        <translation>Altijd volledige tabtitels tonen</translation>
+    </message>
+    <message>
+        <source>Wrap tabs into multiple rows</source>
+        <translation>Tabs over meerdere rijen verdelen</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> px</translation>
     </message>
 </context>
 <context>
