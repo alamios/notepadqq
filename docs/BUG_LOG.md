@@ -8,8 +8,10 @@ warning alone is not a confirmed bug in this checkout.
 
 ## Current status
 
-No active defect has been reproduced in the fork. This is not a stability
-guarantee: the fork has not yet been compiled or runtime-tested by the agent.
+The development baseline compiles with Qt 6.10.2 and passed both existing CTest
+targets. The comment feature passes automated Qt/WebEngine validation using
+temporary settings: 23 UI test results and 31 C++ correctness test results,
+with no failures. No manual Plasma interface review has been performed.
 New features are the current implementation priority.
 
 | ID | Affected build | Symptom | Status and evidence | Next action |
@@ -17,6 +19,7 @@ New features are the current implementation priority.
 | BUG-01 | Flatpak 1.4 | Missing scrollbar and non-working mouse wheel | User reports scrolling works in 2.1 | Monitor; reopen only if it recurs |
 | BUG-02 | apt `2.0.0~beta1-4.1build1` | Applying any preference hangs with high CPU use | User reports no hangs in 2.1; earlier high CPU was observed in the apt process | Monitor; reopen only if it recurs |
 | BUG-03 | Older installed build, reported in the Flatpak 1.4 context | After a crash, current sessions and older copies reopen together; files are not lost | Assumed fixed in 2.1 at the user's request; recovery has not been verified | Deferred; record recurrence if observed |
+| BUG-04 | Uncommitted EDIT-01 implementation | A repeated toggle did not remove inserted comments after selection movement; an intermediate selection-array fix also caused JavaScript errors | Fixed in the working tree with selection bookmarks and copied range data; final Qt/WebEngine regression suite passes | Closed for this implementation; not an upstream defect |
 
 ## Upstream crash warning
 

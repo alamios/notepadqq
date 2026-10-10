@@ -1,6 +1,6 @@
 # Initial fork design
 
-Status: proposed feature implementation, based on inspection of `upstream-baseline`.
+Status: comment toggling implemented; tab and diff designs remain proposals.
 Maintainer: **alamios**.
 See [requirements](FORK_REQUIREMENTS.md) for user requests and acceptance criteria.
 
@@ -33,7 +33,11 @@ First configure/build with the `dev` preset and run existing CTest targets.
 The initial configure failed because Ninja is missing. Package inspection also
 found missing Qt development packages and `libuchardet-dev`; the C++ compiler,
 CMake, Make, pkg-config, Node, and npm are present. The README lists the setup
-command. No packages have been installed by the agent.
+command. The dependencies are now available; the isolated development build
+compiles with Qt 6.10.2. Both existing CTest targets passed before feature edits.
+WebEngine tests require execution outside the agent's restricted process/socket
+sandbox; their settings remain isolated in a temporary directory. No packages
+have been installed by the agent.
 
 Use repository-local XDG directories and close other Notepadqq instances before
 running GUI tests. `SingleApplication::socketNameForUser()` uses a fixed ID;
@@ -71,18 +75,33 @@ only when a reproduction makes them relevant.
 
 ## Comment action
 
-The vendored CodeMirror `addon/comment/comment.js` implements `toggleComment`,
-line comments, block comments, and uncommenting, but `index.html` does not load
-that addon. Add it, define a bridge command, and expose an `Editor` operation
-through a `QAction` in the existing menu/controller/shortcut machinery.
-Document the new message in `src/editor/Messages.md` when implemented.
+The vendored CodeMirror `addon/comment/comment.js` implements line comments,
+block comments, and uncommenting. The fork now loads that addon and exposes
+`C_CMD_TOGGLE_COMMENT` through an Edit-menu `QAction`, the existing active-editor
+controller, and shortcut settings. The message is documented in
+`src/editor/Messages.md`. The action is disabled for the Monaco backend.
 
-Use `Ctrl+Shift+C` as the configurable default. Normalize selection endpoints
-and consult the active mode's comment metadata. Line-based selections use line
-toggle; partial selections use block syntax where available. Deduplicate
-overlapping ranges and execute changes inside one CodeMirror operation with
-appropriate history boundaries. Verify round-trip uncommenting and one-step
-undo rather than assuming the default addon covers every acceptance case.
+`Ctrl+Shift+C` is the configurable default. The command consults the active
+mode's comment metadata, including embedded modes. Line-based selections use
+line toggle; partial selections use block syntax where available. Overlapping
+line targets are merged before edits, including mixed inline/line targets.
+All changes run inside one CodeMirror operation with explicit history boundaries.
+Read-only documents are unchanged.
+
+Temporary bookmarks preserve non-empty selections around inserted delimiters
+and retain selection direction. Restored selections are copied into a new array
+before calling `setSelections`; modifying CodeMirror's live range array would
+corrupt its internal selection objects. Exact inline delimiters are removed
+without accidentally uncommenting another block on the same line. Qt tests
+exercise menu-action dispatch, real key events, comment/uncomment round trips,
+undo/redo boundaries, unsupported languages, and read-only behavior.
+
+Validation: `cmake --build --preset dev -j 4` and
+`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 23 passing
+results, including 17 comment scenarios and an actual keyboard-shortcut test;
+the C++ correctness suite has 31 passing results. JavaScript syntax, UI XML,
+documentation links, and `git diff --check` were also verified. Manual desktop
+appearance and user shortcut preferences remain outside this automated review.
 
 ## Tab presentation and metadata
 

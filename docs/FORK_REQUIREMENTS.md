@@ -1,7 +1,7 @@
 # Fork requirements
 
-Recorded: 2026-10-10. Status: requirements and initial design; no runtime
-changes have been implemented yet.
+Recorded: 2026-10-10. Status: comment toggling implemented for CodeMirror;
+tab presentation and document comparison remain planned.
 
 ## Purpose and baseline
 
@@ -44,7 +44,7 @@ not a confirmed current defect.
 | BUG-01 | Monitor | Visible scrollbars and working mouse-wheel scrolling | Reported resolved by the user in 2.1; no fork fix planned |
 | BUG-02 | Monitor | Applying preferences must remain responsive | Reported resolved by the user in 2.1; no fork fix planned |
 | BUG-03 | Monitor | Restore current sessions without older duplicate copies | Assumed fixed in 2.1 by user direction; unverified and deferred |
-| EDIT-01 | P1 | `Ctrl+Shift+C` comments/uncomments lines and selected code blocks using the active language | Designed |
+| EDIT-01 | P1 | `Ctrl+Shift+C` comments/uncomments lines and selected code blocks using the active language | Implemented for CodeMirror; automated Qt/WebEngine tests pass; manual Plasma review pending |
 | TABS-01 | P1 | Smaller tabs | Designed |
 | TABS-02 | P2 | Tabs wrap into multiple rows | Designed; largest tab-layout change |
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Designed |

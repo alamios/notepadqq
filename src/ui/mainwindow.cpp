@@ -995,6 +995,9 @@ void MainWindow::on_actionMove_Line_Down_triggered()
 void MainWindow::on_actionTranspose_Line_triggered()
 { m_editorUiController->sendEditorCommand("C_CMD_TRANSPOSE_LINE"); }
 
+void MainWindow::on_actionToggle_Comment_triggered()
+{ m_editorUiController->sendEditorCommand("C_CMD_TOGGLE_COMMENT"); }
+
 void MainWindow::on_actionTrim_Trailing_Space_triggered()
 { m_editorUiController->sendEditorCommand("C_CMD_TRIM_TRAILING_SPACE"); }
 

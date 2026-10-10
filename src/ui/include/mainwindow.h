@@ -185,6 +185,8 @@ private slots:
     void on_actionMove_Line_Up_triggered();
     void on_actionMove_Line_Down_triggered();
     void on_actionTranspose_Line_triggered();
+    /// Toggles language-aware comments in the active editor's selected code.
+    void on_actionToggle_Comment_triggered();
     void on_actionTrim_Trailing_Space_triggered();
     void on_actionTrim_Leading_Space_triggered();
     void on_actionTrim_Leading_and_Trailing_Space_triggered();

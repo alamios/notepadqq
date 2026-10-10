@@ -163,6 +163,9 @@ public:
     // Lower-level message wrappers:
     QtPromise::QPromise<bool> isCleanP();
     Q_INVOKABLE bool isClean();
+
+    /// Returns whether the loaded editor backend supports the toggle-comment command.
+    bool supportsCommentToggle() const { return m_supportsCommentToggle; }
     Q_INVOKABLE QtPromise::QPromise<void> markClean();
     Q_INVOKABLE QtPromise::QPromise<void> markDirty();
 
@@ -473,6 +476,7 @@ private:
     QString m_tabName;
     bool m_fileOnDiskChanged = false;
     bool m_loaded = false;
+    bool m_supportsCommentToggle = false;
     bool m_deferringOneWayMessages = true;
     QString m_endOfLineSequence = "\n";
     QTextCodec* m_codec = QTextCodec::codecForName("UTF-8");

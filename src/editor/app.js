@@ -2,6 +2,106 @@ var editor;
 var changeGeneration;
 var forceDirty = false;
 
+/* Toggle comments in one undo step, using block syntax for partial selections.
+   Merge overlapping line targets so multiple cursors never comment a line twice. */
+function toggleSelectedComments(cm) {
+    if (cm.getOption("readOnly")) return;
+
+    var targets = cm.listSelections().map(function(range) {
+        var from = range.from(), to = range.to();
+        var mode = cm.getMode();
+        if (mode.useInnerComments !== false && mode.innerMode)
+            mode = cm.getModeAt(from);
+        var empty = CodeMirror.cmpPos(from, to) === 0;
+        var fullLines = from.ch === 0 &&
+            (to.ch === 0 || to.ch === cm.getLine(to.line).length);
+        var block = !empty && !fullLines && mode.blockCommentStart && mode.blockCommentEnd;
+        var lastLine = to.line - (to.ch === 0 && to.line > from.line ? 1 : 0);
+        return {from: from, to: to, block: !!block, mode: mode, lastLine: lastLine};
+    });
+
+    var merged = [];
+    targets.forEach(function(target) {
+        var previous = merged[merged.length - 1];
+        if (previous && (!previous.block || !target.block) &&
+            previous.lastLine >= target.from.line) {
+            previous.block = false;
+            previous.lastLine = Math.max(previous.lastLine, target.lastLine);
+            previous.to = CodeMirror.Pos(previous.lastLine, cm.getLine(previous.lastLine).length);
+            // A newly merged line target may also overlap earlier inline targets.
+            while (merged.length > 1) {
+                var earlier = merged[merged.length - 2];
+                if (earlier.lastLine < previous.from.line) break;
+                earlier.block = false;
+                earlier.lastLine = Math.max(earlier.lastLine, previous.lastLine);
+                earlier.to = CodeMirror.Pos(earlier.lastLine, cm.getLine(earlier.lastLine).length);
+                merged.pop();
+                previous = earlier;
+            }
+        } else {
+            merged.push(target);
+        }
+    });
+
+    // Include inserted delimiters in non-empty selections so the next toggle
+    // still recognizes full lines and exact inline block boundaries.
+    var selectionMarkers = cm.listSelections().map(function(range) {
+        if (range.empty()) return null;
+        return {
+            from: cm.setBookmark(range.from(), {insertLeft: false}),
+            to: cm.setBookmark(range.to(), {insertLeft: true}),
+            reversed: CodeMirror.cmpPos(range.anchor, range.head) > 0
+        };
+    });
+
+    cm.changeGeneration(true);
+    cm.operation(function() {
+        for (var i = merged.length - 1; i >= 0; --i) {
+            var target = merged[i];
+            if (target.block) {
+                var start = target.mode.blockCommentStart, end = target.mode.blockCommentEnd;
+                var text = cm.getRange(target.from, target.to);
+                // Exact boundaries avoid removing a different inline comment on the same line.
+                if (text.slice(0, start.length) === start && text.slice(-end.length) === end &&
+                    text.length >= start.length + end.length) {
+                    cm.replaceRange("", CodeMirror.Pos(target.to.line, target.to.ch - end.length), target.to);
+                    cm.replaceRange("", target.from,
+                        CodeMirror.Pos(target.from.line, target.from.ch + start.length));
+                } else if (target.from.ch >= start.length &&
+                    cm.getRange(CodeMirror.Pos(target.from.line, target.from.ch - start.length), target.from) === start &&
+                    cm.getRange(target.to, CodeMirror.Pos(target.to.line, target.to.ch + end.length)) === end) {
+                    cm.replaceRange("", target.to, CodeMirror.Pos(target.to.line, target.to.ch + end.length));
+                    cm.replaceRange("", CodeMirror.Pos(target.from.line, target.from.ch - start.length), target.from);
+                } else {
+                    cm.blockComment(target.from, target.to, {fullLines: false, padding: ""});
+                }
+            } else {
+                var from = CodeMirror.Pos(target.from.line, 0);
+                var to = CodeMirror.Pos(target.lastLine, cm.getLine(target.lastLine).length);
+                if (!cm.uncomment(from, to, {indent: true}))
+                    cm.lineComment(from, to, {indent: true});
+            }
+        }
+        var selections = cm.listSelections().map(function(range) {
+            return {anchor: range.anchor, head: range.head};
+        });
+        selectionMarkers.forEach(function(markers, index) {
+            if (!markers) return;
+            var from = markers.from.find(), to = markers.to.find();
+            if (from && to)
+                selections[index] = {anchor: markers.reversed ? to : from, head: markers.reversed ? from : to};
+            markers.from.clear();
+            markers.to.clear();
+        });
+        cm.setSelections(selections);
+    });
+    cm.changeGeneration(true);
+}
+
+UiDriver.registerEventHandler("C_CMD_TOGGLE_COMMENT", function() {
+    toggleSelectedComments(editor);
+});
+
 UiDriver.registerEventHandler("C_CMD_SET_VALUE", function(msg, data, prevReturn) {
     editor.setValue(data);
 });

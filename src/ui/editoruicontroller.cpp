@@ -136,6 +136,7 @@ void EditorUiController::currentEditorChanged(EditorTabWidget* tabWidget, int ta
 
 void EditorUiController::refreshCurrentEditor(Editor* editor)
 {
+    m_ui.actionToggle_Comment->setEnabled(editor->supportsCommentToggle());
     m_window.m_sbFileFormatBtn->setText(editor->getLanguage()->name);
 
     QString newTitle;

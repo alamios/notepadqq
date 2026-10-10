@@ -2,6 +2,22 @@
 
 ## Fork development isolation
 
+### Updating the local installation
+
+Close the running fork, then execute `./update-fork.sh` from the repository root
+(or invoke the script by its path from any other directory). It configures and
+builds the `dev` preset and explicitly installs into the repository's
+`build/install/dev` prefix. No administrator privileges are required. The
+existing `Notepadqq (Fork)` launcher continues to use that prefix; settings and
+sessions under `build/profile` are retained. The script installs the current
+checkout, including uncommitted edits, without downloading source updates.
+
+### Running with isolated data
+
+The first fork feature is available in the local development binary after
+building: **Edit > Toggle Comment**, default `Ctrl+Shift+C`, for CodeMirror.
+It has not been packaged into a fork AppImage or installed into the user menu.
+
 Run fork builds from their build output before installing them. Keep the
 Flatpak, AppImage, and distribution package available until the fork passes
 the acceptance checks in [the requirements](docs/FORK_REQUIREMENTS.md).

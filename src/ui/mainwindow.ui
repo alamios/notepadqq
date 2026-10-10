@@ -147,6 +147,7 @@
     <addaction name="actionDelete"/>
     <addaction name="actionSelect_All"/>
     <addaction name="actionBegin_End_Select"/>
+     <addaction name="actionToggle_Comment"/>
     <addaction name="separator"/>
     <addaction name="menuCopy_to_Clipboard"/>
     <addaction name="menuConvert_Case_to"/>
@@ -940,6 +941,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+Down</string>
+   </property>
+  </action>
+  <action name="actionToggle_Comment">
+   <property name="text">
+    <string>Toggle &amp;Comment</string>
+   </property>
+   <property name="toolTip">
+    <string>Comment or uncomment the current line or selected code</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
    </property>
   </action>
   <action name="actionTranspose_Line">

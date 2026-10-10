@@ -55,6 +55,7 @@ void Editor::fullConstructor(const Theme& theme)
     query.addQueryItem("themeName", theme.name);
 
     const bool monaco = useMonaco();
+    m_supportsCommentToggle = !monaco;
     if (monaco) {
         query.addQueryItem("engine", "monaco");
     }

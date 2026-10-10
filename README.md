@@ -32,18 +32,45 @@ Fork work starts on `fork/development`. The `upstream` remote points to
 `https://github.com/notepadqq/notepadqq.git`; a hosted fork and its `origin`
 remote have not been configured yet.
 
-The linked requirements and design describe planned behavior, not implemented
-features. Existing distribution packages do not include fork changes.
+The linked requirements and design distinguish implemented features from planned
+work. Existing distribution packages do not include fork changes.
 The user reports working scrolling and responsive preferences in version 2.1.
 Session restoration is assumed to be fixed for now, without a verified recovery
 test. These older bug reports do not block feature work; new or recurring errors
 are recorded in the bug log before fixes are proposed.
 
+#### Implemented fork features
+
+**Toggle Comment** is available under **Edit**, with default shortcut
+`Ctrl+Shift+C`. Change the binding in **Settings > Preferences > Shortcuts**.
+An empty selection toggles the current line; full-line selections toggle those
+lines. Partial selections use block comments where the language supports them,
+otherwise line comments. Indentation and selection direction are preserved,
+and each toggle is a separate undo step. Unsupported languages and read-only
+documents are left unchanged.
+
+This action currently supports the default CodeMirror backend. It is disabled
+for Monaco. Compact/colorable tabs, multiple-row tabs, and document comparisons
+remain planned. Tests use temporary settings and the actual Qt/WebEngine editor;
+a manual Plasma review of the interface remains pending.
+
 #### Development setup on Kubuntu
 
-The initial `cmake --preset dev` attempt could not configure because Ninja was
-missing. The compiler is installed, but the required Qt development packages
-and `libuchardet-dev` are also missing from the checked environment. Install:
+To rebuild and reinstall the current checkout, close the fork and run:
+
+```sh
+./update-fork.sh
+```
+
+The script locates the repository relative to its own file, so it also works
+when invoked from another directory. It configures the `dev` preset, builds
+with four parallel jobs, and installs into `build/install/dev` without `sudo`.
+It preserves `build/profile` and the existing menu launcher. It uses local
+source changes and does not fetch or pull from Git.
+
+The development build now configures and compiles with Qt 6.10.2 on Kubuntu
+26.04. The initial attempt was blocked by missing Ninja and development
+dependencies; those packages are now available. For a fresh setup, install:
 
 ```sh
 sudo apt install ninja-build qt6-base-dev qt6-5compat-dev qt6-tools-dev \
