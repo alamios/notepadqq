@@ -62,14 +62,14 @@ private:
     static bool s_autosaveEnabled;
 
     /**
-     * @brief The WindowData struct contains document pointers, history generations and tab colors
+     * @brief The WindowData struct contains document pointers, history generations, colors and unsaved titles
      *        at the time of the last autosave. With every new autosave this data will be
      *        compared to the MainWindow's current list of Editor*'s and their history gens
      *        to determine whether the MainWindow has changed since the last save.
      */
     struct WindowData {
         MainWindow* ptr;
-        std::vector<std::tuple<EditorNS::Editor*, int, QString>> editors;
+        std::vector<std::tuple<EditorNS::Editor*, int, QString, QString>> editors;
 
         // Note this is only a shallow comparison. Do deep compares using isFullyEqual().
         bool operator==(const WindowData& other) const { return ptr == other.ptr; }

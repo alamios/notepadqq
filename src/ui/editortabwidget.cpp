@@ -106,6 +106,7 @@ int EditorTabWidget::addEditorTab(bool setFocus, const QString& title)
 
 void EditorTabWidget::connectEditorSignals(Editor* editor)
 {
+    connect(editor, &Editor::unsavedTitleChanged, this, &EditorTabWidget::on_unsavedTitleChanged);
     connect(editor, &Editor::cleanChanged, this, &EditorTabWidget::on_cleanChanged);
     connect(editor, &Editor::tabColorChanged, this, &EditorTabWidget::on_tabColorChanged);
 
@@ -118,6 +119,7 @@ void EditorTabWidget::connectEditorSignals(Editor* editor)
 
 void EditorTabWidget::disconnectEditorSignals(Editor* editor)
 {
+    disconnect(editor, &Editor::unsavedTitleChanged, this, &EditorTabWidget::on_unsavedTitleChanged);
     disconnect(editor, &Editor::cleanChanged, this, &EditorTabWidget::on_cleanChanged);
     disconnect(editor, &Editor::tabColorChanged, this, &EditorTabWidget::on_tabColorChanged);
     disconnect(editor, &Editor::gotFocus, this, &EditorTabWidget::gotFocus);
@@ -127,6 +129,13 @@ void EditorTabWidget::disconnectEditorSignals(Editor* editor)
 
 int EditorTabWidget::indexOf(Editor* editor) const
 { return QTabWidget::indexOf(editor); }
+
+void EditorTabWidget::on_unsavedTitleChanged()
+{
+    auto* editor = qobject_cast<Editor*>(sender());
+    if (editor && indexOf(editor) >= 0)
+        setTabText(editor, editor->unsavedTitle());
+}
 
 int EditorTabWidget::indexOf(QWidget* widget) const
 { return QTabWidget::indexOf(widget); }

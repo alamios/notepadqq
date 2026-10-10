@@ -104,6 +104,7 @@ private slots:
     void on_fileNameChanged(const QUrl&, const QUrl& newFileName);
     void on_currentTabChanged(int index);
     void on_tabColorChanged();
+    void on_unsavedTitleChanged();
 signals:
     void gotFocus();
     void editorAdded(int index);

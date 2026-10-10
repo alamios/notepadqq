@@ -64,6 +64,14 @@ text and active-tab styling readable. Colors follow reordered and moved tabs
 and are stored in sessions and automatic backups, including unsaved documents.
 Changing a color does not mark document contents as modified.
 
+**Titles for unsaved documents:** right-click an unsaved tab and choose **Set
+Tab Title...**. Enter a title to replace its automatic name; use the same action
+to change it again. Canceling or entering a blank title leaves the name unchanged.
+The title follows the tab when moved and survives session restoration and
+automatic backups, including empty titled tabs. Naming a tab changes no text
+or undo history. Saving the document uses the real filename as its tab title;
+saving a copy keeps the unsaved document's title.
+
 Multiple-row tabs and document comparisons remain planned. Tests use temporary
 settings and the actual Qt/WebEngine editor; a manual Plasma review of the new
 tab appearance remains pending.

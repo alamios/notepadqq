@@ -25,7 +25,7 @@ void BackupService::executeBackup()
         wnd->topEditorContainer()->forEachEditor([&wd](int, int, EditorTabWidget*, Editor* ed) {
             int gen = -1;
             ed->getHistoryGeneration().tap([&](int value) { gen = value; }).wait();
-            wd.editors.emplace_back(ed, gen, ed->tabColor());
+            wd.editors.emplace_back(ed, gen, ed->tabColor(), ed->unsavedTitle());
             return true;
         });
         newData.insert(std::move(wd));

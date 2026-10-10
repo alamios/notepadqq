@@ -174,6 +174,8 @@ void Editor::setFilePath(const QUrl& filename)
         newUrl = QUrl::fromLocalFile(QFileInfo(filename.toLocalFile()).absoluteFilePath());
 
     m_filePath = newUrl;
+    if (!newUrl.isEmpty())
+        m_unsavedTitle.clear();
     emit fileNameChanged(old, newUrl);
 }
 
@@ -191,6 +193,17 @@ void Editor::setTabName(const QString& name)
 
 QStringList Editor::tabColorIds()
 { return {"red", "orange", "yellow", "green", "blue", "purple"}; }
+
+void Editor::setUnsavedTitle(const QString& title)
+{
+    const QString normalized = title.trimmed();
+    if (!m_filePath.isEmpty() || normalized.isEmpty() || normalized == m_unsavedTitle)
+        return;
+    m_unsavedTitle = normalized;
+    // Update the canonical display name before listeners refresh the window title.
+    setTabName(normalized);
+    emit unsavedTitleChanged();
+}
 
 void Editor::setTabColor(const QString& color)
 {

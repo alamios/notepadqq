@@ -311,9 +311,21 @@ void MainWindow::on_customTabContextMenuRequested(QPoint point, EditorTabWidget*
         });
     }
     QAction* separator = m_tabContextMenu->addSeparator();
+    QAction* titleAction = m_tabContextMenu->addAction(tr("Set Tab Title..."));
+    titleAction->setEnabled(editor->filePath().isEmpty());
+    connect(titleAction, &QAction::triggered, this, [this, editor] {
+        if (!editor || !editor->filePath().isEmpty())
+            return;
+        bool accepted = false;
+        const QString title = QInputDialog::getText(this, tr("Set Tab Title"), tr("Title:"),
+            QLineEdit::Normal, editor->unsavedTitle(), &accepted);
+        if (accepted && editor)
+            editor->setUnsavedTitle(title);
+    });
     m_tabContextMenu->addMenu(&colors);
     m_tabContextMenu->exec(point);
     m_tabContextMenu->removeAction(colors.menuAction());
+    delete titleAction;
     delete separator;
 }
 

@@ -106,6 +106,10 @@ void EditorUiController::connectEditor(EditorTabWidget* tabWidget, int tab)
         if (currentEditor() == editor)
             refreshCurrentEditor(editor);
     });
+    connect(editor, &Editor::unsavedTitleChanged, this, [this, editor] {
+        if (currentEditor() == editor)
+            refreshCurrentEditor(editor);
+    });
     connect(editor, &Editor::urlsDropped, this, [this, editor](const QList<QUrl>& urls) {
         m_window.m_documentController->openDroppedUrls(urls, editor);
     });

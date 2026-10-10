@@ -89,6 +89,8 @@ public:
     QString tabColor() const { return m_tabColor; }
     void setTabColor(const QString& color);
     static QStringList tabColorIds();
+    QString unsavedTitle() const { return m_unsavedTitle; }
+    void setUnsavedTitle(const QString& title);
     struct Theme {
         QString name;
         QString path;
@@ -479,6 +481,7 @@ private:
     QUrl m_filePath = QUrl();
     QString m_tabName;
     QString m_tabColor;
+    QString m_unsavedTitle;
     bool m_fileOnDiskChanged = false;
     bool m_loaded = false;
     bool m_supportsCommentToggle = false;
@@ -501,6 +504,7 @@ private slots:
 
 signals:
     void tabColorChanged();
+    void unsavedTitleChanged();
     void messageReceived(QString msg, QVariant data);
     void asyncReplyReceived(unsigned int id, QString msg, QVariant data);
     void gotFocus();

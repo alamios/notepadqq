@@ -17,6 +17,7 @@
 #include <QPointer>
 #include <QSettings>
 #include <QFile>
+#include <QDir>
 #include <QTabBar>
 #include <QCheckBox>
 #include <QSpinBox>
@@ -24,6 +25,7 @@
 #include <QPushButton>
 #include <QScopeGuard>
 #include <QMenu>
+#include <QInputDialog>
 #include <QString>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -55,6 +57,11 @@ private Q_SLOTS:
     void tabAppearancePreferences();
     void tabColorAutosave();
     void tabColorContextMenu();
+    void unsavedTabTitle();
+    void unsavedTitleSession_data();
+    void unsavedTitleSession();
+    void unsavedTitleContextMenu_data();
+    void unsavedTitleContextMenu();
 
 private:
     QTemporaryDir m_settingsDirectory;
@@ -474,7 +481,167 @@ void NotepadqqTest::tabColorAutosave()
     QTRY_VERIFY_WITH_TIMEOUT(backupXml().contains("tabColor=\"red\""), 5000);
     editor->setTabColor(QString());
     QTRY_VERIFY_WITH_TIMEOUT(!backupXml().contains("tabColor="), 5000);
+    editor->setUnsavedTitle("Backup title");
+    QTRY_VERIFY_WITH_TIMEOUT(backupXml().contains("unsavedTitle=\"Backup title\""), 5000);
+    editor->setUnsavedTitle("Updated title");
+    QTRY_VERIFY_WITH_TIMEOUT(backupXml().contains("unsavedTitle=\"Updated title\""), 5000);
     QCOMPARE(editor->value(), originalContent);
+}
+
+void NotepadqqTest::unsavedTabTitle()
+{
+    auto window = std::make_unique<MainWindow>(QStringList());
+    auto* tabs = window->topEditorContainer()->currentTabWidget();
+    auto* editor = window->currentEditor();
+    auto* view = editor->findChild<QWebEngineView*>();
+    QVERIFY(view);
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(view->page(), "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+    editor->markClean().wait();
+    const QString undoBefore = evaluateEditor(view->page(), "JSON.stringify(editor.historySize())").toString();
+    editor->setUnsavedTitle("  Research notes  ");
+    QCOMPARE(tabs->tabText(0), QString("Research notes"));
+    QCOMPARE(tabs->tabToolTip(0), QString("Research notes"));
+    QVERIFY(window->windowTitle().startsWith("Research notes - "));
+    QVERIFY(editor->filePath().isEmpty());
+    QVERIFY(editor->isClean());
+    QCOMPARE(evaluateEditor(view->page(), "JSON.stringify(editor.historySize())").toString(), undoBefore);
+    editor->setUnsavedTitle("   ");
+    QCOMPARE(editor->unsavedTitle(), QString("Research notes"));
+    tabs->addEditorTab(false, "another");
+    tabs->tabBar()->moveTab(0, 1);
+    QCOMPARE(tabs->tabText(1), QString("Research notes"));
+    auto* other = window->topEditorContainer()->addTabWidget();
+    other->transferEditorTab(false, tabs, 1);
+    editor->setUnsavedTitle("Moved notes");
+    QCOMPARE(other->tabText(0), QString("Moved notes"));
+    QCOMPARE(tabs->tabText(0), QString("another"));
+    QTemporaryDir files;
+    QCOMPARE(window->getDocEngine()->saveDocument(other, 0,
+        QUrl::fromLocalFile(files.filePath("copy.txt")), true), DocEngine::saveFileResult_Saved);
+    QCOMPARE(other->tabText(0), QString("Moved notes"));
+    QVERIFY(editor->filePath().isEmpty());
+    QCOMPARE(window->getDocEngine()->saveDocument(other, 0,
+        QUrl::fromLocalFile(files.filePath("saved.txt"))), DocEngine::saveFileResult_Saved);
+    QCOMPARE(other->tabText(0), QString("saved.txt"));
+    QVERIFY(editor->unsavedTitle().isEmpty());
+    editor->setUnsavedTitle("Ignored");
+    QCOMPARE(other->tabText(0), QString("saved.txt"));
+}
+
+void NotepadqqTest::unsavedTitleSession_data()
+{
+    QTest::addColumn<QString>("content");
+    QTest::newRow("modified-document") << QString("draft\n");
+    QTest::newRow("clean-empty-document") << QString();
+}
+
+void NotepadqqTest::unsavedTitleSession()
+{
+    QFETCH(QString, content);
+    QTemporaryDir files;
+    QVERIFY(files.isValid());
+    const QString title = "Ideas / ../ café & <notes>";
+    const QString sessionPath = files.filePath("session.xml");
+    const QString cachePath = files.filePath("cache");
+    {
+        TopEditorContainer source;
+        DocEngine engine(&source);
+        auto* tabs = source.currentTabWidget();
+        // Identical arbitrary titles must still have distinct, safe cache paths.
+        for (int i = 0; i < 2; ++i) {
+            tabs->addEditorTab(false, "new " + QString::number(i));
+            auto* editor = tabs->editor(i);
+            auto* view = editor->findChild<QWebEngineView*>();
+            QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(view->page(), "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+            editor->setValue(content).wait();
+            if (content.isEmpty())
+                editor->markClean().wait();
+            editor->setUnsavedTitle(title);
+            editor->setTabColor("green");
+        }
+        QVERIFY(Sessions::saveSession(&engine, &source, sessionPath, cachePath));
+        const QStringList cached = QDir(cachePath).entryList(QDir::Files);
+        QCOMPARE(cached.size(), 2);
+        for (const QString& name : cached)
+            QVERIFY(name.startsWith("untitled."));
+    }
+    TopEditorContainer restored;
+    DocEngine engine(&restored);
+    QSignalSpy loaded(&engine, &DocEngine::documentLoaded);
+    Sessions::loadSession(&engine, &restored, sessionPath);
+    auto* tabs = restored.currentTabWidget();
+    QCOMPARE(tabs->count(), 2);
+    QTRY_COMPARE_WITH_TIMEOUT(loaded.count(), 2, 10000);
+    for (int i = 0; i < 2; ++i) {
+        auto* editor = tabs->editor(i);
+        QCOMPARE(tabs->tabText(i), title);
+        QTRY_COMPARE_WITH_TIMEOUT(editor->value(), content, 10000);
+        QTRY_COMPARE(editor->isClean(), content.isEmpty());
+        QCOMPARE(editor->unsavedTitle(), title);
+        QCOMPARE(tabs->tabToolTip(i), title);
+        QVERIFY(editor->filePath().isEmpty());
+        QCOMPARE(editor->tabColor(), QString("green"));
+    }
+}
+
+void NotepadqqTest::unsavedTitleContextMenu_data()
+{
+    QTest::addColumn<bool>("accept");
+    QTest::addColumn<bool>("saved");
+    QTest::newRow("accept") << true << false;
+    QTest::newRow("cancel") << false << false;
+    QTest::newRow("saved-file-disabled") << false << true;
+}
+
+void NotepadqqTest::unsavedTitleContextMenu()
+{
+    QFETCH(bool, accept);
+    QFETCH(bool, saved);
+    auto window = std::make_unique<MainWindow>(QStringList());
+    auto* tabs = window->topEditorContainer()->currentTabWidget();
+    auto* editor = window->currentEditor();
+    auto* view = editor->findChild<QWebEngineView*>();
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(view->page(), "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+    editor->setUnsavedTitle("Original title");
+    QTemporaryDir files;
+    if (saved)
+        editor->setFilePath(QUrl::fromLocalFile(files.filePath("saved.txt")));
+    bool found = false;
+    bool enabled = false;
+    QTimer::singleShot(0, window.get(), [&] {
+        auto* popup = qobject_cast<QMenu*>(QApplication::activePopupWidget());
+        if (!popup)
+            return;
+        for (auto* action : popup->actions()) {
+            if (action->text() != "Set Tab Title...")
+                continue;
+            found = true;
+            enabled = action->isEnabled();
+            if (!enabled)
+                break;
+            QTimer::singleShot(0, window.get(), [&] {
+                auto* input = qobject_cast<QInputDialog*>(QApplication::activeModalWidget());
+                if (input) {
+                    input->setTextValue("New title");
+                    accept ? input->accept() : input->reject();
+                }
+            });
+            action->trigger();
+            break;
+        }
+        popup->close();
+    });
+    QTimer::singleShot(2000, window.get(), [] {
+        if (auto* modal = qobject_cast<QDialog*>(QApplication::activeModalWidget()))
+            modal->reject();
+        if (auto* popup = QApplication::activePopupWidget())
+            popup->close();
+    });
+    QVERIFY(QMetaObject::invokeMethod(window.get(), "on_customTabContextMenuRequested", Qt::DirectConnection,
+        Q_ARG(QPoint, QPoint(10, 10)), Q_ARG(EditorTabWidget*, tabs), Q_ARG(int, 0)));
+    QVERIFY(found);
+    QCOMPARE(enabled, !saved);
+    QCOMPARE(tabs->tabText(0), saved ? QString("saved.txt") : accept ? QString("New title") : QString("Original title"));
 }
 
 void NotepadqqTest::tabColorContextMenu()

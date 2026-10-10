@@ -35,6 +35,8 @@
  * -> int scrollY - vertical scroll position
  * -> string language - the display language of the document.
  * -> string tabColor - optional, validated document presentation color identifier.
+ * -> string unsavedTitle - optional, user title for a document without a file path.
+ * -> int cachedClean - optional, value "1" preserves a named clean unsaved document's state.
  * -> long int lastModified - optional, last modification date (in msecs since epoch) of the file point to in filePath
  * -> int active - optional, value is "1" if this tab is the open one in the tabview, otherwise "0".
  *
@@ -54,6 +56,8 @@ struct TabData {
     bool active = false;
     QString language;
     QString tabColor;
+    QString unsavedTitle;
+    bool cachedClean = false;
     qint64 lastModified = 0;
     bool customIndent = false;
     bool useTabs = false;
@@ -177,6 +181,8 @@ std::vector<TabData> SessionReader::readTabData()
             td.scrollY = attrs.value("scrollY").toInt();
             td.language = attrs.value("language").toString();
             td.tabColor = attrs.value("tabColor").toString();
+            td.unsavedTitle = attrs.value("unsavedTitle").toString();
+            td.cachedClean = attrs.value("cachedClean") == QLatin1StringView("1");
             td.lastModified = attrs.value("lastModified").toLongLong();
             td.active = attrs.value("active").toInt() != 0;
             td.customIndent = attrs.value("customIndent").toInt() != 0;
@@ -239,6 +245,10 @@ void SessionWriter::addTabData(const TabData& td)
         attrs.push_back(QXmlStreamAttribute("language", td.language));
     if (!td.tabColor.isEmpty())
         attrs.push_back(QXmlStreamAttribute("tabColor", td.tabColor));
+    if (!td.unsavedTitle.isEmpty())
+        attrs.push_back(QXmlStreamAttribute("unsavedTitle", td.unsavedTitle));
+    if (td.cachedClean)
+        attrs.push_back(QXmlStreamAttribute("cachedClean", "1"));
 
     if (td.lastModified != 0)
         attrs.push_back(QXmlStreamAttribute("lastModified", QString::number(td.lastModified)));
@@ -312,11 +322,15 @@ bool saveSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
 
             TabData td;
 
-            if (!isClean && cacheModifiedFiles) {
+            const bool namedOrphan = isOrphan && !editor->unsavedTitle().isEmpty();
+            if ((!isClean || namedOrphan) && cacheModifiedFiles) {
                 // Tab is dirty, meaning it needs to be cached.
-                QUrl cacheFilePath = PersistentCache::createValidCacheName(cacheDir, tabWidget->tabText(j));
+                // A user title may contain slashes or other filename characters.
+                QUrl cacheFilePath = PersistentCache::createValidCacheName(cacheDir,
+                    namedOrphan ? QString("untitled") : tabWidget->tabText(j));
 
                 td.cacheFilePath = cacheFilePath.toLocalFile();
+                td.cachedClean = namedOrphan && isClean;
 
                 if (!docEngine->write(cacheFilePath, editor)) {
                     return false;
@@ -339,6 +353,7 @@ bool saveSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
             td.active = tabWidget->currentEditor() == editor;
             td.language = editor->getLanguage()->id;
             td.tabColor = editor->tabColor();
+            td.unsavedTitle = isOrphan ? editor->unsavedTitle() : QString();
 
             // Cache the custom indentation state of the file
             if (editor->isUsingCustomIndentationMode()) {
@@ -406,6 +421,7 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
             const QFileInfo fileInfo(tab.filePath);
             const bool fileExists = fileInfo.exists();
             const bool cacheFileExists = QFileInfo(tab.cacheFilePath).exists();
+            const bool cachedClean = tab.cachedClean && tab.filePath.isEmpty() && !tab.unsavedTitle.isEmpty();
 
             const QUrl fileUrl = QUrl::fromLocalFile(tab.filePath);
             const QUrl cacheFileUrl = QUrl::fromLocalFile(tab.cacheFilePath);
@@ -435,18 +451,22 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
                                   // DocEngine sets the editor's fileName to loadUrl since this is where the file
                                   // was loaded from. Since loadUrl could point to a cached file we reset it here.
                                   if (cacheFileExists) {
-                                      editor->markDirty();
+                                      if (cachedClean)
+                                          editor->markClean();
+                                      else
+                                          editor->markDirty();
                                       editor->setLanguageFromFilePath();
                                   }
 
                                   // Set the correct dirty/clean icon immediately based on what we already know,
                                   // without waiting for JS round-trips through QWebChannel.
-                                  tabW->setSavedIcon(idx, !cacheFileExists);
+                                  tabW->setSavedIcon(idx, !cacheFileExists || cachedClean);
 
                                   if (tab.filePath.isEmpty()) {
                                       QString tabText = tabW->tabText(idx);
                                       editor->setFilePath(QUrl());
                                       tabW->setTabText(idx, tabText);
+                                      editor->setUnsavedTitle(tab.unsavedTitle);
                                   } else {
                                       editor->setFilePath(fileUrl);
                                       if (fileExists)
@@ -482,7 +502,7 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
                                       // the correct info on start-up. The easiest way is to emit a cleanChanged()
                                       // event. We already know the state from cacheFileExists — no need for a JS
                                       // round-trip.
-                                      emit editor->cleanChanged(!cacheFileExists);
+                                      emit editor->cleanChanged(!cacheFileExists || cachedClean);
                                   }
                               });
 
@@ -514,6 +534,8 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
                 tabText = tabW->generateTabTitleForUrl(QUrl(tab.filePath));
             }
             tabW->setTabText(loadingEditor, tabText);
+            if (tab.filePath.isEmpty())
+                loadingEditor->setUnsavedTitle(tab.unsavedTitle);
 
             if (tab.active) {
                 activeEditor = loadingEditor;

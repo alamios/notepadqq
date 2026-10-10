@@ -9,8 +9,8 @@ warning alone is not a confirmed bug in this checkout.
 ## Current status
 
 The development fork compiles with Qt 6.10.2 and passes both CTest targets.
-Comment toggling, compact tabs and tab colors pass automated Qt/WebEngine
-validation using temporary settings: 32 UI test results and 31 C++ correctness
+Comment toggling, compact tabs, tab colors and unsaved titles pass automated Qt/WebEngine
+validation using temporary settings: 38 UI test results and 31 C++ correctness
 test results, with no failures. The user confirms that comment toggling works
 in the installed fork. Manual Plasma review of the new tabs remains pending.
 New features are the current implementation priority.

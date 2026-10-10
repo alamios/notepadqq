@@ -1,6 +1,6 @@
 # Initial fork design
 
-Status: comment toggling, compact tabs and tab colors implemented;
+Status: comment toggling, compact tabs, tab colors and unsaved tab titles implemented;
 multiple-row tabs and document differences remain proposals.
 Maintainer: **alamios**.
 See [requirements](FORK_REQUIREMENTS.md) for user requests and acceptance criteria.
@@ -98,7 +98,7 @@ exercise menu-action dispatch, real key events, comment/uncomment round trips,
 undo/redo boundaries, unsupported languages, and read-only behavior.
 
 Validation: `cmake --build --preset dev -j 4` and
-`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 32 passing
+`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 38 passing
 results, including 17 comment scenarios and an actual keyboard-shortcut test;
 the C++ correctness suite has 31 passing results. JavaScript syntax, UI XML,
 documentation links, and `git diff --check` were also verified. Manual desktop
@@ -133,9 +133,37 @@ Tests cover live compact preferences, long names/tooltips, close-button presence
 color painting, reordering and pane transfers, context-menu dispatch, clean-file
 sessions, modified-file and unsaved-document backups, legacy XML, invalid colors,
 and automatic backup updates after color-only changes. Both CTest targets pass
-(32 UI results and 31 C++ correctness results). Native Plasma/Wayland
+(38 UI results and 31 C++ correctness results). Native Plasma/Wayland
 appearance remains a manual check. Upstream's clone-view action has no handler
 in this baseline; this milestone introduces no new clone behavior.
+
+### Unsaved tab titles
+
+`Editor::unsavedTitle()` stores an optional user title for documents without a
+file path. The setter trims whitespace and ignores blank values or saved
+documents. It updates the canonical tab name before emitting
+`unsavedTitleChanged`, allowing the tab widget and active window to refresh
+without altering content or history. Transfers retain the document and reconnect
+its presentation signals. Setting a real file path clears the custom title;
+Save Copy retains it.
+
+The context menu adds **Set Tab Title...**, disabled for saved documents. A
+guarded document pointer survives the input dialog's nested event loop. Sessions
+store optional `unsavedTitle` metadata and apply it both immediately and after
+asynchronous loading. Automatic backup change detection also includes the title.
+Titles are never used as cache filenames: named unsaved documents use a generated
+`untitled` cache basename, so slashes, Unicode, XML characters and duplicate
+titles are safe.
+
+Named clean empty documents are cached too. The optional `cachedClean="1"`
+attribute preserves their clean state on restore; it is honored only for named
+unsaved documents. Older sessions default to the existing cached-dirty behavior.
+This adds metadata to the existing session format without changing the recovery
+lifecycle. Tests cover accepted/canceled dialogs, saved-file disablement,
+reordering, transfers, Save/Save Copy, metadata-only backup updates, and duplicate
+arbitrary titles on dirty and clean-empty session round trips.
+
+### Multiple-row tabs (planned)
 
 Multiple rows require a dedicated tab-strip layout: changing a stylesheet alone
 does not create wrapping tabs. Prototype a Qt widget that owns visual rows while

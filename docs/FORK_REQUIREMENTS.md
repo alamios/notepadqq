@@ -1,6 +1,6 @@
 # Fork requirements
 
-Recorded: 2026-10-10. Status: comment toggling, compact tabs and tab colors
+Recorded: 2026-10-10. Status: comment toggling, compact tabs, tab colors and unsaved tab titles
 implemented; multiple-row tabs and document comparison remain planned.
 
 ## Purpose and baseline
@@ -48,6 +48,7 @@ not a confirmed current defect.
 | TABS-01 | P1 | Smaller tabs | Implemented with configurable compact mode and maximum width; automated tests cover sizing and applying preferences; manual Plasma review pending |
 | TABS-02 | P2 | Tabs wrap into multiple rows | Designed; largest tab-layout change |
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
+| TABS-04 | P1 | User-defined titles for unsaved documents | Implemented in the tab context menu, with session and automatic backup persistence |
 | DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Designed |
 
 Additional requests can be added with stable IDs when the user recalls them.
@@ -84,6 +85,17 @@ Offer a small color palette and a reset-to-default action in the tab context
 menu. Maintain readable text and a visible active/dirty state in both themes.
 Colors follow a document when reordered or moved between panes, and survive
 normal restart and recovery. They must not depend on tab indices or titles.
+
+### TABS-04: unsaved document titles
+
+Offer **Set Tab Title...** in the tab context menu for documents with no file
+path. Trim leading/trailing whitespace; cancellation or a blank entry preserves
+the previous title. Update the tab, tooltip and active window title. Keep text,
+dirty state and undo history unchanged. Titles follow reordered and moved tabs
+and survive sessions and automatic backups, even for clean empty documents.
+Identical titles and characters unsuitable for filenames must remain safe.
+After saving, use the real filename; saving a copy keeps the custom title.
+Existing sessions without title metadata continue to use automatic names.
 
 ### DIFF-01: comparison
 
