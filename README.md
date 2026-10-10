@@ -1,17 +1,59 @@
 # <img src="https://user-images.githubusercontent.com/4319621/36906314-e3f99680-1e35-11e8-90fd-f959c9641f36.png" alt="Notepadqq" width="32" height="32" /> Notepadqq [![Build Status](https://github.com/notepadqq/notepadqq/actions/workflows/build-test.yml/badge.svg)](https://github.com/notepadqq/notepadqq/actions/workflows/build-test.yml) [![notepadqq](https://snapcraft.io/notepadqq/badge.svg)](https://snapcraft.io/notepadqq)
 
-> [!WARNING]  
-> This project is not actively maintained anymore. New maintainers are welcome.
+> [!NOTE]
+> This fork is actively maintained by **alamios**. Development focuses on
+> comment shortcuts, compact colored tabs with multiple rows, and side-by-side
+> document differences.
 >
-> It has been reported that with the most recent OS/Qt versions, the program can crash unexpectedly. Use this at your own risk.
-> 
->  -- Daniele
+> Upstream has reported unexpected crashes with recent OS/Qt versions. This
+> warning does not establish a reproduced defect in this fork. Track any
+> encountered errors in the [bug log](docs/BUG_LOG.md).
 
 ### Links
 
+* [Fork scope and requested changes](docs/FORK_REQUIREMENTS.md)
+* [Fork implementation design](docs/FORK_DESIGN.md)
+* [Bug log and stability observations](docs/BUG_LOG.md)
 * [What is it?](#what-is-it)
 * [Build it yourself](#build-it-yourself)
 * [Download it](#distribution-packages)
+
+### Local fork
+
+This checkout is the starting point for a Linux desktop fork maintained by
+**alamios**, focused on comment shortcuts, compact colored tabs with multiple
+rows, and side-by-side document differences. Source code, comments,
+and project documentation are maintained in English.
+
+The `upstream-baseline` tag records commit
+`37652c5efa5fe8720f4eaf9f2e459888c1c6d6d0`, before fork changes.
+That commit declares development version **2.2.0**; it is not the 2.1.1 release.
+Fork work starts on `fork/development`. The `upstream` remote points to
+`https://github.com/notepadqq/notepadqq.git`; a hosted fork and its `origin`
+remote have not been configured yet.
+
+The linked requirements and design describe planned behavior, not implemented
+features. Existing distribution packages do not include fork changes.
+The user reports working scrolling and responsive preferences in version 2.1.
+Session restoration is assumed to be fixed for now, without a verified recovery
+test. These older bug reports do not block feature work; new or recurring errors
+are recorded in the bug log before fixes are proposed.
+
+#### Development setup on Kubuntu
+
+The initial `cmake --preset dev` attempt could not configure because Ninja was
+missing. The compiler is installed, but the required Qt development packages
+and `libuchardet-dev` are also missing from the checked environment. Install:
+
+```sh
+sudo apt install ninja-build qt6-base-dev qt6-5compat-dev qt6-tools-dev \
+    qt6-tools-dev-tools qt6-webengine-dev qt6-websockets-dev \
+    qt6-webchannel-dev qt6-svg-dev libuchardet-dev
+```
+
+Then use the existing `dev` build and test presets below. Development builds
+must use separate configuration and session storage, as described in
+[Packaging Notes](PACKAGING.md#fork-development-isolation).
 
 #### What is it?
 

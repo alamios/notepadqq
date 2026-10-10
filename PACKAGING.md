@@ -1,5 +1,32 @@
 # Packaging Notes
 
+## Fork development isolation
+
+Run fork builds from their build output before installing them. Keep the
+Flatpak, AppImage, and distribution package available until the fork passes
+the acceptance checks in [the requirements](docs/FORK_REQUIREMENTS.md).
+
+For example, launch a development build with repository-local storage:
+
+```sh
+mkdir -p build/profile/{config,data,cache}
+env XDG_CONFIG_HOME="$PWD/build/profile/config" \
+    XDG_DATA_HOME="$PWD/build/profile/data" \
+    XDG_CACHE_HOME="$PWD/build/profile/cache" \
+    ./build/dev/notepadqq
+```
+
+Run this command from the repository root. Close other Notepadqq instances
+first: the current single-instance socket uses a fixed application identity,
+so separate XDG storage alone does not guarantee separate running instances.
+Profile-aware instance identity is proposed in the fork design.
+
+Do not test crash recovery against real user sessions. Use copied fixtures
+inside the development profile, including unsaved documents. Future fork
+packages need a distinct executable/desktop identity and storage namespace
+before they can safely run alongside upstream. Packaging changes are planned,
+not implemented by this documentation update.
+
 ## Canonical install layout
 
 - executable: `/usr/bin/notepadqq`

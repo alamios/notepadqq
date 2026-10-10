@@ -1,5 +1,25 @@
 # Contributing to Notepadqq
 
+## Local fork workflow
+
+For this fork, code, comments, documentation, and commit messages are written
+in English. Keep the upstream coding conventions and make focused changes.
+
+`upstream-baseline` identifies the unmodified starting commit. Do not move the
+tag. Fork development starts on `fork/development`; create focused branches
+from that branch when needed. Consult [the requirements](docs/FORK_REQUIREMENTS.md)
+and [the design](docs/FORK_DESIGN.md), and update their status and the README
+when behavior changes. Record reproductions and validation results for fixes.
+Use [the bug log](docs/BUG_LOG.md) for errors encountered during development or
+daily use, including the affected build/Qt version and reproduction evidence.
+The user reports scrolling and preference hangs resolved in 2.1; session
+restoration is provisionally assumed fixed. Feature work takes priority over
+investigating those historical reports unless symptoms recur.
+
+The upstream submission process below applies when contributing changes back
+to upstream. Local fork work does not require publishing an upstream issue or
+pull request. Publishing this fork will require a separate `origin` remote.
+
 Thanks for helping to make Notepadqq better! As a contributor, here are the guidelines we would like you to follow:
 
  - [Question or Problem?](#question)
