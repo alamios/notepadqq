@@ -133,6 +133,34 @@ correctness results. The user has accepted comparison, including the toolbar
 toggle and original-pane restoration, on Plasma. These features are integrated
 in `main` as of 2026-10-11.
 
+#### Install as Notepadqq
+
+Close every Notepadqq instance and run:
+
+```sh
+./install-user.sh
+```
+
+This builds the `release` preset and installs **Notepadqq** into `~/.local`
+without `sudo`, with a menu entry that opens without a terminal and can be
+pinned to the taskbar. The installation runs independently of the checkout
+(system Qt and other runtime dependencies are still required). Run the same
+command after updating the source to install the latest checkout.
+
+On the first installation, settings, sessions and unsaved-document caches are
+copied from `build/profile/config/Notepadqq` to the standard user profile.
+Any existing destination profile is backed up before replacement. Later
+updates retain the installed profile. Use `--keep-profile` to retain the
+standard profile instead of importing, or `--dry-run` to preview destinations
+without writing anything. Python 3 and `pgrep` are required in addition to the
+build dependencies below.
+
+The launcher uses an absolute executable path. Terminal use of `notepadqq`
+requires `~/.local/bin` ahead of `/usr/bin` in `PATH`. Other installations and
+the old **Notepadqq (Fork)** launcher are not removed automatically; see
+[per-user installation](PACKAGING.md#per-user-installation-as-notepadqq) for
+migration details and cleanup.
+
 #### Development setup on Kubuntu
 
 To rebuild and reinstall the current checkout, close the fork and run:
@@ -221,7 +249,8 @@ Building for **macOS**? Check [here](https://github.com/notepadqq/notepadqq/wiki
 
 #### Install
 
-You can run notepadqq from its build output folder. If however you want to install it, first build it
+For this fork's per-user installation, use `./install-user.sh` as described
+above. For a system-wide installation, first build it
 by following the above steps, then run:
 
     notepadqq$ sudo cmake --install build/release

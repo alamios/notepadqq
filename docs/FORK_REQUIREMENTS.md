@@ -53,6 +53,7 @@ not a confirmed current defect.
 | TABS-05 | P1 | Preview the insertion position while dragging a tab | Implemented and accepted by the user: a four-pixel accent line at the exact before/after boundary in single-row and wrapped modes; Escape/outside drops cancel |
 | DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Implemented for CodeMirror: picker, menu/tab-context/toolbar entry, temporary read-only panes, bounded background line diff and cleanup; comparison, toolbar toggle and original-pane restoration accepted by the user on Plasma; integrated in main on 2026-10-11 |
 | PRIV-01 | P1 | Remove upstream telemetry from the maintained fork | Implemented: collection/transmission code, timers, consent UI, settings and telemetry-only tests removed; legacy opt-in keys cleared at startup |
+| INSTALL-01 | P1 | Install as Notepadqq with a normal menu entry and persistent user data | Prepared: per-user release installer, one-time profile migration with backup, update preservation and write-free preview; 10 installer tests pass; real user installation left to the user |
 
 Additional requests can be added with stable IDs when the user recalls them.
 
@@ -143,6 +144,18 @@ to their original panes and tab positions, remove an empty comparison-only pane,
 and avoid taking documents back from another window. These refinements were
 requested and implemented on 2026-10-11.
 Handle empty documents, final-newline differences, and LF/CRLF consistently.
+
+## Standard user installation
+
+### INSTALL-01: standard per-user installation
+
+Prepared on 2026-10-11: `install-user.sh` installs as **Notepadqq** under
+`~/.local`, with the standard command and desktop identity, without `sudo`.
+Import the development profile once, preserve unsaved-document and recovery
+cache references, back up any pre-existing standard profile, and retain live
+sessions on subsequent updates. Other packages and the development launcher
+are removed separately by the user. Preparation and tests must not change
+the user's actual installation. See [packaging](../PACKAGING.md) for usage.
 
 ## Delivery order
 

@@ -14,6 +14,7 @@ Thumbs.db
 build-notepadqq-Desktop*
 
 /build
+/scripts/__pycache__/
 /src/ui/ui.pro.user
 /src/ui/ui.pro.user.*
 /notepadqq.pro.user

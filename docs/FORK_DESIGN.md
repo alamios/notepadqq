@@ -44,9 +44,11 @@ have been installed by the agent.
 Use repository-local XDG directories and close other Notepadqq instances before
 running GUI tests. `SingleApplication::socketNameForUser()` uses a fixed ID;
 the optional D-Bus path also uses a fixed service name. Consequently, separate
-storage is not sufficient for concurrent fork/upstream instances. Before
-shipping the fork, give it a distinct application/desktop/IPC identity and make
-test instance identity profile-aware. Choose public branding later.
+storage is not sufficient for concurrent fork/upstream instances. The user
+subsequently chose the standard **Notepadqq** name and a replacement user
+installation, retaining the original application/desktop/IPC identity.
+Concurrent upstream/fork instances remain unsupported. Profile-aware test
+instance identity remains a possible development improvement.
 
 ## Stability policy and session scope
 
@@ -336,7 +338,31 @@ Independent scrolling is intentional in this first version. Alignment spacers,
 scroll synchronization, character-level highlights, navigation and merge/staging
 controls are outside the delivered scope. Monaco comparison is disabled.
 
-## Verification and first implementation milestone
+## Standard user installation
+
+`install-user.sh` delegates to the Python-standard-library installer in
+`scripts/install_user.py`. Build and CMake install run in staging before
+publication into the per-user prefix. Runtime assets are found relative to the
+installed binary using the existing lookup; no runtime wrapper or repository
+path is required. The original desktop entry retains its translations, actions
+and identity, with absolute executable paths and no terminal.
+
+Migrate only the development profile's `config/Notepadqq` directory. Session
+XML rewrites are restricted to `cacheFilePath` attributes rooted inside that
+source directory, in `session.xml` and recovery `window.xml` files. Actual
+document paths and cached content remain intact. Validate copied XML before
+build/install. Publish the profile with destination-filesystem staging and a
+rename of any previous profile to a unique backup, restoring it on a failed
+final rename. A marker prevents importing stale development sessions on each
+update. `--keep-profile` creates the marker without importing. Keep the original
+profile and separately installed editions for user-controlled cleanup.
+
+The installer has a write-free preview and refuses installation while a
+Notepadqq process owned by the current user is running. Regression tests use
+temporary profiles and mocked process/build calls; preparation does not run
+the installer against real settings or desktop integration.
+
+## First implementation verification
 
 Documentation-only updates do not require new runtime tests. Once dependencies
 are available, configure/build the isolated baseline and run the existing tests.
