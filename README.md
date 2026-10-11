@@ -1,14 +1,17 @@
-# Notepadqq — alamios fork
+# Notepadqq
 
-A Linux text editor maintained by **alamios**, based on
-[Notepadqq](https://github.com/notepadqq/notepadqq). It provides syntax
-highlighting for more than 100 languages, multiple selections, configurable
-shortcuts and session restoration, with additional tab and comparison features.
-This fork contains no telemetry.
+A fork of [Notepadqq](https://github.com/notepadqq/notepadqq), developed and
+maintained for personal use. It adds tab customization,
+comment shortcuts and document comparison, and removes upstream telemetry.
 
-The current fork version is **2.3.0**. The About dialog identifies this fork
-and credits **alamios** as its maintainer separately from Daniele Di Sarli and
-the original Notepadqq contributors.
+Based on the work of **Daniele Di Sarli and the original Notepadqq contributors**.
+
+**Current version: 2.3.0**
+
+> [!NOTE]
+> Tested only on the maintainer's system: **Kubuntu 26.04, AMD64 (x86_64),
+> KDE Plasma and Qt 6.10.2**, with the CodeMirror backend.
+> Compatibility with other environments has not been verified.
 
 ## Features
 
