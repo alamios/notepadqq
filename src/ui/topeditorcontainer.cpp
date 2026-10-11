@@ -55,6 +55,17 @@ EditorTabWidget* TopEditorContainer::tabWidget(int index)
 EditorTabWidget* TopEditorContainer::currentTabWidget()
 { return m_currentTabWidget; }
 
+void TopEditorContainer::activateTabWidget(EditorTabWidget* tabWidget)
+{
+    if (!tabWidget || indexOf(tabWidget) < 0) return;
+    if (m_currentTabWidget != tabWidget) {
+        m_currentTabWidget = tabWidget;
+        emit currentTabWidgetChanged(tabWidget);
+    }
+    emit currentEditorChanged(tabWidget, tabWidget->currentIndex());
+    if (auto* editor = tabWidget->currentEditor()) editor->setFocus();
+}
+
 EditorTabWidget* TopEditorContainer::inactiveTabWidget(bool createIfNotExists)
 {
     const int currentViewCount = count();

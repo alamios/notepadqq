@@ -1,6 +1,9 @@
 #include "include/comparisoncontroller.h"
 #include "include/linediff.h"
 #include <QThread>
+#include <QTabBar>
+#include <QMap>
+#include <algorithm>
 
 namespace {
 class DiffThread : public QThread {
@@ -50,7 +53,11 @@ void ComparisonController::stop()
     m_connections.clear();
     for (auto editor : {m_left, m_right})
         if (editor) editor->sendMessage("C_CMD_DIFF_END");
+    const auto left = m_left, right = m_right;
+    // Clear the pair before transfers emit selection signals. Queued validation
+    // must not mistake restoration for another active comparison move.
     m_left.clear(); m_right.clear();
+    restoreDocuments(left, right);
     emit activeChanged(false);
     emit statusChanged(QString());
 }
@@ -61,16 +68,20 @@ bool ComparisonController::start(Editor* left, Editor* right)
     return false;
 #else
     if (!left || !right || left == right || !left->supportsCommentToggle() || !right->supportsCommentToggle()) return false;
+    if (!m_container || !m_container->tabWidgetFromEditor(left) || !m_container->tabWidgetFromEditor(right)) return false;
+    stop();
     auto* sourceLeft = m_container->tabWidgetFromEditor(left);
     auto* sourceRight = m_container->tabWidgetFromEditor(right);
-    if (!sourceLeft || !sourceRight) return false;
-    stop();
+    m_leftOrigin = {sourceLeft, m_container->indexOf(sourceLeft), sourceLeft->indexOf(left)};
+    m_rightOrigin = {sourceRight, m_container->indexOf(sourceRight), sourceRight->indexOf(right)};
     // Keep live editors and their undo/session metadata; only transfer tabs.
     auto* destinationLeft = m_container->tabWidget(0);
     if (sourceLeft != destinationLeft)
         destinationLeft->transferEditorTab(false, sourceLeft, sourceLeft->indexOf(left));
     sourceRight = m_container->tabWidgetFromEditor(right);
-    auto* destinationRight = m_container->count() > 1 ? m_container->tabWidget(1) : m_container->addTabWidget();
+    const bool createPane = m_container->count() == 1;
+    auto* destinationRight = createPane ? m_container->addTabWidget() : m_container->tabWidget(1);
+    if (createPane) m_temporaryPane = destinationRight;
     if (sourceRight != destinationRight)
         destinationRight->transferEditorTab(false, sourceRight, sourceRight->indexOf(right));
     destinationLeft->setCurrentIndex(destinationLeft->indexOf(left));
@@ -87,6 +98,58 @@ bool ComparisonController::start(Editor* left, Editor* right)
     return true;
 #endif
 }
+void ComparisonController::restoreDocuments(QPointer<Editor> left, QPointer<Editor> right)
+{
+    if (!m_container) return;
+    struct ReturnTab { QPointer<Editor> editor; Origin origin; };
+    QList<ReturnTab> tabs = {{left, m_leftOrigin}, {right, m_rightOrigin}};
+    // When both tabs shared a pane, restore lower indices first after transfers.
+    std::sort(tabs.begin(), tabs.end(), [](const ReturnTab& a, const ReturnTab& b) {
+        if (a.origin.paneIndex != b.origin.paneIndex) return a.origin.paneIndex < b.origin.paneIndex;
+        return a.origin.tabIndex < b.origin.tabIndex;
+    });
+    QMap<int, QPointer<EditorTabWidget>> recreated;
+    for (auto& tab : tabs) {
+        if (!tab.editor) continue;
+        auto* source = m_container->tabWidgetFromEditor(tab.editor);
+        // A document moved to another window belongs there; never pull it back.
+        if (!source) continue;
+        if (!tab.origin.pane) {
+            auto pane = recreated.value(tab.origin.paneIndex);
+            if (!pane) {
+                pane = m_container->addTabWidget();
+                m_container->insertWidget(qMin(tab.origin.paneIndex, m_container->count() - 1), pane);
+                recreated.insert(tab.origin.paneIndex, pane);
+            }
+            tab.origin.pane = pane;
+        }
+        if (source != tab.origin.pane)
+            tab.origin.pane->transferEditorTab(false, source, source->indexOf(tab.editor));
+    }
+    for (const auto& tab : tabs) {
+        if (!tab.editor || !tab.origin.pane || m_container->tabWidgetFromEditor(tab.editor) != tab.origin.pane) continue;
+        const int current = tab.origin.pane->indexOf(tab.editor);
+        tab.origin.pane->tabBar()->moveTab(current, qBound(0, tab.origin.tabIndex, tab.origin.pane->count() - 1));
+    }
+    // Select the reference on return, and update the container's active pointer
+    // before removing an empty comparison-only pane.
+    EditorTabWidget* focus = left ? m_container->tabWidgetFromEditor(left) : nullptr;
+    if (focus) focus->setCurrentIndex(focus->indexOf(left));
+    else if (right) {
+        focus = m_container->tabWidgetFromEditor(right);
+        if (focus) focus->setCurrentIndex(focus->indexOf(right));
+    }
+    if (left || right || m_temporaryPane) {
+        if (!focus) focus = m_container->tabWidget(0);
+        m_container->activateTabWidget(focus);
+    }
+    if (m_temporaryPane && m_temporaryPane->count() == 0 && m_container->count() > 1) {
+        delete m_temporaryPane.data();
+    }
+    m_temporaryPane.clear();
+    m_leftOrigin = {}; m_rightOrigin = {};
+}
+
 void ComparisonController::schedule()
 {
     ++m_generation;

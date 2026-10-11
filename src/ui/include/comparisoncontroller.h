@@ -24,7 +24,15 @@ private:
     void schedule();
     void calculate();
     void clear();
-    TopEditorContainer* m_container;
+    struct Origin {
+        QPointer<EditorTabWidget> pane;
+        int paneIndex = 0;
+        int tabIndex = 0;
+    };
+    void restoreDocuments(QPointer<Editor> left, QPointer<Editor> right);
+    QPointer<TopEditorContainer> m_container;
+    Origin m_leftOrigin, m_rightOrigin;
+    QPointer<EditorTabWidget> m_temporaryPane;
     QPointer<Editor> m_left, m_right;
     QTimer m_timer;
     quint64 m_generation = 0;

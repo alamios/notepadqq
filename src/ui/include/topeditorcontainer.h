@@ -23,6 +23,8 @@ public:
     EditorTabWidget* addTabWidget();
     EditorTabWidget* tabWidget(int index);
     EditorTabWidget* currentTabWidget();
+    /** Activates a retained pane before an empty temporary pane is removed. */
+    void activateTabWidget(EditorTabWidget* tabWidget);
 
     /**
      * @brief Returns either of the two first tabwidgets that is not currently active.

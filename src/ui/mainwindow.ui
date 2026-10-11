@@ -946,6 +946,7 @@
    </property>
   </action>
   <action name="actionCompare_Documents">
+   <property name="checkable"><bool>true</bool></property>
    <property name="text"><string>Compare with...</string></property>
    <property name="toolTip"><string>Compare two open documents side by side</string></property>
   </action>

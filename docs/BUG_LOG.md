@@ -11,15 +11,16 @@ warning alone is not a confirmed bug in this checkout.
 The development fork compiles with Qt 6.10.2 and passes both CTest targets.
 Comment toggling, compact tabs, tab colors, unsaved titles and drag insertion
 previews and read-only comparison pass automated Qt/WebEngine validation using
-temporary settings: 80 UI test results and 28 C++ correctness
+temporary settings: 88 UI test results and 28 C++ correctness
 test results, with no failures. The user confirms that comment toggling and the
 new tab features work in the installed fork. The user accepts the latest tab
 dragging behavior on Plasma. Telemetry removal is verified
 in source and the built binary; legacy-key cleanup has regression coverage.
 Insertion previews have twelve passing regression cases and user acceptance.
 Comparison has automated picker, highlighting, editing-lock and lifecycle
-coverage; native Plasma validation remains pending. The requested comparison
-is implemented without navigation or merge controls.
+coverage. The user confirms the initial comparison works on Plasma; the latest
+toolbar toggle and original-pane restoration still need desktop confirmation.
+The requested comparison is implemented without navigation or merge controls.
 
 | ID | Affected build | Symptom | Status and evidence | Next action |
 | --- | --- | --- | --- | --- |

@@ -59,6 +59,10 @@ MainWindow::MainWindow(const QString& workingDirectory, const QStringList& argum
     m_comparisonController = new ComparisonController(m_topEditorContainer);
     connect(m_comparisonController, &ComparisonController::activeChanged, this, [this](bool active) {
         ui->actionEnd_Comparison->setEnabled(active);
+        ui->actionCompare_Documents->setChecked(active);
+        ui->actionCompare_Documents->setText(active ? tr("End Comparison") : tr("Compare with..."));
+        ui->actionCompare_Documents->setToolTip(active ? tr("Remove differences and restore editing") :
+            tr("Compare two open documents side by side"));
     });
     connect(m_comparisonController, &ComparisonController::statusChanged, this, [this](const QString& message) {
         statusBar()->showMessage(message, 5000);
@@ -68,12 +72,13 @@ MainWindow::MainWindow(const QString& workingDirectory, const QStringList& argum
         ui->actionCompare_Documents->setEnabled(false);
 #else
         auto* editor = m_topEditorContainer->currentTabWidget()->currentEditor();
-        ui->actionCompare_Documents->setEnabled(editor && editor->supportsCommentToggle() &&
-            m_topEditorContainer->getNumEditors() >= 2);
+        ui->actionCompare_Documents->setEnabled(m_comparisonController->active() ||
+            (editor && editor->supportsCommentToggle() && m_topEditorContainer->getNumEditors() >= 2));
 #endif
     };
     connect(m_topEditorContainer, &TopEditorContainer::editorAdded, this, updateCompareAction);
     connect(m_topEditorContainer, &TopEditorContainer::currentEditorChanged, this, updateCompareAction);
+    connect(m_comparisonController, &ComparisonController::activeChanged, this, updateCompareAction);
     updateCompareAction();
     m_docEngine = new DocEngine(m_topEditorContainer);
     m_documentController = new DocumentController(*this, *m_docEngine, *m_topEditorContainer, m_settings);
@@ -1108,6 +1113,11 @@ void MainWindow::showExtensionsMenu(bool show)
 
 void MainWindow::on_actionCompare_Documents_triggered()
 {
+    ui->actionCompare_Documents->setChecked(m_comparisonController->active());
+    if (m_comparisonController->active()) {
+        m_comparisonController->stop();
+        return;
+    }
     QPointer<Editor> reference = currentEditor();
     if (!reference) return;
     QDialog dialog(this);

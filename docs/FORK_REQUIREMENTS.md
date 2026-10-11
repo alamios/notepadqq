@@ -51,7 +51,7 @@ not a confirmed current defect.
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
 | TABS-04 | P1 | User-defined titles for unsaved documents | Implemented in the tab context menu, with session and automatic backup persistence |
 | TABS-05 | P1 | Preview the insertion position while dragging a tab | Implemented and accepted by the user: a four-pixel accent line at the exact before/after boundary in single-row and wrapped modes; Escape/outside drops cancel |
-| DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Implemented for CodeMirror: picker, menu/tab-context/toolbar entry, temporary read-only panes, bounded background line diff and cleanup; manual Plasma validation pending |
+| DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Implemented for CodeMirror: picker, menu/tab-context/toolbar entry, temporary read-only panes, bounded background line diff and cleanup; initial comparison accepted by the user; toolbar toggle and original-pane restoration implemented, desktop confirmation pending |
 | PRIV-01 | P1 | Remove upstream telemetry from the maintained fork | Implemented: collection/transmission code, timers, consent UI, settings and telemetry-only tests removed; legacy opt-in keys cleared at startup |
 
 Additional requests can be added with stable IDs when the user recalls them.
@@ -137,7 +137,11 @@ The user subsequently requested temporary editing locks (2026-10-11). Keep both
 compared documents read-only until comparison ends; restore the previous mode,
 including existing read-only documents. Do not change document contents,
 selection, undo history or dirty state. Clear decorations on leaving comparison.
-Provide a toolbar entry as well as View and tab-context menu actions.
+Provide a toolbar entry as well as View and tab-context menu actions. The toolbar
+command must also end an active comparison. On exit, return surviving documents
+to their original panes and tab positions, remove an empty comparison-only pane,
+and avoid taking documents back from another window. These refinements were
+requested and implemented on 2026-10-11.
 Handle empty documents, final-newline differences, and LF/CRLF consistently.
 
 ## Delivery order

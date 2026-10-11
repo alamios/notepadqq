@@ -103,9 +103,12 @@ compared, including unsaved edits and untitled documents.
 
 Both documents are temporarily read-only. **View > End Comparison** clears the
 colors and restores each document's previous editing state, including documents
-that were already read-only. Closing either document, moving it outside the
-window, or moving both into one pane also ends comparison. Tabs stay in their
-panes when comparison ends. Syntax colors, text, undo history and dirty state
+that were already read-only. While comparison is active, the toolbar command is
+checked and changes to **End Comparison**; click it again to finish. Closing either document, moving it outside the
+window, or moving both into one pane also ends comparison. On exit, surviving
+documents return to their original panes and tab positions; a pane created just
+for comparison closes if empty. The reference becomes the active tab again.
+Documents moved to another window remain there. Syntax colors, text, undo history and dirty state
 are preserved. Only one pair per window is compared at a time.
 
 The first version highlights complete lines and uses independent scrolling;
@@ -125,8 +128,9 @@ All new menu actions, dialog labels and appearance options have translations
 in the project's 14 supported languages, including Spanish. Tests use temporary
 settings and the actual Qt/WebEngine editor.
 The user has validated the tab features and insertion preview on Plasma.
-The current development suite has 80 passing UI results and 28 passing C++
-correctness results. The comparison UI still needs native Plasma validation.
+The current development suite has 88 passing UI results and 28 passing C++
+correctness results. The user has confirmed that comparison works on Plasma;
+the latest toolbar toggle and pane restoration still need desktop confirmation.
 
 #### Development setup on Kubuntu
 

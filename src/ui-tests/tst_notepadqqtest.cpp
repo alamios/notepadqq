@@ -25,6 +25,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QToolBar>
+#include <QToolButton>
 #include <QSignalSpy>
 #include <QSpinBox>
 #include <QDialogButtonBox>
@@ -64,6 +65,9 @@ private Q_SLOTS:
     void lineDifferences();
     void comparisonUi();
     void comparisonCancellation();
+    void comparisonRestoresViews_data();
+    void comparisonRestoresViews();
+    void comparisonRestoresMissingView();
     void forkTranslations_data();
     void forkTranslations();
     void removesLegacyTelemetrySettings();
@@ -642,8 +646,18 @@ void NotepadqqTest::comparisonUi()
     // Revision validation rejects old results, without altering live marks.
     evaluateEditor(lp, "UiDriver.messageReceived('C_CMD_DIFF_MARKS', {revision:diffRevision-1, side:'added', lines:[0]})");
     QCOMPARE(evaluateEditor(lp, "diffLines[0].style").toString(), QString("nqq-diff-removed"));
-    end->trigger();
+    QVERIFY(compare->isChecked());
+    QCOMPARE(compare->text(), QString("End Comparison"));
+    auto* button = qobject_cast<QToolButton*>(window.getToolBar()->widgetForAction(compare));
+    QVERIFY(button);
+    QTest::mouseClick(button, Qt::LeftButton);
     QVERIFY(!controller->active());
+    QVERIFY(!compare->isChecked());
+    QCOMPARE(compare->text(), QString("Compare with..."));
+    QCOMPARE(container->count(), 1);
+    QCOMPARE(container->currentTabWidget(), pane);
+    QCOMPARE(pane->editor(0), left);
+    QCOMPARE(pane->editor(1), right);
     QTRY_COMPARE(evaluateEditor(lp, "diffLines.length").toInt(), 0);
     QTRY_COMPARE(evaluateEditor(lp, "editor.getOption('readOnly')").toBool(), false);
     QTRY_COMPARE(evaluateEditor(rp, "editor.getOption('readOnly')").toString(), QString("nocursor"));
@@ -723,6 +737,101 @@ void NotepadqqTest::comparisonCancellation()
     QVERIFY(controller.active());
     QCOMPARE(evaluateEditor(lp, "diffLines.length").toInt(), 0);
     QCOMPARE(evaluateEditor(rp, "diffLines.length").toInt(), 0);
+}
+
+void NotepadqqTest::comparisonRestoresViews_data()
+{
+    QTest::addColumn<int>("views");
+    QTest::addColumn<int>("leftView");
+    QTest::addColumn<int>("rightView");
+    QTest::newRow("single-view") << 1 << 0 << 0;
+    QTest::newRow("both-in-left") << 2 << 0 << 0;
+    QTest::newRow("both-in-right") << 2 << 1 << 1;
+    QTest::newRow("already-side-by-side") << 2 << 0 << 1;
+    QTest::newRow("swapped-views") << 2 << 1 << 0;
+    QTest::newRow("third-view") << 3 << 2 << 2;
+    QTest::newRow("third-and-first") << 3 << 2 << 0;
+}
+
+void NotepadqqTest::comparisonRestoresViews()
+{
+    QFETCH(int, views); QFETCH(int, leftView); QFETCH(int, rightView);
+    TopEditorContainer container;
+    QList<EditorTabWidget*> panes;
+    QList<QList<Editor*>> original;
+    for (int view = 0; view < views; ++view) {
+        auto* pane = view ? container.addTabWidget() : container.tabWidget(0);
+        panes.append(pane);
+        QList<Editor*> editors;
+        for (int tab = 0; tab < 4; ++tab) {
+            pane->addEditorTab(false, QString("View %1 tab %2").arg(view).arg(tab));
+            editors.append(pane->editor(tab));
+        }
+        original.append(editors);
+    }
+    auto* left = original[leftView][3];
+    auto* right = original[rightView][1];
+    left->setTabColor("blue");
+    right->setUnsavedTitle("Comparison title");
+    ComparisonController controller(&container);
+    QVERIFY(controller.start(left, right));
+    QCOMPARE(container.tabWidget(0)->currentEditor(), left);
+    QCOMPARE(container.tabWidget(1)->currentEditor(), right);
+    controller.stop();
+    QCOMPARE(container.count(), views);
+    QCOMPARE(container.currentTabWidget(), panes[leftView]);
+    QCOMPARE(container.currentTabWidget()->currentEditor(), left);
+    for (int view = 0; view < views; ++view) {
+        QCOMPARE(container.tabWidget(view), panes[view]);
+        QCOMPARE(panes[view]->count(), 4);
+        for (int tab = 0; tab < 4; ++tab) QCOMPARE(panes[view]->editor(tab), original[view][tab]);
+    }
+    QCOMPARE(left->tabColor(), QString("blue"));
+    QCOMPARE(right->unsavedTitle(), QString("Comparison title"));
+    // Stop is idempotent; beginning again captures restored origins afresh.
+    controller.stop();
+    QVERIFY(controller.start(left, right));
+    controller.stop();
+    QCOMPARE(container.count(), views);
+    QCOMPARE(panes[leftView]->indexOf(left), 3);
+    QCOMPARE(panes[rightView]->indexOf(right), 1);
+}
+
+void NotepadqqTest::comparisonRestoresMissingView()
+{
+    TopEditorContainer container;
+    auto* origin = container.addTabWidget();
+    origin->addEditorTab(false, "left"); origin->addEditorTab(false, "right");
+    auto* left = origin->editor(0); auto* right = origin->editor(1);
+    ComparisonController controller(&container);
+    QVERIFY(controller.start(left, right));
+    // Simulate closing an emptied original pane during a manual rearrangement.
+    container.tabWidget(0)->transferEditorTab(false, origin, origin->indexOf(right));
+    QPointer<EditorTabWidget> oldOrigin(origin);
+    delete origin;
+    QVERIFY(!oldOrigin);
+    controller.stop();
+    QCOMPARE(container.count(), 2);
+    QCOMPARE(container.tabWidget(1)->editor(0), left);
+    QCOMPARE(container.tabWidget(1)->editor(1), right);
+    QCOMPARE(container.currentTabWidget(), container.tabWidget(1));
+    // A document moved into another window is never stolen back on exit.
+    TopEditorContainer other;
+    QVERIFY(controller.start(left, right));
+    auto* rightPane = container.tabWidgetFromEditor(right);
+    other.tabWidget(0)->transferEditorTab(false, rightPane, rightPane->indexOf(right));
+    controller.stop();
+    QCOMPARE(other.tabWidget(0)->editor(0), right);
+    QCOMPARE(container.tabWidget(1)->editor(0), left);
+    QCOMPARE(container.currentTabWidget(), container.tabWidget(1));
+    // Parent destruction must not restore tabs into an already-destroyed splitter.
+    auto* dying = new TopEditorContainer;
+    auto* dyingPane = dying->tabWidget(0);
+    dyingPane->addEditorTab(false, "left"); dyingPane->addEditorTab(false, "right");
+    QPointer<ComparisonController> child = new ComparisonController(dying);
+    QVERIFY(child->start(dyingPane->editor(0), dyingPane->editor(1)));
+    delete dying;
+    QVERIFY(!child);
 }
 
 void NotepadqqTest::forkTranslations_data()

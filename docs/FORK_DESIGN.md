@@ -99,7 +99,7 @@ exercise menu-action dispatch, real key events, comment/uncomment round trips,
 undo/redo boundaries, unsupported languages, and read-only behavior.
 
 Validation: `cmake --build --preset dev -j 4` and
-`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 80 passing
+`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 88 passing
 results, including 17 comment scenarios and an actual keyboard-shortcut test;
 the C++ correctness suite has 28 passing results. JavaScript syntax, UI XML,
 documentation links, and `git diff --check` were also verified. Manual desktop
@@ -138,7 +138,7 @@ Tests cover live compact preferences, long names/tooltips, close-button presence
 color painting, reordering and pane transfers, context-menu dispatch, clean-file
 sessions, modified-file and unsaved-document backups, legacy XML, invalid colors,
 and automatic backup updates after color-only changes. Both CTest targets pass
-(80 UI results and 28 C++ correctness results). Native Plasma/Wayland
+(88 UI results and 28 C++ correctness results). Native Plasma/Wayland
 appearance remains a manual check. Upstream's clone-view action has no handler
 in this baseline; this milestone introduces no new clone behavior.
 
@@ -260,8 +260,11 @@ and names are not used as document identity. One pair is active per window.
 
 `Compare with...` is a View action shared by the tab context menu and toolbar.
 Its modal picker lists other open editors with pane/tab positions and optional
-paths, handling duplicate titles. `End Comparison` clears the pair and leaves
-the pane layout in place. Shortcuts use the existing preferences machinery,
+paths, handling duplicate titles. The shared comparison action is checkable:
+while active, it uses the existing translated `End Comparison` label/tooltip
+and invokes stop directly, including from the toolbar. Canceling the picker
+leaves it unchecked. It remains available to stop even if the selected tab is
+unrelated to the pair. Shortcuts use the existing preferences machinery,
 without assigning a potentially conflicting default. A bundled SVG supplies
 the toolbar icon. Existing custom toolbars get the new action once using the
 internal `MainWindow/ComparisonToolbarAdded` setting; future customization is
@@ -301,6 +304,18 @@ both members in one pane ends comparison. Movement validation is deferred until
 transfers finish. Selecting unrelated tabs preserves the pair. The window
 stops comparison before destroying the editor UI controller.
 
+Each start records guarded original pane identities, pane indices and tab
+indices, after stopping/restoring any previous pair. Stop clears the active
+pair before transferring surviving documents home and restores tab order in
+ascending original-index order. Missing original panes are recreated at their
+previous splitter positions; closed documents are not recreated and documents
+moved to another window are not transferred back. Only a pane actually created
+by the comparison is removed, and only if empty. Existing or newly populated
+panes remain intact. The reference is selected on return; the container's
+`activateTabWidget` updates its active-pane pointer before removing a temporary
+pane. A guarded container prevents restoration during parent destruction.
+Origins and the temporary-pane reference are reset after each stop.
+
 Twelve pure diff cases cover additions, removals, replacements, duplicate/blank
 lines, empty inputs, Unicode, line endings and final newlines. Integration tests
 exercise the actual picker/toolbar action, existing-toolbar migration, document
@@ -309,7 +324,12 @@ restoration of prior read-only state, closure, pane transfers, pending worker
 cancellation and controller destruction. Limit/cancellation tests include large
 mostly-equal input. All 14 locale catalogs contain the new strings and are
 checked after compilation. The offscreen artifact is
-`build/dev/comparison-preview.png`; native Plasma review remains pending.
+`build/dev/comparison-preview.png`. The user confirms the initial comparison
+works on Plasma. Eight additional regression cases cover shared and swapped
+origins, existing second/third panes, tab order/metadata, repeated stop/start,
+missing origin panes, cross-window movement and parent destruction. The actual
+toolbar button is clicked to stop in the UI test. Native Plasma confirmation
+of the latest toggle/restoration refinements remains pending.
 
 Independent scrolling is intentional in this first version. Alignment spacers,
 scroll synchronization, character-level highlights, navigation and merge/staging

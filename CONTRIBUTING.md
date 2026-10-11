@@ -38,7 +38,7 @@ merge stops if its history has diverged; review those changes before merging.
 Keep the `upstream-baseline` tag unchanged. Repository creation, remote setup
 and publication are handled by the maintainer.
 
-Local validation covers Qt 6.10.2 on Kubuntu and both CTest targets (80 UI and
+Local validation covers Qt 6.10.2 on Kubuntu and both CTest targets (88 UI and
 28 C++ correctness results). The existing quality workflow targets both `main`
 and `master`; its other platforms, sanitizers and formatting checks have not
 been verified by this local test run. Publishing source does not establish a
