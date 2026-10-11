@@ -2320,6 +2320,10 @@ A Notepadqq rootként való futtatása nem ajánlott. Ha mindenképpen szükség
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>Sorszámok megjelenítése</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

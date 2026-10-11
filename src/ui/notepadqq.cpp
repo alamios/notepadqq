@@ -10,8 +10,8 @@
 #include <QMessageBox>
 
 const QString Notepadqq::version = POINTVERSION;
-const QString Notepadqq::contributorsUrl = "https://github.com/notepadqq/notepadqq/graphs/contributors";
-const QString Notepadqq::website = "https://notepadqq.com";
+const QString Notepadqq::contributorsUrl = "https://github.com/alamios/notepadqq/graphs/contributors";
+const QString Notepadqq::website = "https://github.com/alamios/notepadqq";
 
 QString Notepadqq::copyright()
 { return QString("Copyright © 2010-%1, Daniele Di Sarli").arg(COPYRIGHT_YEAR); }

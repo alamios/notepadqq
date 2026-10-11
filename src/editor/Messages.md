@@ -1,9 +1,8 @@
-=== MESSAGES ===
+# Editor bridge messages
 
-C++ --> JS
-----------
+## C++ to JavaScript
 
-* C_CMD_TOGGLE_COMMENT()
+* `C_CMD_TOGGLE_COMMENT()`
   Toggle comments using the active language. Empty/full-line selections use
   line comments (or full-line block comments if the language has no line syntax).
   Partial selections use block syntax where available, otherwise line comments.
@@ -11,12 +10,11 @@ C++ --> JS
   Unsupported languages and read-only documents are left unchanged.
   Implemented by the CodeMirror backend; Monaco support is not included yet.
 
-JS --> C++
-----------
+## JavaScript to C++
 
-* J_EVT_READY()
+* `J_EVT_READY()`
   Notify when the editor is fully loaded.
-* J_EVT_CONTENT_CHANGED()
+* `J_EVT_CONTENT_CHANGED()`
 
 ## Document comparison (CodeMirror)
 

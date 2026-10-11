@@ -2305,6 +2305,10 @@ Vuoi salvare comunque?</translation>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>Mostra i numeri di riga</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

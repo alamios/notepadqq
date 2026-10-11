@@ -1800,6 +1800,10 @@ Vill du spara den i alla fall?</translation>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>Visa radnummer</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

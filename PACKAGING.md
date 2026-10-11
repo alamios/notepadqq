@@ -1,154 +1,95 @@
-# Packaging Notes
+# Packaging and installation
 
-## Per-user installation as Notepadqq
+## Per-user installation
 
-Run `./install-user.sh` after closing all editions of Notepadqq. The script
-resolves the checkout relative to itself, builds `release` with four parallel
-jobs, stages the CMake installation in a temporary directory, then installs:
+Close every Notepadqq instance and run `./install-user.sh`. The script builds
+`release` with four parallel jobs and installs the current checkout without
+`sudo` or fetching source updates.
 
-- executable: `~/.local/bin/notepadqq`
-- editor assets: `~/.local/share/notepadqq`
-- menu launcher: `~/.local/share/applications/notepadqq.desktop`
-- icons, metainfo and manual: under `~/.local/share`
-- settings and session caches: `~/.config/Notepadqq`
+| Component | Default path |
+| --- | --- |
+| Executable | `~/.local/bin/notepadqq` |
+| Editor assets | `~/.local/share/notepadqq` |
+| Desktop entry | `~/.local/share/applications/notepadqq.desktop` |
+| Icons, metainfo and manual | `~/.local/share` |
+| Settings, sessions and document caches | `~/.config/Notepadqq` |
 
-The name is **Notepadqq**, the desktop identity remains `notepadqq.desktop`,
-and `Terminal=false`. All launcher actions use the absolute installed binary,
-so the menu does not depend on the shell's `PATH`. It can be pinned in Plasma.
-The installed application does not depend on the checkout's location; moving
-or deleting the checkout does not remove installed files or migrated sessions.
-It still needs the system runtime libraries used by the build.
+The application name is **Notepadqq** and the desktop ID is `notepadqq.desktop`.
+All launcher actions use the absolute installed executable, with `Terminal=false`.
+The entry can be pinned in Plasma without relying on shell `PATH` configuration.
+For terminal use, put `~/.local/bin` before `/usr/bin` in `PATH`, or invoke the
+installed executable explicitly. No shell startup files or file associations
+are modified.
 
-For the first installation only, the script copies the app-specific directory
-`build/profile/config/Notepadqq`. It includes preferences, `session.xml`,
-`tabCache` and `backupCache`; unrelated KDE settings, recently used files,
-font caches and GPU caches are not imported. Session cache references inside
-the imported profile are adjusted to their destination, including recovery
-sessions in `backupCache/window_*/window.xml`. Document paths, tab titles,
-colors and cached text are preserved. The source is never moved or deleted.
-Invalid session XML aborts before installing files; profiles containing symbolic
-links are rejected rather than following links during migration.
+Installed files and migrated sessions do not depend on the checkout location.
+System runtime libraries, including Qt, remain required. This installer does
+not produce a self-contained AppImage or a distribution package.
 
-An existing destination profile is renamed to a sibling named
-`Notepadqq.before-fork-<unique-id>`, whose path is printed. The migration is
-staged before replacement and restores that backup if the final rename fails.
-The installed profile contains `.alamios-user-install.json` to prevent a later
-update from replacing newer sessions with the development copy. Do not remove
-that marker unless you intend to import the development profile again.
-If no development profile exists, the standard profile is retained.
+## Sessions and updates
 
-Useful options (also listed by `./install-user.sh --help`):
+On the first install, `build/profile/config/Notepadqq` is copied if it exists.
+Preferences, `session.xml`, `tabCache` and `backupCache` are included; unrelated
+KDE settings, recent-file lists and GPU/font caches are excluded. Cache references
+inside session/recovery XML are rewritten for the destination. Document paths,
+colors, titles and cached contents remain intact. The source profile is retained.
 
-- `--dry-run`: print paths and migration policy without building or writing.
-- `--keep-profile`: retain the existing standard profile on the first install.
-- `--profile-source /path/to/profile`: import another development XDG profile
-  root containing `config/Notepadqq`.
-- `--preset dev`: install a debug build instead of the default release build.
-- `--prefix /path/to/prefix` and `--jobs 4`: override destination and parallelism.
+An existing destination is backed up beside it as
+`Notepadqq.before-fork-<unique-id>`; the path is printed. Migration is staged
+before replacement, with rollback if the final rename fails. Invalid session
+XML or symbolic links in the source abort before installing files.
 
-`XDG_CONFIG_HOME` and `XDG_DATA_HOME` are respected. With a custom data home,
-the menu launcher and icons also go there. No shell startup files, file
-associations or package-manager installations are changed. Menu caches are
-refreshed when the relevant tools are available. The installer requires
-Python 3, `pgrep`, CMake and the normal build dependencies. It installs local
-source changes and never fetches from Git. Future updates use the same command:
+`.alamios-user-install.json` marks the installed profile so later updates do
+not import older development sessions. Keep that marker. If no development
+profile exists, the standard profile is retained. Use `--keep-profile` to retain
+it explicitly on the first installation.
+
+After obtaining new source changes, close Notepadqq and rerun:
 
 ```sh
 ./install-user.sh
 ```
 
-For terminal use, ensure `~/.local/bin` precedes `/usr/bin` in `PATH`; otherwise
-use `~/.local/bin/notepadqq` explicitly. The user desktop entry shadows an apt
-entry with the same `notepadqq.desktop` ID, but does not uninstall apt. Flatpak,
-AppImage and the old development launcher may still have separate menu entries.
-Remove those separately through their package manager or Plasma's menu editor,
-after checking the migrated sessions. Re-pin the new **Notepadqq** entry if the
-old taskbar pin targets the development launcher. Do not run apt and this fork
-against the shared standard profile at the same time; all editions also share
-the single-instance application identity.
+## Installer options
 
-Installer regression checks use temporary fixtures and mocked build commands:
+- `--dry-run`: show destinations and migration policy without building or writing.
+- `--keep-profile`: skip importing the development profile.
+- `--profile-source /path/to/profile`: use an XDG profile root containing
+  `config/Notepadqq` instead of `build/profile`.
+- `--prefix /path/to/prefix`: change the installation prefix.
+- `--preset dev`: install debug instead of the default release build.
+- `--jobs 4`: change build parallelism.
 
-```sh
-python3 scripts/test_install_user.py
-```
+`XDG_CONFIG_HOME` and `XDG_DATA_HOME` are respected. A custom data home receives
+the launcher and icons. Available desktop-cache tools are invoked after install;
+if menu refresh fails, log out and back in. Installer requirements are listed
+in the [README](README.md#build-and-install).
 
-They cover unsaved text and recovery-cache path migration, previous-profile
-backup, repeated updates, retaining the standard profile, fresh installs,
-invalid XML, build failure, active-editor refusal and a write-free preview.
-These checks do not install into the real user profile or refresh its menu.
-All 10 installer regression tests pass. The actual existing `dev` build's
-CMake payload was also installed into a temporary prefix and its rewritten
-desktop entry passed `desktop-file-validate` (with existing upstream category
-and deprecated-action warnings). The real user installation has not been run
-as part of preparing this change.
+The user desktop entry overrides an apt entry with the same desktop ID. Other
+packages are not uninstalled, and Flatpak, AppImage or development launchers may
+have separate entries. Remove them with their package manager or Plasma's menu
+editor after checking the migrated session. Re-pin the new **Notepadqq** entry
+if the previous pin points to the development launcher. Do not run multiple
+editions against the shared profile or single-instance identity.
 
-## Fork development isolation
+## Development installation
 
-### Updating the local installation
+`./update-fork.sh` builds `dev` and installs into `build/install/dev`. It
+preserves the repository profile and an existing development launcher, but does
+not create one. Use [isolated development profiles](docs/DEVELOPMENT.md#isolated-profiles)
+for experiments; use `install-user.sh` for normal daily-use installation.
 
-Close the running fork, then execute `./update-fork.sh` from the repository root
-(or invoke the script by its path from any other directory). It configures and
-builds the `dev` preset and explicitly installs into the repository's
-`build/install/dev` prefix. No administrator privileges are required. The
-existing `Notepadqq (Fork)` launcher continues to use that prefix; settings and
-sessions under `build/profile` are retained. The script installs the current
-checkout, including uncommitted edits, without downloading source updates.
+## System packages
 
-### Running with isolated data
-
-The implemented fork features are available after building or running
-`./update-fork.sh`; see the [README](README.md#implemented-fork-features). The
-maintainer has tested a local menu launcher targeting `build/install/dev`. That
-launcher is machine-local and is not created by the update script. A fresh
-checkout can run the binary with the isolated profile below. No fork AppImage
-or distribution package has been produced.
-
-Run fork builds from their build output before installing them. Keep the
-Flatpak, AppImage, and distribution package available until the fork passes
-the acceptance checks in [the requirements](docs/FORK_REQUIREMENTS.md).
-
-For example, launch a development build with repository-local storage:
+CMake installs the real executable as `bin/notepadqq`, assets under
+`share/notepadqq`, a desktop entry, AppStream metadata, icons and a manual page.
+The preset's default prefix is repository-local, so explicitly choose the
+system prefix when packaging. For example, after building `release`:
 
 ```sh
-mkdir -p build/profile/{config,data,cache}
-env XDG_CONFIG_HOME="$PWD/build/profile/config" \
-    XDG_DATA_HOME="$PWD/build/profile/data" \
-    XDG_CACHE_HOME="$PWD/build/profile/cache" \
-    ./build/dev/notepadqq
+DESTDIR="$PWD/build/package-root" cmake --install build/release --prefix /usr
 ```
 
-Run this command from the repository root. Close other Notepadqq instances
-first: the current single-instance socket uses a fixed application identity,
-so separate XDG storage alone does not guarantee separate running instances.
-Profile-aware instance identity is proposed in the fork design.
-
-Do not test crash recovery against real user sessions. Use copied fixtures
-inside the development profile, including unsaved documents. The per-user
-installer above deliberately uses the standard identity and profile to replace
-normal use of upstream; it is not a mechanism for running both simultaneously.
-Development builds should continue to use isolated storage.
-
-## Canonical install layout
-
-- executable: `/usr/bin/notepadqq`
-- application data: `/usr/share/notepadqq`
-- desktop file: `/usr/share/applications/notepadqq.desktop`
-- metainfo: `/usr/share/metainfo/com.notepadqq.Notepadqq.metainfo.xml`
-
-Upstream CMake installs the real executable directly as `notepadqq` and does not install a generic launcher wrapper.
-
-## Packager responsibilities
-
-Distribution-specific wrappers should only be added by packagers when they are required for that package format or runtime environment.
-
-Historically, some packages used wrappers to apply desktop-environment-specific Qt workarounds such as:
-
-- `QT_QPA_PLATFORMTHEME=""`
-- `XDG_CURRENT_DESKTOP="GNOME"`
-
-These are not treated as upstream runtime requirements. If a downstream package still needs one of these workarounds, keep it in that package's launcher, desktop entry, or equivalent runtime configuration.
-
-## Snap
-
-The Snap package keeps its own launcher and Qt runtime configuration under `snap/local/`. That logic is package-specific and intentionally remains outside the upstream CMake install rules.
+This stages a package under `build/package-root`; it does not install into the
+live system. Package maintainers are responsible for runtime dependencies and
+any format-specific wrappers. The existing `snap/` recipes are inherited
+packaging infrastructure; they do not establish a tested fork release.

@@ -1729,6 +1729,10 @@ Ali želite spremembe vseeno shraniti?</translation>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>Prikaži številke vrstic</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

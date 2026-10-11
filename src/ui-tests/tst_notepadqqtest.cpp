@@ -34,6 +34,12 @@
 #include <QMenu>
 #include <QInputDialog>
 #include <QTranslator>
+#include <QFormLayout>
+#include <QLabel>
+#include <QProxyStyle>
+#include <QStyleFactory>
+#include <QStackedWidget>
+#include <QTreeWidget>
 #include <QString>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -76,6 +82,7 @@ private Q_SLOTS:
     void legacyTabColorSession_data();
     void legacyTabColorSession();
     void tabAppearancePreferences();
+    void appearancePreferencesAlignment();
     void tabColorAutosave();
     void tabColorContextMenu();
     void unsavedTabTitle();
@@ -854,7 +861,7 @@ void NotepadqqTest::forkTranslations()
         "Compared document (right):", "%1 (view %2, tab %3)"})
         QVERIFY2(!translator.translate("MainWindow", source).isEmpty(), source);
     for (const char* source : {"Compact tabs", "Maximum compact tab width:",
-        "Always show full tab titles", "Wrap tabs into multiple rows", " px"})
+        "Always show full tab titles", "Wrap tabs into multiple rows", "Show line numbers", " px"})
         QVERIFY2(!translator.translate("frmPreferences", source).isEmpty(), source);
     for (const char* source : {"Comparison exceeds the size or work limit.", "Documents are identical."})
         QVERIFY2(!translator.translate("ComparisonController", source).isEmpty(), source);
@@ -1008,6 +1015,67 @@ void NotepadqqTest::tabAppearancePreferences()
     full->setChecked(false);
     width->setValue(160);
     buttons->button(QDialogButtonBox::Apply)->click();
+}
+
+void NotepadqqTest::appearancePreferencesAlignment()
+{
+    class RightAlignedFormsStyle : public QProxyStyle {
+    public:
+        RightAlignedFormsStyle() : QProxyStyle(QStyleFactory::create("Fusion")) {}
+        int styleHint(StyleHint hint, const QStyleOption* option = nullptr,
+                      const QWidget* widget = nullptr, QStyleHintReturn* result = nullptr) const override
+        {
+            if (hint == SH_FormLayoutLabelAlignment)
+                return Qt::AlignRight | Qt::AlignVCenter;
+            return QProxyStyle::styleHint(hint, option, widget, result);
+        }
+    };
+
+    QTranslator translator;
+    QVERIFY(translator.load(QCoreApplication::applicationDirPath() + "/notepadqq_es.qm"));
+    QCoreApplication::installTranslator(&translator);
+    auto cleanup = qScopeGuard([&translator] { QCoreApplication::removeTranslator(&translator); });
+    auto window = std::make_unique<MainWindow>(QStringList());
+    frmPreferences preferences(window->topEditorContainer(), window.get());
+    auto* style = new RightAlignedFormsStyle;
+    style->setParent(&preferences);
+    preferences.setStyle(style);
+    auto* page = preferences.findChild<QWidget*>("pageAppearance");
+    auto* stack = preferences.findChild<QStackedWidget*>("stackedWidget");
+    auto* categories = preferences.findChild<QTreeWidget*>("treeWidget");
+    QVERIFY(page && stack && categories);
+    categories->setCurrentItem(categories->topLevelItem(1));
+    QCOMPARE(stack->currentWidget(), page);
+    preferences.resize(980, 720);
+    preferences.show();
+    QCoreApplication::processEvents();
+    auto* form = preferences.findChild<QFormLayout*>("formLayout_3");
+    auto* full = preferences.findChild<QCheckBox*>("chkShowFullTabTitles");
+    auto* widthLabel = preferences.findChild<QLabel*>("lblMaximumTabWidth");
+    auto* width = preferences.findChild<QSpinBox*>("spnMaximumTabWidth");
+    QVERIFY(form && full && widthLabel && width);
+    QCOMPARE(form->labelAlignment(), Qt::AlignLeft | Qt::AlignVCenter);
+    const int left = full->mapTo(page, QPoint()).x();
+    for (const char* name : {"chkOverrideFontFamily", "chkOverrideFontSize", "chkOverrideLineHeight",
+                            "chkShowLineNumbers", "chkCompactTabs", "chkWrapTabs"}) {
+        auto* checkbox = preferences.findChild<QCheckBox*>(name);
+        QVERIFY(checkbox);
+        QCOMPARE(checkbox->mapTo(page, QPoint()).x(), left);
+        QVERIFY(checkbox->geometry().width() >= checkbox->sizeHint().width());
+    }
+    QCOMPARE(widthLabel->mapTo(page, QPoint()).x(), left);
+    QVERIFY(widthLabel->mapTo(page, QPoint()).y() > full->mapTo(page, QPoint()).y());
+    for (const char* name : {"cmbFontFamilies", "spnFontSize", "spnLineHeight"}) {
+        auto* field = preferences.findChild<QWidget*>(name);
+        QVERIFY(field);
+        QCOMPARE(field->mapTo(page, QPoint()).x(), width->mapTo(page, QPoint()).x());
+    }
+    QCOMPARE(preferences.findChild<QCheckBox*>("chkShowLineNumbers")->text(), QString("Mostrar números de línea"));
+    QVERIFY(width->width() < 150);
+    auto* preview = preferences.findChild<QWebEngineView*>();
+    QVERIFY(preview);
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(preview->page(), "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+    QVERIFY(preferences.grab().save(QCoreApplication::applicationDirPath() + "/preferences-appearance-preview.png"));
 }
 
 void NotepadqqTest::tabColorAutosave()

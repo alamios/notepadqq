@@ -2306,6 +2306,10 @@ Czy chcesz go zapisać mimo to?</translation>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>Pokaż numery wierszy</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

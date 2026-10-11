@@ -1732,6 +1732,10 @@ Voulez-vous tout de même l&apos;enregistrer ?</translation>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>Afficher les numéros de ligne</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

@@ -2318,6 +2318,10 @@ Você deseja salvá-lo mesmo assim?</translation>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>Mostrar números de linha</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

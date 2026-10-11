@@ -2287,6 +2287,10 @@ Do you want to save it anyway?</source>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>显示行号</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

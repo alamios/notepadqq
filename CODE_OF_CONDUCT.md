@@ -55,7 +55,9 @@ further defined and clarified by project maintainers.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported by contacting the project leader at danieleds0@gmail.com. All
+reported directly to the fork maintainer, **alamios**, rather than to the
+original project's maintainer. Do not include private incident details in a
+public issue. All
 complaints will be reviewed and investigated and will result in a response that
 is deemed necessary and appropriate to the circumstances. The project team is
 obligated to maintain confidentiality with regard to the reporter of an incident.

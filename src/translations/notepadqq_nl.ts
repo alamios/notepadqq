@@ -2314,6 +2314,10 @@ Wilt u het tóch opslaan?</translation>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>Regelnummers tonen</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>

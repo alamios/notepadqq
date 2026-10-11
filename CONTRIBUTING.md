@@ -1,172 +1,47 @@
-# Contributing to Notepadqq
+# Contributing
 
-## Local fork workflow
+This fork is maintained by **alamios** at
+[alamios/notepadqq](https://github.com/alamios/notepadqq). Submit issues and pull
+requests there rather than to the original project's tracker.
 
-For this fork, code, comments, documentation, and commit messages are written
-in English. Keep the upstream coding conventions and make focused changes.
+## Bug reports
 
-`upstream-baseline` identifies the unmodified starting commit. Do not move the
-tag. Fork development starts on `fork/development`; create focused branches
-from that branch when needed. Consult [the requirements](docs/FORK_REQUIREMENTS.md)
-and [the design](docs/FORK_DESIGN.md), and update their status and the README
-when behavior changes. Record reproductions and validation results for fixes.
-Use [the bug log](docs/BUG_LOG.md) for errors encountered during development or
-daily use, including the affected build/Qt version and reproduction evidence.
-The user reports scrolling and preference hangs resolved in 2.1; session
-restoration is provisionally assumed fixed. Feature work takes priority over
-investigating those historical reports unless symptoms recur.
+Search existing [issues](https://github.com/alamios/notepadqq/issues) before
+opening a report. Include:
 
-The upstream submission process below applies when contributing changes back
-to upstream. Local fork work does not require publishing an upstream issue or
-pull request. Use the maintainer-configured fork remote for publication.
+- Fork commit or version and installation method.
+- OS, desktop/session type, Qt version and editor backend.
+- Reproduction steps, expected result and actual result.
+- Relevant sanitized logs or screenshots, and whether unsaved data is affected.
 
-### Integrating the implemented fork features
+Distinguish an observed fault from a suspected cause. Reproduce session problems
+with an isolated profile and disposable or copied documents. Do not delete real
+session caches to investigate a failure. Reports about an original distribution
+package should identify it explicitly.
 
-Feature branches can be integrated after their focused tests and both CTest
-targets pass. Document comparison, including the toolbar toggle and original-pane
-restoration, was integrated from `feature/document-comparison` into `main` on
-2026-10-11 after automated tests and user acceptance on Plasma.
+## Changes
 
-Integrate subsequent feature branches from a clean checkout:
+Discuss substantial features before implementation. Keep changes focused, follow
+the surrounding code's conventions, and write code, comments, documentation and
+commit messages in English. Add regression coverage where it verifies meaningful
+behavior, and update the README and affected guides.
+
+Create branches from `main` and target pull requests to `alamios/notepadqq:main`.
+The `upstream-baseline` tag records the unmodified starting point and must not
+be moved. Remote names and publication are managed by the maintainer.
+
+See [development](docs/DEVELOPMENT.md) for build, test and profile-isolation
+instructions, and [architecture](docs/ARCHITECTURE.md) for implementation context.
+Run the checks relevant to the change, report what was tested and document any
+remaining limitations. UI changes may also need native desktop review.
+
+When integrating an approved branch from a clean checkout:
 
 ```sh
 git switch main
 git merge --ff-only <feature-branch>
 ```
 
-The fast-forward merge stops if history has diverged; review those changes
-before merging. Keep the `upstream-baseline` tag unchanged. Remote setup and
-publication are handled by the maintainer.
-
-Local validation covers Qt 6.10.2 on Kubuntu and both CTest targets (88 UI and
-28 C++ correctness results). The existing quality workflow targets both `main`
-and `master`; its other platforms, sanitizers and formatting checks have not
-been verified by this local test run. Publishing source does not establish a
-validated fork package or a separate upstream/fork application identity.
-
-Thanks for helping to make Notepadqq better! As a contributor, here are the guidelines we would like you to follow:
-
- - [Question or Problem?](#question)
- - [Issues and Bugs](#issue)
- - [Feature Requests](#feature)
- - [Submission Guidelines](#submit)
- - [Coding Rules](#rules)
-
-## <a name="question"></a> Got a Question or Problem?
-
-Please, do not open issues for the general support questions as we want to keep GitHub issues for bug reports and feature requests. You've got much better chances of getting your question answered on our [Discussions page](https://github.com/notepadqq/notepadqq/discussions).
-
-## <a name="issue"></a> Found a Bug?
-If you find a bug in the source code, you can help us by
-[submitting an issue](#submit-issue) to our [GitHub Repository][github]. Even better, you can
-[submit a Pull Request](#submit-pr) with a fix.
-
-## <a name="feature"></a> Missing a Feature?
-You can *request* a new feature by [submitting an issue](#submit-issue) to our GitHub
-Repository. If you would like to *implement* a new feature, please submit an issue with
-a proposal for your work first, to be sure that we can use it.
-Please consider what kind of change it is:
-
-* For a **Major Feature**, first open an issue and outline your proposal so that it can be
-discussed. This will also allow us to better coordinate our efforts, prevent duplication of work,
-and help you to craft the change so that it is successfully accepted into the project.
-* **Small Features** can be crafted and directly [submitted as a Pull Request](#submit-pr).
-
-## <a name="submit"></a> Submission Guidelines
-
-### <a name="submit-issue"></a> Submitting an Issue
-
-Before you submit an issue, please search the issue tracker, maybe an issue for your problem already exists and the discussion might inform you of workarounds readily available.
-
-We want to fix all the issues as soon as possible, but before fixing a bug we need to reproduce and confirm it. In order to reproduce bugs you should explain the exact steps you performed to make the problem show up. In addition, you should always specify:
-
-- version of your operating system
-- version of Qt (menu `? -> About Qt...`)
-- version of Notepadqq (menu `? -> About Notepadqq...`)
-
-You can file new issues by filling out our [new issue form](https://github.com/notepadqq/notepadqq/issues/new).
-
-
-### <a name="submit-pr"></a> Submitting a Pull Request (PR)
-Before you submit your Pull Request (PR) consider the following guidelines:
-
-* Search [GitHub](https://github.com/notepadqq/notepadqq/pulls) for an open or closed PR
-  that relates to your submission. You don't want to duplicate effort.
-* Create a new git branch in which you'll make your changes:
-
-     ```shell
-     git checkout -b my-fix-branch master
-     ```
-
-* Create your patch.
-* Take some time to review the diff of your changes, so that you're confident that everything is correct.
-* Commit your changes using a descriptive commit message.
-
-     ```shell
-     git commit -a
-     ```
-  Note: the optional commit `-a` command line option will automatically "add" and "rm" edited files.
-
-* Push your branch to GitHub:
-
-    ```shell
-    git push origin my-fix-branch
-    ```
-
-* In GitHub, send a pull request to `notepadqq:master`. Always include an explanation about *what* your code does and *why*.
-* If we suggest changes then:
-  * Make the required updates.
-  * Rebase your branch and force push to your GitHub repository (this will update your Pull Request):
-
-    ```shell
-    git rebase master -i
-    git push -f
-    ```
-
-That's it! Thank you for your contribution!
-
-[Learn more about the git workflow](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
-
-#### After your pull request is merged
-
-After your pull request is merged, you can safely delete your branch and pull the changes
-from the main (upstream) repository:
-
-* Delete the remote branch on GitHub either through the GitHub web UI or your local shell as follows:
-
-    ```shell
-    git push origin --delete my-fix-branch
-    ```
-
-* Check out the master branch:
-
-    ```shell
-    git checkout master -f
-    ```
-
-* Delete the local branch:
-
-    ```shell
-    git branch -D my-fix-branch
-    ```
-
-* Update your master with the latest upstream version:
-
-    ```shell
-    git pull --ff upstream master
-    ```
-
-## <a name="rules"></a> Coding Rules
-To ensure consistency throughout the source code, keep these rules in mind as you are working:
-
- * Make sure that your code respects the style conventions of the project. Look at the code around you: do you see
-   spaces before parenthesis? Are brackets on their own line? Copy that! The most important thing is to be consistent.
- * Put a comment block over your methods, describing what they do, their parameters, and their results.
- * One pull request is meant to contain just one fix/feature. Open another pull request if you have some other
-   unrelated change to submit.
- * Make sure your pull request doesn't contain trivial, unwanted changes. For example, if you're working on a big feature
-   and you happen to open Qt Designer and it increases the height of the window by 1px, please keep that out of the pull request.
-   In general, keep the number of changes at the minimum necessary.
-
-
-[github]: https://github.com/notepadqq/notepadqq
+If histories diverge, review the divergence before choosing another merge
+strategy. Preserve original attribution and third-party licenses. Community
+participation follows the [Code of Conduct](CODE_OF_CONDUCT.md).

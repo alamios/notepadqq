@@ -2307,6 +2307,10 @@ Do you want to save it anyway?</source>
         <source> px</source>
         <translation> px</translation>
     </message>
+    <message>
+        <source>Show line numbers</source>
+        <translation>行番号を表示</translation>
+    </message>
 </context>
 <context>
     <name>frmSearchReplace</name>
