@@ -1282,6 +1282,38 @@ Do you want to save it anyway?</source>
         <source>Title:</source>
         <translation>Заголовок:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Сравнить с...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Сравнить два открытых документа рядом</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Завершить сравнение</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Удалить различия и восстановить редактирование</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Сравнение документов</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Исходный документ (слева): %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Сравниваемый документ (справа):</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (панель %2, вкладка %3)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -1893,6 +1925,17 @@ Do you want to save it anyway?</source>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="432"/>
         <source>No results found</source>
         <translation>Не найдено результатов</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>Сравнение превышает ограничение размера или вычислений.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>Документы идентичны.</translation>
     </message>
 </context>
 </TS>

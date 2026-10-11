@@ -28,9 +28,11 @@ and project documentation are maintained in English.
 The `upstream-baseline` tag records commit
 `37652c5efa5fe8720f4eaf9f2e459888c1c6d6d0`, before fork changes.
 That commit declares development version **2.2.0**; it is not the 2.1.1 release.
-Fork work starts on `fork/development`. The `upstream` remote points to
-`https://github.com/notepadqq/notepadqq.git`; a hosted fork and its `origin`
-remote have not been configured yet.
+Initial fork work started on `fork/development`; subsequent features use
+focused branches from `main`. The fork repository is
+`https://github.com/alamios/notepadqq.git`. The original upstream is
+`https://github.com/notepadqq/notepadqq.git`; Git remote names and publication
+are managed by the maintainer.
 
 The linked requirements and design distinguish implemented features from planned
 work. Existing distribution packages do not include fork changes.
@@ -91,13 +93,40 @@ automatic backups, including empty titled tabs. Naming a tab changes no text
 or undo history. Saving the document uses the real filename as its tab title;
 saving a copy keeps the unsaved document's title.
 
+**Document comparison:** select the reference tab, then choose **View > Compare
+with...**, the same command in the tab context menu, or the red/green document
+icon in the toolbar. Choose another open document in the picker; names include
+view/tab positions and paths to distinguish duplicates. The reference appears
+on the left with removed/replaced lines in red; the other document appears on
+the right with added/replaced lines in green. Current in-memory contents are
+compared, including unsaved edits and untitled documents.
+
+Both documents are temporarily read-only. **View > End Comparison** clears the
+colors and restores each document's previous editing state, including documents
+that were already read-only. Closing either document, moving it outside the
+window, or moving both into one pane also ends comparison. Tabs stay in their
+panes when comparison ends. Syntax colors, text, undo history and dirty state
+are preserved. Only one pair per window is compared at a time.
+
+The first version highlights complete lines and uses independent scrolling;
+it has no alignment spacers, character-level differences, navigation or merge
+controls. LF/CRLF are treated equally; a final-newline difference marks the
+extra empty line. Equal documents produce a status message. Work runs in a
+background thread. Inputs over 4 Mi UTF-16 code units combined or 100,000 lines
+combined, changed regions over 20,000 lines, or an LCS table over 4,000,000 cells
+end comparison with a status message and restore editing. Large files with
+small changes can fit these limits after equal edges are trimmed.
+
+Comparison currently supports CodeMirror. Its shortcut is configurable in
+Preferences, with no default binding. The toolbar entry is added once to
+existing custom toolbars and can subsequently be removed through customization.
+
 All new menu actions, dialog labels and appearance options have translations
-in the project's 14 supported languages, including Spanish. Document comparisons
-remain planned. Tests use temporary settings and the actual Qt/WebEngine editor.
+in the project's 14 supported languages, including Spanish. Tests use temporary
+settings and the actual Qt/WebEngine editor.
 The user has validated the tab features and insertion preview on Plasma.
-The current development suite has 66 passing UI results and 28 passing C++
-correctness results. Document comparison is not required for integrating the
-implemented features into the fork's main branch.
+The current development suite has 80 passing UI results and 28 passing C++
+correctness results. The comparison UI still needs native Plasma validation.
 
 #### Development setup on Kubuntu
 
@@ -151,10 +180,10 @@ Build it yourself
 
 #### Get the source
 
-Clone this fork using its repository URL (replace the placeholder below):
+Clone this fork:
 
 ```sh
-git clone --recursive <fork-repository-url> notepadqq
+git clone --recursive https://github.com/alamios/notepadqq.git notepadqq
 cd notepadqq
 ```
 

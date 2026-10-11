@@ -2,7 +2,7 @@
 
 Recorded: 2026-10-10. Status: comment toggling, compact tabs, tab colors and unsaved tab titles
 implemented, including multiple-row tabs and insertion previews; telemetry is
-removed. Document comparison remains planned.
+removed. Read-only document comparison is implemented, including a toolbar entry.
 
 ## Purpose and baseline
 
@@ -14,7 +14,7 @@ engine instead of porting Notepad++ or replacing the engine.
 The immutable starting reference is `upstream-baseline` at
 `37652c5efa5fe8720f4eaf9f2e459888c1c6d6d0` (development version 2.2.0).
 Development starts on `fork/development`, with the original repository recorded
-as the `upstream` remote. A hosted fork is not yet configured.
+as the original upstream. The maintainer manages fork remotes and publication.
 
 All code and project documentation must be in English. Existing translations
 remain supported. New work does not depend on plugins; removal of the existing
@@ -51,7 +51,7 @@ not a confirmed current defect.
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
 | TABS-04 | P1 | User-defined titles for unsaved documents | Implemented in the tab context menu, with session and automatic backup persistence |
 | TABS-05 | P1 | Preview the insertion position while dragging a tab | Implemented and accepted by the user: a four-pixel accent line at the exact before/after boundary in single-row and wrapped modes; Escape/outside drops cancel |
-| DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Designed |
+| DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Implemented for CodeMirror: picker, menu/tab-context/toolbar entry, temporary read-only panes, bounded background line diff and cleanup; manual Plasma validation pending |
 | PRIV-01 | P1 | Remove upstream telemetry from the maintained fork | Implemented: collection/transmission code, timers, consent UI, settings and telemetry-only tests removed; legacy opt-in keys cleared at startup |
 
 Additional requests can be added with stable IDs when the user recalls them.
@@ -133,8 +133,11 @@ and green ranges. Unchanged lines retain their normal appearance.
 The user explicitly requested highlighting only: no next/previous-change
 controls, merge buttons, staging, or other additional diff controls. A basic
 command to choose the two documents and enter/leave comparison is necessary.
-Recompute after edits without blocking the UI or changing document contents,
-selection, undo history, or dirty state. Clear decorations on leaving comparison.
+The user subsequently requested temporary editing locks (2026-10-11). Keep both
+compared documents read-only until comparison ends; restore the previous mode,
+including existing read-only documents. Do not change document contents,
+selection, undo history or dirty state. Clear decorations on leaving comparison.
+Provide a toolbar entry as well as View and tab-context menu actions.
 Handle empty documents, final-newline differences, and LF/CRLF consistently.
 
 ## Delivery order

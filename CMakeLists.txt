@@ -46,6 +46,8 @@ set(NQQ_STAGED_APPDATA_DIR "${CMAKE_CURRENT_BINARY_DIR}/appdata")
 set(NQQ_APP_SOURCES
     src/ui/main.cpp
     src/ui/mainwindow.cpp
+    src/ui/linediff.cpp
+    src/ui/comparisoncontroller.cpp
     src/ui/documentcontroller.cpp
     src/ui/editoruicontroller.cpp
     src/ui/windowuicontroller.cpp
@@ -102,6 +104,8 @@ set(NQQ_APP_SOURCES
 
 set(NQQ_APP_HEADERS
     src/ui/include/mainwindow.h
+    src/ui/include/linediff.h
+    src/ui/include/comparisoncontroller.h
     src/ui/include/documentcontroller.h
     src/ui/include/editoruicontroller.h
     src/ui/include/windowuicontroller.h

@@ -1279,6 +1279,38 @@ Ali želite spremembe vseeno shraniti?</translation>
         <source>Title:</source>
         <translation>Naslov:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Primerjaj z...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Primerjaj dva odprta dokumenta drugega ob drugem</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Končaj primerjavo</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Odstrani razlike in obnovi urejanje</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Primerjaj dokumente</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Referenca (levo): %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Primerjani dokument (desno):</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (pogled %2, zavihek %3)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -1887,6 +1919,17 @@ Ali želite spremembe vseeno shraniti?</translation>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="432"/>
         <source>No results found</source>
         <translation>Ni najdenih zadetkov</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>Primerjava presega omejitev velikosti ali izračuna.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>Dokumenta sta enaka.</translation>
     </message>
 </context>
 </TS>

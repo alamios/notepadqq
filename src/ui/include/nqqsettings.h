@@ -149,6 +149,7 @@ public:
     NQQ_SETTING(WindowState, QByteArray, QByteArray())
     NQQ_SETTING(MenuBarVisible, bool, true)
     NQQ_SETTING(ToolBarItems, QString, QString())
+    NQQ_SETTING(ComparisonToolbarAdded, bool, false)
     END_CATEGORY(MainWindow)
 
     // A few of the more involved settings can't be handled like above.

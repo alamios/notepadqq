@@ -1,6 +1,6 @@
 # Bug log
 
-Maintainer: **alamios**. Updated: 2026-10-10.
+Maintainer: **alamios**. Updated: 2026-10-11.
 
 Record unexpected behavior encountered during feature development and daily use.
 Distinguish user observations, assumptions, and reproduced defects. An upstream
@@ -10,14 +10,16 @@ warning alone is not a confirmed bug in this checkout.
 
 The development fork compiles with Qt 6.10.2 and passes both CTest targets.
 Comment toggling, compact tabs, tab colors, unsaved titles and drag insertion
-previews pass automated Qt/WebEngine validation using temporary settings:
-66 UI test results and 28 C++ correctness
+previews and read-only comparison pass automated Qt/WebEngine validation using
+temporary settings: 80 UI test results and 28 C++ correctness
 test results, with no failures. The user confirms that comment toggling and the
 new tab features work in the installed fork. The user accepts the latest tab
 dragging behavior on Plasma. Telemetry removal is verified
 in source and the built binary; legacy-key cleanup has regression coverage.
 Insertion previews have twelve passing regression cases and user acceptance.
-New features are the current implementation priority.
+Comparison has automated picker, highlighting, editing-lock and lifecycle
+coverage; native Plasma validation remains pending. The requested comparison
+is implemented without navigation or merge controls.
 
 | ID | Affected build | Symptom | Status and evidence | Next action |
 | --- | --- | --- | --- | --- |

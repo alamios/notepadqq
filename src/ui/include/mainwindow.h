@@ -21,6 +21,7 @@ class MainWindow;
 class WindowUiController;
 class DocumentController;
 class EditorUiController;
+class ComparisonController;
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -100,6 +101,8 @@ private slots:
     void runCommand();
     void modifyRunCommands();
     void searchDockItemInteracted(const DocResult& doc, const MatchResult* result, SearchUserInteraction type);
+    void on_actionCompare_Documents_triggered();
+    void on_actionEnd_Comparison_triggered();
     void on_actionNew_triggered();
     void on_customTabContextMenuRequested(QPoint point, EditorTabWidget* tabWidget, int tabIndex);
     void on_actionMove_to_Other_View_triggered();
@@ -215,6 +218,7 @@ private:
     Ui::MainWindow* ui;
     QToolBar* m_mainToolBar = nullptr;
     TopEditorContainer* m_topEditorContainer;
+    ComparisonController* m_comparisonController = nullptr;
     DocEngine* m_docEngine;
     QMenu* m_tabContextMenu;
     QList<QAction*> m_tabContextMenuActions;

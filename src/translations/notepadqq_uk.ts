@@ -1605,6 +1605,38 @@ Do you want to save it anyway?</source>
         <source>Title:</source>
         <translation>Заголовок:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Порівняти з...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Порівняти два відкриті документи поруч</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Завершити порівняння</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Прибрати відмінності та відновити редагування</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Порівняння документів</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Зразок (ліворуч): %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Порівнюваний документ (праворуч):</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (панель %2, вкладка %3)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2395,6 +2427,17 @@ Do you want to save it anyway?</source>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="288"/>
         <source>No results found</source>
         <translation>Результатів не знайдено</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>Порівняння перевищує обмеження розміру або обчислень.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>Документи ідентичні.</translation>
     </message>
 </context>
 </TS>

@@ -206,6 +206,8 @@
     <addaction name="menuShow_Symbol"/>
     <addaction name="menuZoom"/>
     <addaction name="menuMove_Clone_Current_Document"/>
+    <addaction name="actionCompare_Documents"/>
+    <addaction name="actionEnd_Comparison"/>
     <addaction name="actionWord_wrap"/>
     <addaction name="actionMath_Rendering"/>
     <addaction name="actionToggle_To_Former_Tab"/>
@@ -942,6 +944,15 @@
    <property name="shortcut">
     <string>Ctrl+Shift+Down</string>
    </property>
+  </action>
+  <action name="actionCompare_Documents">
+   <property name="text"><string>Compare with...</string></property>
+   <property name="toolTip"><string>Compare two open documents side by side</string></property>
+  </action>
+  <action name="actionEnd_Comparison">
+   <property name="text"><string>End Comparison</string></property>
+   <property name="toolTip"><string>Remove differences and restore editing</string></property>
+   <property name="enabled"><bool>false</bool></property>
   </action>
   <action name="actionToggle_Comment">
    <property name="text">

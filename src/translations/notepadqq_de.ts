@@ -1607,6 +1607,38 @@ Wollen Sie dennoch speichern?</translation>
         <source>Title:</source>
         <translation>Titel:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Vergleichen mit...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Zwei geöffnete Dokumente nebeneinander vergleichen</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Vergleich beenden</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Unterschiede entfernen und Bearbeitung wiederherstellen</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Dokumente vergleichen</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Referenz (links): %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Vergleichsdokument (rechts):</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (Ansicht %2, Tab %3)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2401,6 +2433,17 @@ Erweiterungen ist EXPERIMENTELL.</translation>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="288"/>
         <source>No results found</source>
         <translation>Keine Übereinstimmungen</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>Der Vergleich überschreitet die Größen- oder Arbeitsgrenze.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>Die Dokumente sind identisch.</translation>
     </message>
 </context>
 </TS>

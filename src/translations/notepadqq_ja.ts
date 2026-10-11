@@ -1610,6 +1610,38 @@ Do you want to save it anyway?</source>
         <source>Title:</source>
         <translation>タイトル:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>比較対象...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>開いている2つの文書を並べて比較</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>比較を終了</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>差分を消して編集を再開</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>文書を比較</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>基準（左）: %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>比較する文書（右）:</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1（ビュー %2、タブ %3）</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2390,6 +2422,17 @@ Do you want to save it anyway?</source>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="290"/>
         <source>No results found</source>
         <translation>何も見つかりませんでした</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>比較がサイズまたは計算量の上限を超えています。</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>文書は同一です。</translation>
     </message>
 </context>
 </TS>

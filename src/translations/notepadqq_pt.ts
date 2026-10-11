@@ -1616,6 +1616,38 @@ Você deseja salvá-lo mesmo assim?</translation>
         <source>Title:</source>
         <translation>Título:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Comparar com...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Comparar dois documentos abertos lado a lado</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Terminar comparação</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Remover diferenças e restaurar a edição</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Comparar documentos</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Referência (esquerda): %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Documento comparado (direita):</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (vista %2, separador %3)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2401,6 +2433,17 @@ Você deseja salvá-lo mesmo assim?</translation>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="290"/>
         <source>No results found</source>
         <translation>Nenhum resultado encontrado</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>A comparação excede o limite de tamanho ou de cálculo.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>Os documentos são idênticos.</translation>
     </message>
 </context>
 </TS>

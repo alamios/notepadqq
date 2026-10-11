@@ -1609,6 +1609,38 @@ Czy chcesz go zapisać mimo to?</translation>
         <source>Title:</source>
         <translation>Tytuł:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Porównaj z...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Porównaj dwa otwarte dokumenty obok siebie</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Zakończ porównanie</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Usuń różnice i przywróć edycję</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Porównaj dokumenty</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Odniesienie (po lewej): %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Porównywany dokument (po prawej):</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (widok %2, karta %3)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2389,6 +2421,17 @@ Czy chcesz go zapisać mimo to?</translation>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="290"/>
         <source>No results found</source>
         <translation>Brak wyników</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>Porównanie przekracza limit rozmiaru lub obliczeń.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>Dokumenty są identyczne.</translation>
     </message>
 </context>
 </TS>

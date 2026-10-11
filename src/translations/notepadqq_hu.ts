@@ -1616,6 +1616,38 @@ Biztosan menteni szeretné?</translation>
         <source>Title:</source>
         <translation>Cím:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Összehasonlítás ezzel...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Két megnyitott dokumentum összehasonlítása egymás mellett</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Összehasonlítás befejezése</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Különbségek eltávolítása és szerkesztés visszaállítása</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Dokumentumok összehasonlítása</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Referencia (bal): %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Összehasonlított dokumentum (jobb):</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (%2. nézet, %3. lap)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -2403,6 +2435,17 @@ A Notepadqq rootként való futtatása nem ajánlott. Ha mindenképpen szükség
         <location filename="../ui/Search/frmsearchreplace.cpp" line="290"/>
         <source>No results found</source>
         <translation>Nincs találat</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>Az összehasonlítás meghaladja a méret- vagy számítási korlátot.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>A dokumentumok azonosak.</translation>
     </message>
 </context>
 </TS>

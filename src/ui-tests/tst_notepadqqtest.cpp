@@ -4,6 +4,8 @@
 #include "include/notepadqq.h"
 #include "include/nqqsettings.h"
 #include "include/docengine.h"
+#include "include/comparisoncontroller.h"
+#include "include/linediff.h"
 #include "include/Sessions/sessions.h"
 #include "include/Sessions/backupservice.h"
 #include "include/Sessions/persistentcache.h"
@@ -21,6 +23,9 @@
 #include <QDir>
 #include <QTabBar>
 #include <QCheckBox>
+#include <QComboBox>
+#include <QToolBar>
+#include <QSignalSpy>
 #include <QSpinBox>
 #include <QDialogButtonBox>
 #include <QPushButton>
@@ -55,6 +60,10 @@ private Q_SLOTS:
     void wrappingTabs();
     void tabInsertionPreview_data();
     void tabInsertionPreview();
+    void lineDifferences_data();
+    void lineDifferences();
+    void comparisonUi();
+    void comparisonCancellation();
     void forkTranslations_data();
     void forkTranslations();
     void removesLegacyTelemetrySettings();
@@ -526,6 +535,196 @@ void NotepadqqTest::tabInsertionPreview()
     appearance.setShowFullTabTitles(false);
 }
 
+void NotepadqqTest::lineDifferences_data()
+{
+    QTest::addColumn<QString>("left");
+    QTest::addColumn<QString>("right");
+    QTest::addColumn<QVector<int>>("removed");
+    QTest::addColumn<QVector<int>>("added");
+    QTest::newRow("equal") << QString("a\nb\n") << QString("a\nb\n") << QVector<int>{} << QVector<int>{};
+    QTest::newRow("insert") << QString("a\nb") << QString("a\nx\nb") << QVector<int>{} << QVector<int>{1};
+    QTest::newRow("delete") << QString("a\nx\nb") << QString("a\nb") << QVector<int>{1} << QVector<int>{};
+    QTest::newRow("replace") << QString("a\nx\nb") << QString("a\ny\nb") << QVector<int>{1} << QVector<int>{1};
+    QTest::newRow("duplicates") << QString("x\na\nx") << QString("x\nx") << QVector<int>{1} << QVector<int>{};
+    QTest::newRow("empty") << QString() << QString() << QVector<int>{} << QVector<int>{};
+    QTest::newRow("empty-left") << QString() << QString("x") << QVector<int>{} << QVector<int>{0};
+    QTest::newRow("empty-right") << QString("x") << QString() << QVector<int>{0} << QVector<int>{};
+    QTest::newRow("unicode") << QString("猫\nα") << QString("猫\nβ") << QVector<int>{1} << QVector<int>{1};
+    QTest::newRow("eol") << QString("a\r\nb\r\n") << QString("a\nb\n") << QVector<int>{} << QVector<int>{};
+    QTest::newRow("final-newline") << QString("a") << QString("a\n") << QVector<int>{} << QVector<int>{1};
+    QTest::newRow("blank-lines") << QString("a\n\nb") << QString("a\nb") << QVector<int>{1} << QVector<int>{};
+}
+
+void NotepadqqTest::lineDifferences()
+{
+    QFETCH(QString, left); QFETCH(QString, right);
+    QFETCH(QVector<int>, removed); QFETCH(QVector<int>, added);
+    std::atomic_bool canceled(false);
+    const auto result = LineDiff::compare(left, right, canceled);
+    QVERIFY(!result.limited);
+    QCOMPARE(result.removed, removed);
+    QCOMPARE(result.added, added);
+}
+
+void NotepadqqTest::comparisonUi()
+{
+    const auto oldToolbar = NqqSettings::getInstance().MainWindow.getToolBarItems();
+    const bool oldMigrated = NqqSettings::getInstance().MainWindow.getComparisonToolbarAdded();
+    auto restore = qScopeGuard([&] {
+        NqqSettings::getInstance().MainWindow.setToolBarItems(oldToolbar);
+        NqqSettings::getInstance().MainWindow.setComparisonToolbarAdded(oldMigrated);
+    });
+    NqqSettings::getInstance().MainWindow.setToolBarItems("actionNew|actionSave");
+    NqqSettings::getInstance().MainWindow.setComparisonToolbarAdded(false);
+    MainWindow window(QStringList{});
+    window.resize(1000, 600);
+    window.show();
+    auto* container = window.topEditorContainer();
+    auto* pane = container->currentTabWidget();
+    auto* left = window.currentEditor();
+    pane->setTabText(left, "same title");
+    pane->addEditorTab(false, "same title");
+    auto* right = pane->editor(1);
+    auto* lp = left->findChild<QWebEngineView*>()->page();
+    auto* rp = right->findChild<QWebEngineView*>()->page();
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(rp, "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+    left->setValue("same\nold\ntail").wait();
+    right->setValue("same\nnew\ntail").wait();
+    left->markClean().wait();
+    evaluateEditor(lp, "editor.replaceRange('!', {line:0,ch:4}); editor.setCursor(1,1)");
+    const QString history = evaluateEditor(lp, "JSON.stringify(editor.getHistory())").toString();
+    const auto cursor = evaluateEditor(lp, "JSON.stringify(editor.getCursor())");
+    const auto clean = evaluateEditor(lp, "isCleanOrForced(changeGeneration)");
+    evaluateEditor(rp, "editor.setOption('readOnly', 'nocursor')");
+    auto* compare = window.findChild<QAction*>("actionCompare_Documents");
+    auto* end = window.findChild<QAction*>("actionEnd_Comparison");
+    auto* controller = container->findChild<ComparisonController*>();
+    QVERIFY(compare && end && controller);
+    QVERIFY(compare->isEnabled());
+    QVERIFY(window.getToolBar()->actions().contains(compare));
+    QVERIFY(!compare->icon().isNull());
+    // Invoke the same action used by the toolbar and accept its real picker.
+    QTimer::singleShot(0, &window, [&] {
+        auto* dialog = window.findChild<QDialog*>("comparisonDialog");
+        QVERIFY(dialog);
+        auto* choices = dialog->findChild<QComboBox*>("comparisonDocuments");
+        QVERIFY(choices);
+        QCOMPARE(choices->count(), 1);
+        QVERIFY(choices->itemText(0).contains("same title"));
+        dialog->accept();
+    });
+    compare->trigger();
+    QVERIFY(controller->active());
+    QVERIFY(end->isEnabled());
+    QCOMPARE(container->tabWidget(0)->currentEditor(), left);
+    QCOMPARE(container->tabWidget(1)->currentEditor(), right);
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(lp, "diffLines.length > 0 && diffLines[0].style === 'nqq-diff-removed'").toBool(), 5000);
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(rp, "diffLines.length > 0 && diffLines[0].style === 'nqq-diff-added'").toBool(), 5000);
+    QCOMPARE(evaluateEditor(lp, "editor.getOption('readOnly')").toBool(), true);
+    QTRY_VERIFY(evaluateEditor(lp, "!!document.querySelector('.nqq-diff-removed')").toBool());
+    QCOMPARE(evaluateEditor(lp, "getComputedStyle(document.querySelector('.nqq-diff-removed')).backgroundColor").toString(),
+        QString("rgba(230, 65, 65, 0.28)"));
+    QCOMPARE(evaluateEditor(rp, "editor.lineInfo(1).bgClass").toString(), QString("nqq-diff-added"));
+    QTest::qWait(250); // WebEngine must submit the frame after decoration updates.
+    QVERIFY(window.grab().save(QCoreApplication::applicationDirPath() + "/comparison-preview.png"));
+    const auto value = left->value();
+    // Menu edits, history commands and direct edits must all preserve history.
+    left->sendMessage("C_CMD_UNDO");
+    left->sendMessage("C_CMD_REDO");
+    left->sendMessage("C_CMD_DELETE_LINE");
+    left->sendMessage("C_CMD_SET_VALUE", "overwrite");
+    QCOMPARE(evaluateEditor(lp, "UiDriver.messageReceived('C_FUN_REPLACE_ALL', ['old', 'g', 'new', 0])").toInt(), 0);
+    evaluateEditor(lp, "editor.replaceRange('blocked', {line:0,ch:0}); editor.undo(); editor.clearHistory()");
+    QCOMPARE(left->value(), value);
+    QCOMPARE(evaluateEditor(lp, "JSON.stringify(editor.getHistory())").toString(), history);
+    QCOMPARE(evaluateEditor(lp, "JSON.stringify(editor.getCursor())"), cursor);
+    QCOMPARE(evaluateEditor(lp, "isCleanOrForced(changeGeneration)"), clean);
+    // Revision validation rejects old results, without altering live marks.
+    evaluateEditor(lp, "UiDriver.messageReceived('C_CMD_DIFF_MARKS', {revision:diffRevision-1, side:'added', lines:[0]})");
+    QCOMPARE(evaluateEditor(lp, "diffLines[0].style").toString(), QString("nqq-diff-removed"));
+    end->trigger();
+    QVERIFY(!controller->active());
+    QTRY_COMPARE(evaluateEditor(lp, "diffLines.length").toInt(), 0);
+    QTRY_COMPARE(evaluateEditor(lp, "editor.getOption('readOnly')").toBool(), false);
+    QTRY_COMPARE(evaluateEditor(rp, "editor.getOption('readOnly')").toString(), QString("nocursor"));
+    QCOMPARE(evaluateEditor(lp, "JSON.stringify(editor.getHistory())").toString(), history);
+    // A restarted comparison is tied to document identity, not tab indices.
+    QVERIFY(controller->start(left, right));
+    container->tabWidget(1)->closeEditorTab(container->tabWidget(1)->indexOf(right));
+    QTRY_VERIFY(!controller->active());
+    QTRY_COMPARE(evaluateEditor(lp, "editor.getOption('readOnly')").toBool(), false);
+    // Once migrated, user customization may remove the toolbar entry.
+    NqqSettings::getInstance().MainWindow.setToolBarItems("actionNew|actionSave");
+    window.loadToolBar();
+    QVERIFY(!window.getToolBar()->actions().contains(compare));
+}
+
+void NotepadqqTest::comparisonCancellation()
+{
+    std::atomic_bool canceled(false);
+    QVERIFY(LineDiff::compare(QString(5 * 1024 * 1024, 'x'), "x", canceled).limited);
+    QVERIFY(LineDiff::compare(QString("a\n").repeated(2500), QString("b\n").repeated(2500), canceled).limited);
+    const auto local = LineDiff::compare(QString("a\n").repeated(10000) + "old", QString("a\n").repeated(10000) + "new", canceled);
+    QVERIFY(!local.limited);
+    QCOMPARE(local.removed, QVector<int>{10000});
+    canceled.store(true);
+    const auto stopped = LineDiff::compare("a\nb", "c\nd", canceled);
+    QVERIFY(stopped.removed.isEmpty() && stopped.added.isEmpty());
+    TopEditorContainer container;
+    auto* pane = container.currentTabWidget();
+    pane->addEditorTab(false, "left"); pane->addEditorTab(false, "right");
+    auto* left = pane->editor(0); auto* right = pane->editor(1);
+    auto* lp = left->findChild<QWebEngineView*>()->page();
+    auto* rp = right->findChild<QWebEngineView*>()->page();
+    QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(rp, "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
+    left->setValue("a").wait(); right->setValue("b").wait();
+    ComparisonController controller(&container);
+    QSignalSpy updated(&controller, &ComparisonController::updated);
+    QVERIFY(controller.start(left, right));
+    controller.stop();
+    QTest::qWait(300);
+    QCOMPARE(updated.count(), 0);
+    QTRY_COMPARE(evaluateEditor(lp, "diffLines.length").toInt(), 0);
+    QTRY_COMPARE(evaluateEditor(lp, "editor.getOption('readOnly')").toBool(), false);
+    QSignalSpy started(&controller, &ComparisonController::calculationStarted);
+    const auto cancelConnection = connect(&controller, &ComparisonController::calculationStarted,
+        &controller, &ComparisonController::stop);
+    QVERIFY(controller.start(left, right));
+    QTRY_COMPARE_WITH_TIMEOUT(started.count(), 1, 5000);
+    QVERIFY(!controller.active());
+    QTest::qWait(100);
+    QCOMPARE(updated.count(), 0); // A worker already running cannot repaint after exit.
+    disconnect(cancelConnection);
+    QVERIFY(controller.start(left, right));
+    QTRY_VERIFY_WITH_TIMEOUT(updated.count() > 0, 5000);
+    // Moving both documents into one pane terminates the comparison safely.
+    pane->transferEditorTab(false, container.tabWidget(1), 0);
+    QTRY_VERIFY(!controller.active());
+    QTRY_COMPARE(evaluateEditor(rp, "editor.getOption('readOnly')").toBool(), false);
+    auto ephemeral = std::make_unique<ComparisonController>(&container);
+    QVERIFY(ephemeral->start(left, right));
+    QSignalSpy running(ephemeral.get(), &ComparisonController::calculationStarted);
+    QTRY_VERIFY_WITH_TIMEOUT(running.count() > 0, 5000);
+    ephemeral.reset();
+    QTRY_COMPARE(evaluateEditor(lp, "diffLines.length").toInt(), 0);
+    QTRY_COMPARE(evaluateEditor(lp, "editor.getOption('readOnly')").toBool(), false);
+    QTRY_COMPARE(evaluateEditor(rp, "editor.getOption('readOnly')").toBool(), false);
+    QSignalSpy status(&controller, &ComparisonController::statusChanged);
+    left->setValue(QString("a\n").repeated(2500)).wait();
+    right->setValue(QString("b\n").repeated(2500)).wait();
+    QVERIFY(controller.start(left, right));
+    QTRY_VERIFY_WITH_TIMEOUT(!controller.active(), 5000);
+    QVERIFY(status.last().at(0).toString().contains("limit"));
+    QTRY_COMPARE(evaluateEditor(lp, "editor.getOption('readOnly')").toBool(), false);
+    QTRY_COMPARE(evaluateEditor(rp, "editor.getOption('readOnly')").toBool(), false);
+    left->setValue("equal").wait(); right->setValue("equal").wait();
+    QVERIFY(controller.start(left, right));
+    QTRY_COMPARE_WITH_TIMEOUT(status.last().at(0).toString(), QString("Documents are identical."), 5000);
+    QVERIFY(controller.active());
+    QCOMPARE(evaluateEditor(lp, "diffLines.length").toInt(), 0);
+    QCOMPARE(evaluateEditor(rp, "diffLines.length").toInt(), 0);
+}
+
 void NotepadqqTest::forkTranslations_data()
 {
     QTest::addColumn<QString>("locale");
@@ -540,11 +739,16 @@ void NotepadqqTest::forkTranslations()
     QVERIFY(translator.load(QCoreApplication::applicationDirPath() + "/notepadqq_" + locale + ".qm"));
     for (const char* source : {"Toggle &Comment", "Comment or uncomment the current line or selected code",
         "Tab Color", "Default", "Red", "Orange", "Yellow", "Green", "Blue", "Purple",
-        "Set Tab Title...", "Set Tab Title", "Title:"})
+        "Set Tab Title...", "Set Tab Title", "Title:",
+        "Compare with...", "Compare two open documents side by side", "End Comparison",
+        "Remove differences and restore editing", "Compare Documents", "Reference (left): %1",
+        "Compared document (right):", "%1 (view %2, tab %3)"})
         QVERIFY2(!translator.translate("MainWindow", source).isEmpty(), source);
     for (const char* source : {"Compact tabs", "Maximum compact tab width:",
         "Always show full tab titles", "Wrap tabs into multiple rows", " px"})
         QVERIFY2(!translator.translate("frmPreferences", source).isEmpty(), source);
+    for (const char* source : {"Comparison exceeds the size or work limit.", "Documents are identical."})
+        QVERIFY2(!translator.translate("ComparisonController", source).isEmpty(), source);
     if (locale == "es") {
         QCoreApplication::installTranslator(&translator);
         QCOMPARE(QCoreApplication::translate("MainWindow", "Tab Color"), QString("Color de la pestaña"));

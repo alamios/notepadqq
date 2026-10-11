@@ -47,6 +47,15 @@ void WindowUiController::loadToolBar()
     if (toolbarItems.isEmpty())
         toolbarItems = m_window.getDefaultToolBarString();
 
+    // Add the new entry once to existing custom toolbars; later customization
+    // may remove it normally without having it reappear at every startup.
+    if (!m_settings.MainWindow.getComparisonToolbarAdded()) {
+        if (!toolbarItems.split('|').contains("actionCompare_Documents")) {
+            toolbarItems += "|Separator|actionCompare_Documents";
+            m_settings.MainWindow.setToolBarItems(toolbarItems);
+        }
+        m_settings.MainWindow.setComparisonToolbarAdded(true);
+    }
     const auto actions = m_window.getActions();
     const auto parts = toolbarItems.split('|', Qt::SkipEmptyParts);
     for (const auto& part : parts) {
@@ -120,6 +129,8 @@ void WindowUiController::setToolBarVisible(bool visible)
 void WindowUiController::loadIcons()
 {
     // File menu
+    m_ui.actionCompare_Documents->setIcon(IconProvider::fromTheme("document-compare"));
+    m_ui.actionEnd_Comparison->setIcon(IconProvider::fromTheme("document-close"));
     m_ui.actionNew->setIcon(IconProvider::fromTheme("document-new"));
     m_ui.actionOpen->setIcon(IconProvider::fromTheme("document-open"));
     m_ui.actionReload_from_Disk->setIcon(IconProvider::fromTheme("view-refresh"));

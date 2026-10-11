@@ -1300,6 +1300,38 @@ Vill du spara den i alla fall?</translation>
         <source>Title:</source>
         <translation>Titel:</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Jämför med...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Jämför två öppna dokument sida vid sida</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Avsluta jämförelse</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Ta bort skillnader och återställ redigering</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Jämför dokument</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Referens (vänster): %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Jämfört dokument (höger):</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (vy %2, flik %3)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -1958,6 +1990,17 @@ Vill du spara den i alla fall?</translation>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="442"/>
         <source>No results found</source>
         <translation>Inga sökträffar hittade</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>Jämförelsen överskrider storleks- eller beräkningsgränsen.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>Dokumenten är identiska.</translation>
     </message>
 </context>
 </TS>

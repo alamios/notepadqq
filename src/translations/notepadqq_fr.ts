@@ -1282,6 +1282,38 @@ Voulez-vous tout de même l&apos;enregistrer ?</translation>
         <source>Title:</source>
         <translation>Titre :</translation>
     </message>
+    <message>
+        <source>Compare with...</source>
+        <translation>Comparer avec...</translation>
+    </message>
+    <message>
+        <source>Compare two open documents side by side</source>
+        <translation>Comparer deux documents ouverts côte à côte</translation>
+    </message>
+    <message>
+        <source>End Comparison</source>
+        <translation>Terminer la comparaison</translation>
+    </message>
+    <message>
+        <source>Remove differences and restore editing</source>
+        <translation>Supprimer les différences et rétablir la modification</translation>
+    </message>
+    <message>
+        <source>Compare Documents</source>
+        <translation>Comparer des documents</translation>
+    </message>
+    <message>
+        <source>Reference (left): %1</source>
+        <translation>Référence (gauche) : %1</translation>
+    </message>
+    <message>
+        <source>Compared document (right):</source>
+        <translation>Document comparé (droite) :</translation>
+    </message>
+    <message>
+        <source>%1 (view %2, tab %3)</source>
+        <translation>%1 (vue %2, onglet %3)</translation>
+    </message>
 </context>
 <context>
     <name>NqqRun::RunDelegate</name>
@@ -1890,6 +1922,17 @@ Voulez-vous tout de même l&apos;enregistrer ?</translation>
         <location filename="../ui/Search/frmsearchreplace.cpp" line="432"/>
         <source>No results found</source>
         <translation>Aucun résultat trouvé</translation>
+    </message>
+</context>
+<context>
+    <name>ComparisonController</name>
+    <message>
+        <source>Comparison exceeds the size or work limit.</source>
+        <translation>La comparaison dépasse la limite de taille ou de calcul.</translation>
+    </message>
+    <message>
+        <source>Documents are identical.</source>
+        <translation>Les documents sont identiques.</translation>
     </message>
 </context>
 </TS>

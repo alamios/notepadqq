@@ -6,6 +6,7 @@
 #include "include/Extensions/installextension.h"
 #include "include/Sessions/backupservice.h"
 #include "include/clickablelabel.h"
+#include "include/comparisoncontroller.h"
 #include "include/documentcontroller.h"
 #include "include/editortabwidget.h"
 #include "include/editoruicontroller.h"
@@ -17,6 +18,10 @@
 #include "ui_mainwindow.h"
 
 #include <QClipboard>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QVBoxLayout>
+#include <QStatusBar>
 #include <QActionGroup>
 #include <QPointer>
 #include <QDesktopServices>
@@ -51,6 +56,25 @@ MainWindow::MainWindow(const QString& workingDirectory, const QStringList& argum
     // Gets company name from QCoreApplication::setOrganizationName(). Same for app name.
     setCentralWidget(m_topEditorContainer);
 
+    m_comparisonController = new ComparisonController(m_topEditorContainer);
+    connect(m_comparisonController, &ComparisonController::activeChanged, this, [this](bool active) {
+        ui->actionEnd_Comparison->setEnabled(active);
+    });
+    connect(m_comparisonController, &ComparisonController::statusChanged, this, [this](const QString& message) {
+        statusBar()->showMessage(message, 5000);
+    });
+    auto updateCompareAction = [this] {
+#ifdef NQQ_USE_MONACO
+        ui->actionCompare_Documents->setEnabled(false);
+#else
+        auto* editor = m_topEditorContainer->currentTabWidget()->currentEditor();
+        ui->actionCompare_Documents->setEnabled(editor && editor->supportsCommentToggle() &&
+            m_topEditorContainer->getNumEditors() >= 2);
+#endif
+    };
+    connect(m_topEditorContainer, &TopEditorContainer::editorAdded, this, updateCompareAction);
+    connect(m_topEditorContainer, &TopEditorContainer::currentEditorChanged, this, updateCompareAction);
+    updateCompareAction();
     m_docEngine = new DocEngine(m_topEditorContainer);
     m_documentController = new DocumentController(*this, *m_docEngine, *m_topEditorContainer, m_settings);
 
@@ -83,6 +107,8 @@ MainWindow::MainWindow(const QString& workingDirectory, const QStringList& argum
     m_tabContextMenuActions.append(ui->actionCurrent_Filename_to_Clipboard);
     m_tabContextMenuActions.append(ui->actionCurrent_Directory_Path_to_Clipboard);
     m_tabContextMenuActions.append(separatorBottom);
+    m_tabContextMenuActions.append(ui->actionCompare_Documents);
+    m_tabContextMenuActions.append(ui->actionEnd_Comparison);
     m_tabContextMenuActions.append(ui->actionMove_to_Other_View);
     m_tabContextMenuActions.append(ui->actionClone_to_Other_View);
     m_tabContextMenuActions.append(ui->actionMove_to_New_Window);
@@ -141,6 +167,9 @@ MainWindow::~MainWindow()
 {
     MainWindow::m_instances.removeAll(this);
 
+    m_comparisonController->stop();
+    delete m_comparisonController;
+    m_comparisonController = nullptr;
     delete m_editorUiController;
     m_editorUiController = nullptr;
     delete ui;
@@ -1077,6 +1106,41 @@ void MainWindow::on_actionInstall_Extension_triggered()
 void MainWindow::showExtensionsMenu(bool show)
 { m_windowUiController->setExtensionsMenuVisible(show); }
 
+void MainWindow::on_actionCompare_Documents_triggered()
+{
+    QPointer<Editor> reference = currentEditor();
+    if (!reference) return;
+    QDialog dialog(this);
+    dialog.setObjectName("comparisonDialog");
+    dialog.setWindowTitle(tr("Compare Documents"));
+    auto* layout = new QVBoxLayout(&dialog);
+    layout->addWidget(new QLabel(tr("Reference (left): %1").arg(
+        m_topEditorContainer->tabWidgetFromEditor(reference)->tabText(reference)), &dialog));
+    layout->addWidget(new QLabel(tr("Compared document (right):"), &dialog));
+    auto* choices = new QComboBox(&dialog);
+    choices->setObjectName("comparisonDocuments");
+    QList<QPointer<Editor>> documents;
+    m_topEditorContainer->forEachEditor([&](int view, int tab, EditorTabWidget* pane, Editor* editor) {
+        if (editor == reference) return true;
+        QString label = tr("%1 (view %2, tab %3)").arg(pane->tabText(tab)).arg(view + 1).arg(tab + 1);
+        if (!editor->filePath().isEmpty()) label += " — " + editor->filePath().toDisplayString(QUrl::PreferLocalFile);
+        choices->addItem(label);
+        documents.append(editor);
+        return true;
+    });
+    if (documents.isEmpty()) return;
+    layout->addWidget(choices);
+    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog);
+    layout->addWidget(buttons);
+    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+    if (dialog.exec() == QDialog::Accepted && reference && choices->currentIndex() >= 0)
+        m_comparisonController->start(reference, documents.value(choices->currentIndex()));
+}
+
+void MainWindow::on_actionEnd_Comparison_triggered()
+{ m_comparisonController->stop(); }
+
 QString MainWindow::getDefaultToolBarString() const
 {
     QStringList list;
@@ -1100,6 +1164,8 @@ QString MainWindow::getDefaultToolBarString() const
     list << "Separator";
     list << ui->actionWord_wrap->objectName();
     list << ui->actionShow_All_Characters->objectName();
+    list << "Separator";
+    list << ui->actionCompare_Documents->objectName();
 
     return list.join('|');
 }

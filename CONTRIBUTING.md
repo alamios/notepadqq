@@ -18,13 +18,14 @@ investigating those historical reports unless symptoms recur.
 
 The upstream submission process below applies when contributing changes back
 to upstream. Local fork work does not require publishing an upstream issue or
-pull request. Publishing this fork will require a separate `origin` remote.
+pull request. Use the maintainer-configured fork remote for publication.
 
 ### Integrating the implemented fork features
 
-The current features can be integrated independently of the planned document
-comparison. The local primary branch is still named `master` and points to the
-baseline; `fork/development` descends from it. To establish `main` without
+Feature branches can be integrated after their focused tests and both CTest
+targets pass. Document comparison is now implemented on
+`feature/document-comparison`. The initial local `master` branch points to the baseline; `fork/development`
+descends from it and its completed features are now integrated in local `main`. To establish `main` without
 rewriting history, run from a clean checkout:
 
 ```sh
@@ -37,7 +38,7 @@ merge stops if its history has diverged; review those changes before merging.
 Keep the `upstream-baseline` tag unchanged. Repository creation, remote setup
 and publication are handled by the maintainer.
 
-Local validation covers Qt 6.10.2 on Kubuntu and both CTest targets (66 UI and
+Local validation covers Qt 6.10.2 on Kubuntu and both CTest targets (80 UI and
 28 C++ correctness results). The existing quality workflow targets both `main`
 and `master`; its other platforms, sanitizers and formatting checks have not
 been verified by this local test run. Publishing source does not establish a

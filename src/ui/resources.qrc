@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="icons/notepadqq">
+        <file alias="scalable/document-compare.svg">icons/notepadqq/scalable/document-compare.svg</file>
 		<file alias="index.theme">icons/notepadqq/index.theme</file>
 
 		<file alias="scalable/document-close.svg">icons/notepadqq/scalable/document-close.svg</file>

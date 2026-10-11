@@ -2,6 +2,47 @@ var editor;
 var changeGeneration;
 var forceDirty = false;
 
+// Comparison decorations are presentation only and belong to one revision.
+var diffRevision = 0;
+var diffLines = [];
+var diffPreviousReadOnly;
+UiDriver.registerEventHandler("C_CMD_DIFF_LOCK", function() {
+    if (diffPreviousReadOnly === undefined) {
+        diffPreviousReadOnly = editor.getOption("readOnly");
+        editor.setOption("readOnly", true);
+    }
+});
+UiDriver.registerEventHandler("C_CMD_DIFF_END", function() {
+    clearDiffMarks();
+    if (diffPreviousReadOnly !== undefined) {
+        editor.setOption("readOnly", diffPreviousReadOnly);
+        diffPreviousReadOnly = undefined;
+    }
+});
+function clearDiffMarks() {
+    if (!diffLines.length) return;
+    editor.operation(function() {
+        diffLines.forEach(function(entry) { editor.removeLineClass(entry.handle, "background", entry.style); });
+        diffLines = [];
+    });
+}
+UiDriver.registerEventHandler("C_FUN_DIFF_SNAPSHOT", function() {
+    return {text: editor.getValue("\n"), revision: diffRevision};
+});
+UiDriver.registerEventHandler("C_CMD_DIFF_CLEAR", function() { clearDiffMarks(); });
+UiDriver.registerEventHandler("C_CMD_DIFF_MARKS", function(msg, data) {
+    if (data.revision !== diffRevision) return;
+    clearDiffMarks();
+    var style = data.side === "removed" ? "nqq-diff-removed" : "nqq-diff-added";
+    editor.operation(function() {
+        data.lines.forEach(function(line) {
+            if (line >= 0 && line < editor.lineCount())
+                diffLines.push({handle: editor.addLineClass(line, "background", style), style: style});
+        });
+    });
+});
+
+
 /* Toggle comments in one undo step, using block syntax for partial selections.
    Merge overlapping line targets so multiple cursors never comment a line twice. */
 function toggleSelectedComments(cm) {
@@ -103,6 +144,7 @@ UiDriver.registerEventHandler("C_CMD_TOGGLE_COMMENT", function() {
 });
 
 UiDriver.registerEventHandler("C_CMD_SET_VALUE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editor.setValue(data);
 });
 
@@ -178,6 +220,7 @@ UiDriver.registerEventHandler("C_FUN_GET_SELECTIONS_TEXT", function(msg, data, p
    }
 */
 UiDriver.registerEventHandler("C_CMD_SET_SELECTIONS_TEXT", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     var dataSelections = data.text;
     var selectedLines = editor.getSelections("\n");
 
@@ -270,14 +313,17 @@ UiDriver.registerEventHandler("C_CMD_SELECT_ALL", function(msg, data, prevReturn
 });
 
 UiDriver.registerEventHandler("C_CMD_UNDO", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editor.undo();
 });
 
 UiDriver.registerEventHandler("C_CMD_REDO", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editor.redo();
 });
 
 UiDriver.registerEventHandler("C_CMD_CLEAR_HISTORY", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editor.clearHistory();
 });
 
@@ -411,6 +457,7 @@ SearchMode = {
    data[3]: string to use as replacement
 */
 UiDriver.registerEventHandler("C_FUN_REPLACE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return false;
     var regexStr = data[0];
     var regexModifiers = data[1];
     var forward = data[2];
@@ -434,6 +481,7 @@ UiDriver.registerEventHandler("C_FUN_REPLACE", function(msg, data, prevReturn) {
 });
 
 UiDriver.registerEventHandler("C_FUN_REPLACE_ALL", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return 0;
     var regexStr = data[0];
     var regexModifiers = data[1];
     var replacement = data[2];
@@ -596,10 +644,12 @@ UiDriver.registerEventHandler("C_FUN_GET_CURRENT_WORD", function(msg, data, prev
 });
 
 UiDriver.registerEventHandler("C_CMD_DUPLICATE_LINE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     duplicateCurrentLine(editor);
 });
 
 UiDriver.registerEventHandler("C_CMD_MOVE_LINE_UP", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     
     var cur = editor.getCursor();
     
@@ -617,6 +667,7 @@ UiDriver.registerEventHandler("C_CMD_MOVE_LINE_UP", function(msg, data, prevRetu
 });
 
 UiDriver.registerEventHandler("C_CMD_MOVE_LINE_DOWN", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     
     var cur = editor.getCursor();
     
@@ -635,6 +686,7 @@ UiDriver.registerEventHandler("C_CMD_MOVE_LINE_DOWN", function(msg, data, prevRe
 });
 
 UiDriver.registerEventHandler("C_CMD_TRANSPOSE_LINE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
 
     var cur = editor.getCursor();
 
@@ -652,19 +704,23 @@ UiDriver.registerEventHandler("C_CMD_TRANSPOSE_LINE", function(msg, data, prevRe
 });
 
 UiDriver.registerEventHandler("C_CMD_DELETE_LINE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editor.execCommand("deleteLine");
     editor.changeGeneration(true);
 });
 
 UiDriver.registerEventHandler("C_CMD_TRIM_LEADING_TRAILING_SPACE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editLines(function (x) { return x.trim(); });
 });
 
 UiDriver.registerEventHandler("C_CMD_TRIM_TRAILING_SPACE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editLines(function (x) { return x.replace(/\s+$/, ""); });
 });
 
 UiDriver.registerEventHandler("C_CMD_TRIM_LEADING_SPACE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editLines(function (x) { return x.replace(/^\s+/, ""); });
 });
 
@@ -710,6 +766,7 @@ function tabToSpaceHelper(match, offset, tabSize) {
 }
 
 UiDriver.registerEventHandler("C_CMD_TAB_TO_SPACE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editLines(function (x) {
         tabToSpaceCounter = 0
         var tabSz = editor.getOption("tabSize")
@@ -753,6 +810,7 @@ function spaceToTabHelper(match, offset, tabSize) {
 }
 
 UiDriver.registerEventHandler("C_CMD_SPACE_TO_TAB_ALL", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editLines(function (x) {
         spaceToTabCounter = 0
         var tabSz = editor.getOption("tabSize")
@@ -765,6 +823,7 @@ UiDriver.registerEventHandler("C_CMD_SPACE_TO_TAB_ALL", function(msg, data, prev
 });
 
 UiDriver.registerEventHandler("C_CMD_SPACE_TO_TAB_LEADING", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     editLines(function (x) {
         spaceToTabCounter = 0
         var tabSz = editor.getOption("tabSize")
@@ -789,6 +848,7 @@ function editLines(funct){
 }
 
 UiDriver.registerEventHandler("C_CMD_EOL_TO_SPACE", function(msg, data, prevReturn) {
+    if (diffPreviousReadOnly !== undefined) return;
     var text = editor.getValue("\n");
     editor.setValue(text.replace(/\n/gm," "));
 });
@@ -823,6 +883,8 @@ function onCursorActivity(editor) {
 }
 
 function onChange(editor, changeObj) {
+    ++diffRevision;
+    clearDiffMarks();
     require(['libs/throttle-debounce/index'], function(thdb) {
         if (!onChange._throttled) {
             onChange._throttled = thdb.throttle(50, () => {
@@ -858,6 +920,19 @@ $(document).ready(function () {
         theme: _defaultTheme
     });
 
+    // beforeChange also protects against edits dispatched by menu commands.
+    editor.on("beforeChange", function(cm, change) {
+        if (diffPreviousReadOnly !== undefined) change.cancel();
+    });
+    // Canceling an undo in beforeChange would discard history in CodeMirror.
+    // Block history operations before they enter that code path instead.
+    ["undo", "redo", "clearHistory"].forEach(function(name) {
+        var original = editor[name];
+        editor[name] = function() {
+            if (diffPreviousReadOnly !== undefined) return;
+            return original.apply(this, arguments);
+        };
+    });
     editor.addKeyMap({
         "Tab": function (cm) {
             if (cm.somethingSelected()) {

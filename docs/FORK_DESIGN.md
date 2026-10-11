@@ -2,7 +2,7 @@
 
 Status: comments, compact/full-title tabs, colors, unsaved titles and multiple-row
 tabs and insertion previews implemented; telemetry removed. Document differences
-remain proposals.
+are implemented with temporary read-only documents.
 Maintainer: **alamios**.
 See [requirements](FORK_REQUIREMENTS.md) for user requests and acceptance criteria.
 
@@ -28,8 +28,8 @@ backend separately if it becomes part of the delivered scope.
 
 The checkout was clean before tagging. `upstream-baseline` points to
 `37652c5efa5fe8720f4eaf9f2e459888c1c6d6d0`; `fork/development` starts there.
-Only the public original URL is configured as `upstream`; no hosted fork or
-push has been performed.
+The initial checkout recorded the public original URL as `upstream`. The
+maintainer now manages the hosted fork, remotes and publication.
 
 First configure/build with the `dev` preset and run existing CTest targets.
 The initial configure failed because Ninja is missing. Package inspection also
@@ -99,7 +99,7 @@ exercise menu-action dispatch, real key events, comment/uncomment round trips,
 undo/redo boundaries, unsupported languages, and read-only behavior.
 
 Validation: `cmake --build --preset dev -j 4` and
-`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 66 passing
+`ctest --preset dev --timeout 60` pass with Qt 6.10.2. The UI suite has 80 passing
 results, including 17 comment scenarios and an actual keyboard-shortcut test;
 the C++ correctness suite has 28 passing results. JavaScript syntax, UI XML,
 documentation links, and `git diff --check` were also verified. Manual desktop
@@ -138,7 +138,7 @@ Tests cover live compact preferences, long names/tooltips, close-button presence
 color painting, reordering and pane transfers, context-menu dispatch, clean-file
 sessions, modified-file and unsaved-document backups, legacy XML, invalid colors,
 and automatic backup updates after color-only changes. Both CTest targets pass
-(66 UI results and 28 C++ correctness results). Native Plasma/Wayland
+(80 UI results and 28 C++ correctness results). Native Plasma/Wayland
 appearance remains a manual check. Upstream's clone-view action has no handler
 in this baseline; this milestone introduces no new clone behavior.
 
@@ -252,31 +252,68 @@ change.
 
 ## Two-document differences
 
-Reuse the existing split panes, but add a comparison controller that associates
-two live document identities and listens to edits, closure, and view movement.
-Keep documents editable. A minimal entry/exit action chooses the pair; no
-navigation, merge, or staging controls are requested.
+Implemented for CodeMirror. `ComparisonController`, owned by the editor
+container, associates guarded live document identities. It transfers the pair
+into the first two existing split panes and selects the reference on the left
+and compared document on the right. Other tabs remain available; tab indices
+and names are not used as document identity. One pair is active per window.
 
-Capture in-memory text through the existing bridge, then calculate line-based
-diff hunks in a worker. Start with a pure line-diff implementation (for example,
-Myers with explicit work/size limits); choose a library only after checking
-maintenance, license, and dependency impact. Debounce edits and attach revision
-tokens to snapshots so stale results are discarded. Large/pathological inputs
-must cancel or fail gracefully without monopolizing the UI or worker.
+`Compare with...` is a View action shared by the tab context menu and toolbar.
+Its modal picker lists other open editors with pane/tab positions and optional
+paths, handling duplicate titles. `End Comparison` clears the pair and leaves
+the pane layout in place. Shortcuts use the existing preferences machinery,
+without assigning a potentially conflicting default. A bundled SVG supplies
+the toolbar icon. Existing custom toolbars get the new action once using the
+internal `MainWindow/ComparisonToolbarAdded` setting; future customization is
+respected.
 
-Apply red removed-line decorations on the left and green added-line decorations
-on the right via CodeMirror line classes/markers. Render colors with readable
-text in light and dark themes; preserve syntax highlighting. Track only
-comparison-owned decorations and remove those on exit. No document-text edits
-or synthetic blank lines are allowed for presentation. Scroll synchronization
-and visual alignment spacers are deferred unless the simple presentation proves
-insufficient; they are not prerequisites for the requested highlighting.
+The user changed the initial editable proposal on 2026-10-11: comparison now
+locks both documents temporarily. `C_CMD_DIFF_LOCK` retains the exact previous
+CodeMirror read-only option and enables read-only mode. `C_CMD_DIFF_END` clears
+only comparison decorations and restores that option. A `beforeChange` handler
+blocks programmatic text changes as well; menu transformations return before
+moving selections. Undo, redo and history clearing are guarded before entering
+CodeMirror, because canceling an undo in `beforeChange` would discard history.
+The lock is presentation state and is not serialized in sessions or backups.
 
-Normalize line endings for comparison while retaining a distinct final-newline
-state. Test insertions, deletions, replacements, duplicate lines, empty inputs,
-Unicode, unsaved changes, updates arriving out of order, and document closure
-while a diff is pending. Compare the exact expected hunk ranges in pure tests,
-then verify both panes and decoration cleanup in Qt/WebEngine integration tests.
+Snapshots use the asynchronous bridge and include an immediately incremented
+JavaScript revision. A 200 ms timer coalesces pending change events. An owned
+cancellation token and controller generation invalidate pending snapshot/worker
+results on restart, exit or destruction. Applying marks validates the JavaScript
+revision again. The worker touches only captured strings and its atomic token;
+Qt delivers completion on the GUI thread and deletes the worker after finish.
+No synchronous text retrieval or UI-thread diff calculation is used.
+
+`LineDiff::compare` computes line changes using a bounded longest common
+subsequence table after trimming equal prefixes/suffixes. It normalizes CRLF/CR
+without modifying documents and keeps final-newline state via a trailing empty
+line. Limits: 4 Mi UTF-16 code units and 100,000 lines combined, 20,000 changed
+region lines, and 4,000,000 table cells (at most 16 MB for the int table).
+Cancellation is checked during calculation and reconstruction. Exceeding a
+limit exits comparison, restores editing, and reports the reason in the status
+bar. Identical documents also get a status message.
+
+CodeMirror background line classes render translucent red removed/replaced
+lines and green added/replaced lines without replacing syntax colors. Cleanup
+tracks owned line handles/classes; it does not alter text, history or the dirty
+state. Closing a member, transferring a member outside the window, or placing
+both members in one pane ends comparison. Movement validation is deferred until
+transfers finish. Selecting unrelated tabs preserves the pair. The window
+stops comparison before destroying the editor UI controller.
+
+Twelve pure diff cases cover additions, removals, replacements, duplicate/blank
+lines, empty inputs, Unicode, line endings and final newlines. Integration tests
+exercise the actual picker/toolbar action, existing-toolbar migration, document
+identity, colors/CSS, stale revision rejection, editing and history locks,
+restoration of prior read-only state, closure, pane transfers, pending worker
+cancellation and controller destruction. Limit/cancellation tests include large
+mostly-equal input. All 14 locale catalogs contain the new strings and are
+checked after compilation. The offscreen artifact is
+`build/dev/comparison-preview.png`; native Plasma review remains pending.
+
+Independent scrolling is intentional in this first version. Alignment spacers,
+scroll synchronization, character-level highlights, navigation and merge/staging
+controls are outside the delivered scope. Monaco comparison is disabled.
 
 ## Verification and first implementation milestone
 
