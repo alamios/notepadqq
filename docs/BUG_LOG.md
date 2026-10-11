@@ -18,8 +18,8 @@ dragging behavior on Plasma. Telemetry removal is verified
 in source and the built binary; legacy-key cleanup has regression coverage.
 Insertion previews have twelve passing regression cases and user acceptance.
 Comparison has automated picker, highlighting, editing-lock and lifecycle
-coverage. The user confirms the initial comparison works on Plasma; the latest
-toolbar toggle and original-pane restoration still need desktop confirmation.
+coverage. The user has accepted comparison, including the toolbar toggle and
+original-pane restoration, on Plasma. The feature is integrated in `main`.
 The requested comparison is implemented without navigation or merge controls.
 
 | ID | Affected build | Symptom | Status and evidence | Next action |

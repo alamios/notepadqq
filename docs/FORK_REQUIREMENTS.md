@@ -51,7 +51,7 @@ not a confirmed current defect.
 | TABS-03 | P1 | User-selectable tab colors, preserved across restart | Implemented with six colors and reset in the context menu; session and backup coverage; manual Plasma review pending |
 | TABS-04 | P1 | User-defined titles for unsaved documents | Implemented in the tab context menu, with session and automatic backup persistence |
 | TABS-05 | P1 | Preview the insertion position while dragging a tab | Implemented and accepted by the user: a four-pixel accent line at the exact before/after boundary in single-row and wrapped modes; Escape/outside drops cancel |
-| DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Implemented for CodeMirror: picker, menu/tab-context/toolbar entry, temporary read-only panes, bounded background line diff and cleanup; initial comparison accepted by the user; toolbar toggle and original-pane restoration implemented, desktop confirmation pending |
+| DIFF-01 | P2 | Compare two documents in parallel with Git-style red/green differences | Implemented for CodeMirror: picker, menu/tab-context/toolbar entry, temporary read-only panes, bounded background line diff and cleanup; comparison, toolbar toggle and original-pane restoration accepted by the user on Plasma; integrated in main on 2026-10-11 |
 | PRIV-01 | P1 | Remove upstream telemetry from the maintained fork | Implemented: collection/transmission code, timers, consent UI, settings and telemetry-only tests removed; legacy opt-in keys cleared at startup |
 
 Additional requests can be added with stable IDs when the user recalls them.

@@ -129,8 +129,9 @@ in the project's 14 supported languages, including Spanish. Tests use temporary
 settings and the actual Qt/WebEngine editor.
 The user has validated the tab features and insertion preview on Plasma.
 The current development suite has 88 passing UI results and 28 passing C++
-correctness results. The user has confirmed that comparison works on Plasma;
-the latest toolbar toggle and pane restoration still need desktop confirmation.
+correctness results. The user has accepted comparison, including the toolbar
+toggle and original-pane restoration, on Plasma. These features are integrated
+in `main` as of 2026-10-11.
 
 #### Development setup on Kubuntu
 

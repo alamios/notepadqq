@@ -23,20 +23,20 @@ pull request. Use the maintainer-configured fork remote for publication.
 ### Integrating the implemented fork features
 
 Feature branches can be integrated after their focused tests and both CTest
-targets pass. Document comparison is now implemented on
-`feature/document-comparison`. The initial local `master` branch points to the baseline; `fork/development`
-descends from it and its completed features are now integrated in local `main`. To establish `main` without
-rewriting history, run from a clean checkout:
+targets pass. Document comparison, including the toolbar toggle and original-pane
+restoration, was integrated from `feature/document-comparison` into `main` on
+2026-10-11 after automated tests and user acceptance on Plasma.
+
+Integrate subsequent feature branches from a clean checkout:
 
 ```sh
-git switch -c main master
-git merge --ff-only fork/development
+git switch main
+git merge --ff-only <feature-branch>
 ```
 
-If `main` already exists, switch to it instead of creating it. The fast-forward
-merge stops if its history has diverged; review those changes before merging.
-Keep the `upstream-baseline` tag unchanged. Repository creation, remote setup
-and publication are handled by the maintainer.
+The fast-forward merge stops if history has diverged; review those changes
+before merging. Keep the `upstream-baseline` tag unchanged. Remote setup and
+publication are handled by the maintainer.
 
 Local validation covers Qt 6.10.2 on Kubuntu and both CTest targets (88 UI and
 28 C++ correctness results). The existing quality workflow targets both `main`

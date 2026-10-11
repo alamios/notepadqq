@@ -328,8 +328,9 @@ checked after compilation. The offscreen artifact is
 works on Plasma. Eight additional regression cases cover shared and swapped
 origins, existing second/third panes, tab order/metadata, repeated stop/start,
 missing origin panes, cross-window movement and parent destruction. The actual
-toolbar button is clicked to stop in the UI test. Native Plasma confirmation
-of the latest toggle/restoration refinements remains pending.
+toolbar button is clicked to stop in the UI test. The user has accepted the
+toggle/restoration refinements on Plasma. Both comparison commits were
+fast-forwarded into `main` on 2026-10-11 without changing the tested code.
 
 Independent scrolling is intentional in this first version. Alignment spacers,
 scroll synchronization, character-level highlights, navigation and merge/staging
