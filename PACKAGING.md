@@ -18,12 +18,43 @@ The application name is **Notepadqq** and the desktop ID is `notepadqq.desktop`.
 All launcher actions use the absolute installed executable, with `Terminal=false`.
 The entry can be pinned in Plasma without relying on shell `PATH` configuration.
 For terminal use, put `~/.local/bin` before `/usr/bin` in `PATH`, or invoke the
-installed executable explicitly. No shell startup files or file associations
-are modified.
+installed executable explicitly. No shell startup files or default applications
+are changed automatically. Supported MIME declarations register the editor
+as an available **Open With** application.
 
 Installed files and migrated sessions do not depend on the checkout location.
 System runtime libraries, including Qt, remain required. This installer does
 not produce a self-contained AppImage or a distribution package.
+
+## Text file types
+
+The desktop entry explicitly declares every text type and alias selected from
+the [freedesktop shared-mime-info registry](https://gitlab.freedesktop.org/xdg/shared-mime-info/-/blob/master/data/freedesktop.org.xml.in):
+all canonical `text/` types, transitive subclasses of `text/plain`, and empty
+regular files. Legacy aliases are included when their canonical type is text;
+private Windows association identifiers are excluded.
+This includes text formats registered as `application/`, `image/`, `model/`
+or other categories, such as JSON, YAML, TOML, XML, SVG, source code, configuration
+files, subtitles and playlists. Formats are opened as source text.
+
+The [shared MIME specification](https://specifications.freedesktop.org/shared-mime-info/latest-single/#subclassing)
+defines the inheritance rules. The entry lists concrete types rather than
+wildcards and does not declare generic binary files. Registering support does
+not assign default applications or rewrite `mimeapps.list`.
+
+The committed list makes normal builds and installations independent of network
+access or the build machine's MIME database. To refresh it, download the upstream
+`data/freedesktop.org.xml.in` and run from the checkout:
+
+```sh
+python3 scripts/update_text_mime_types.py /path/to/freedesktop.org.xml.in
+desktop-file-validate support_files/shortcuts/notepadqq.desktop
+```
+
+The generator includes aliases and inherited text types, records the source
+SHA-256 in the desktop entry and preserves the remaining launcher fields.
+The installer retains this list and refreshes the desktop MIME cache when
+`update-desktop-database` is available. Rerun `./install-user.sh` to install it.
 
 ## Sessions and updates
 

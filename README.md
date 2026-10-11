@@ -51,6 +51,10 @@ The installer builds the release preset and installs into `~/.local` without
 taskbar. The launcher opens without a terminal. Terminal use of `notepadqq`
 requires `~/.local/bin` before `/usr/bin` in `PATH`.
 
+The launcher advertises text formats for **Open With**, including source code,
+JSON, YAML, XML, Markdown, CSV, SVG and subtitles. Existing default applications
+are preserved.
+
 On the first installation, an existing development profile in `build/profile`
 is copied to the standard user profile, preserving settings and unsaved tabs.
 Any previous destination profile is backed up. Use `--keep-profile` to retain
