@@ -6,6 +6,10 @@ highlighting for more than 100 languages, multiple selections, configurable
 shortcuts and session restoration, with additional tab and comparison features.
 This fork contains no telemetry.
 
+The current fork version is **2.3.0**. The About dialog identifies this fork
+and credits **alamios** as its maintainer separately from Daniele Di Sarli and
+the original Notepadqq contributors.
+
 ## Features
 
 - Toggle line and block comments with `Ctrl+Shift+C`.

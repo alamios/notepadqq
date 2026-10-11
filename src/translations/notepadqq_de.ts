@@ -2015,6 +2015,26 @@ Wollen Sie dennoch speichern?</translation>
         <source>GitHub Contributors</source>
         <translation>Mitwirkende auf GitHub</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Diese Version ist ein Fork von Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Dieser Fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Originalprojekt</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Fork gepflegt von %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli und die Mitwirkenden von Notepadqq</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

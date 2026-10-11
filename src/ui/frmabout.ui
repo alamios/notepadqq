@@ -2,178 +2,130 @@
 <ui version="4.0">
  <class>frmAbout</class>
  <widget class="QDialog" name="frmAbout">
-  <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
-  </property>
-  <property name="enabled">
-   <bool>true</bool>
-  </property>
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>542</width>
-    <height>303</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Notepadqq</string>
-  </property>
+  <property name="windowModality"><enum>Qt::WindowModal</enum></property>
+  <property name="windowTitle"><string>Notepadqq</string></property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
     <normaloff>:/icons/notepadqq/scalable/notepadqq.svg</normaloff>:/icons/notepadqq/scalable/notepadqq.svg</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">QDialog { background-color: rgb(255, 255, 255); }</string>
+   <string notr="true">QDialog { background-color: rgb(255, 255, 255); }
+QLabel, QGroupBox { color: rgb(26, 26, 26); }</string>
   </property>
-  <property name="modal">
-   <bool>true</bool>
-  </property>
-  <widget class="QPushButton" name="pushButton">
-   <property name="geometry">
-    <rect>
-     <x>430</x>
-     <y>260</y>
-     <width>91</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Close</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblCopyright">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>190</y>
-     <width>300</width>
-     <height>60</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel {color: rgb(170, 170, 170);}</string>
-   </property>
-   <property name="text">
-    <string notr="true">copyright placeholder</string>
-   </property>
-   <property name="wordWrap">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblVersion">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>70</y>
-     <width>210</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel {color: rgb(26, 26, 26);}</string>
-   </property>
-   <property name="text">
-    <string notr="true">v0.0.0</string>
-   </property>
-   <property name="textInteractionFlags">
-    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblName">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>20</y>
-     <width>221</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>20</pointsize>
-    </font>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">color: rgb(26, 26, 26);</string>
-   </property>
-   <property name="text">
-    <string notr="true">Notepadqq</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="btnLicense">
-   <property name="geometry">
-    <rect>
-     <x>330</x>
-     <y>260</y>
-     <width>91</width>
-     <height>27</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>License</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblIcon">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>30</y>
-     <width>192</width>
-     <height>192</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string notr="true"/>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblWebsite">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>110</y>
-     <width>300</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel {color: rgb(26, 26, 26);}</string>
-   </property>
-   <property name="text">
-    <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Website: placeholder&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="openExternalLinks">
-    <bool>true</bool>
-   </property>
-   <property name="textInteractionFlags">
-    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="lblContributors">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>150</y>
-     <width>300</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel {color: rgb(26, 26, 26);}</string>
-   </property>
-   <property name="text">
-    <string notr="true">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Contributors: placeholder&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="textInteractionFlags">
-    <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-   </property>
-  </widget>
+  <property name="modal"><bool>true</bool></property>
+  <layout class="QVBoxLayout" name="mainLayout">
+   <property name="sizeConstraint"><enum>QLayout::SetFixedSize</enum></property>
+   <property name="spacing"><number>12</number></property>
+   <property name="leftMargin"><number>20</number></property>
+   <property name="topMargin"><number>20</number></property>
+   <property name="rightMargin"><number>20</number></property>
+   <property name="bottomMargin"><number>20</number></property>
+   <item>
+    <layout class="QHBoxLayout" name="headerLayout">
+     <property name="spacing"><number>20</number></property>
+     <item>
+      <widget class="QLabel" name="lblIcon">
+       <property name="minimumSize"><size><width>128</width><height>128</height></size></property>
+       <property name="maximumSize"><size><width>128</width><height>128</height></size></property>
+       <property name="text"><string notr="true"/></property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="titleLayout">
+       <item>
+        <widget class="QLabel" name="lblName">
+         <property name="font"><font><pointsize>20</pointsize></font></property>
+         <property name="text"><string notr="true">Notepadqq</string></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblVersion">
+         <property name="text"><string notr="true">v0.0.0</string></property>
+         <property name="textInteractionFlags"><set>Qt::TextSelectableByMouse</set></property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="lblForkDescription">
+         <property name="text"><string>This version is a fork of Notepadqq.</string></property>
+         <property name="wordWrap"><bool>true</bool></property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="forkGroup">
+     <property name="title"><string>This fork</string></property>
+     <layout class="QVBoxLayout" name="forkLayout">
+      <item>
+       <widget class="QLabel" name="lblMaintainer">
+        <property name="text"><string notr="true">maintainer placeholder</string></property>
+        <property name="wordWrap"><bool>true</bool></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblWebsite">
+        <property name="text"><string notr="true">website placeholder</string></property>
+        <property name="openExternalLinks"><bool>true</bool></property>
+        <property name="textInteractionFlags"><set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblContributors">
+        <property name="text"><string notr="true">contributors placeholder</string></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="originalGroup">
+     <property name="title"><string>Original project</string></property>
+     <layout class="QVBoxLayout" name="originalLayout">
+      <item>
+       <widget class="QLabel" name="lblOriginalAuthors">
+        <property name="text"><string>Daniele Di Sarli and the Notepadqq contributors</string></property>
+        <property name="wordWrap"><bool>true</bool></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblCopyright">
+        <property name="text"><string notr="true">copyright placeholder</string></property>
+        <property name="wordWrap"><bool>true</bool></property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblUpstreamContributors">
+        <property name="text"><string notr="true">contributors placeholder</string></property>
+        <property name="openExternalLinks"><bool>true</bool></property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <item>
+      <widget class="QPushButton" name="btnLicense">
+       <property name="text"><string>License</string></property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="buttonSpacer">
+       <property name="orientation"><enum>Qt::Horizontal</enum></property>
+       <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text"><string>Close</string></property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
  </widget>
- <resources>
-  <include location="resources.qrc"/>
- </resources>
+ <resources><include location="resources.qrc"/></resources>
  <connections/>
 </ui>

@@ -2026,6 +2026,26 @@ A Notepadqq rootként való futtatása nem ajánlott. Ha mindenképpen szükség
         <source>GitHub Contributors</source>
         <translation>Közreműködők a GitHub-on</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Ez a verzió a Notepadqq egy forkja.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Ez a fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Eredeti projekt</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>A fork karbantartója: %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli és a Notepadqq közreműködői</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

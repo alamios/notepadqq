@@ -34,7 +34,7 @@
 #include <QString>
 #include <QUrl>
 
-#define POINTVERSION "2.2.0+git" // major.minor.revision
+#define POINTVERSION "2.3.0" // major.minor.revision
 
 #define COPYRIGHT_YEAR "2026"
 

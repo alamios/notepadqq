@@ -2013,6 +2013,26 @@ Do you want to save it anyway?</source>
         <source>GitHub Contributors</source>
         <translation>GitHub の貢献者</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>このバージョンは Notepadqq のフォークです。</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>このフォーク</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>元のプロジェクト</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>フォークのメンテナー: %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli と Notepadqq の貢献者</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

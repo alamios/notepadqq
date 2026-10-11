@@ -1500,6 +1500,26 @@ Ali želite spremembe vseeno shraniti?</translation>
         <source>GitHub Contributors</source>
         <translation>Skupnost GitHub</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Ta različica je fork programa Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Ta fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Izvirni projekt</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Vzdrževalec forka: %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli in sodelavci projekta Notepadqq</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

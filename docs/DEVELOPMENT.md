@@ -71,12 +71,20 @@ that all desktop styles or package formats have been validated.
 
 ## Documentation and ownership
 
+When changing the application version, keep `CMakeLists.txt`, `POINTVERSION`
+in `src/ui/include/notepadqq.h`, `snap/snapcraft.yaml`, AppStream release metadata,
+the manual page and the README consistent. AppStream distinguishes development
+versions from stable releases; editing metadata does not publish a GitHub release.
+`POINTVERSION` supplies the About dialog and `--version` output. Historical
+version values in compatibility tests are fixtures and should remain unchanged.
+
 Keep the README and relevant guides current when behavior changes. Describe
 the current implementation and its limits rather than development conversation
 or obsolete package reports. Retain original copyright and third-party notices.
 Vendored library documentation describes those libraries, not the maintained
 fork, and should not be rebranded.
 
-Use [the contributor guide](../CONTRIBUTING.md) for bug-report details and branch
+Work directly on `main` with focused commits. Use
+[the contributor guide](../CONTRIBUTING.md) for bug-report details and contribution
 conventions. GitHub workflows are in `.github/workflows`; their configured
 platforms are not a claim that every fork build has been validated locally.

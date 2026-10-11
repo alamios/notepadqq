@@ -2012,6 +2012,26 @@ Czy chcesz go zapisać mimo to?</translation>
         <source>GitHub Contributors</source>
         <translation>Współtwórcy z GitHuba</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Ta wersja jest forkiem Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Ten fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Projekt oryginalny</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Opiekun forka: %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli i współtwórcy Notepadqq</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

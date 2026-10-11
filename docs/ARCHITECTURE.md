@@ -68,6 +68,15 @@ can be recreated; documents moved to another window remain there. Only an empty
 pane created specifically for comparison is removed. Window destruction and
 closing a compared document clear controller state safely.
 
+## Version and attribution
+
+The application version comes from `POINTVERSION` and is used by the command
+line and About dialog. CMake and packaging metadata use the same version.
+The About dialog explicitly identifies the fork and separates its maintainer
+and contributor links from the original project's authors, copyright and
+contributor links. Original copyright attribution remains unchanged. Qt layouts
+fit translated text and larger fonts, with translations in all 14 catalogs.
+
 ## Privacy
 
 The upstream telemetry collection/transmission code, timers, consent dialog

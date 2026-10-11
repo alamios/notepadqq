@@ -2024,6 +2024,26 @@ Você deseja salvá-lo mesmo assim?</translation>
         <source>GitHub Contributors</source>
         <translation>Colaboradores do GitHub</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Esta versão é um fork do Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Este fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Projeto original</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Fork mantido por %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli e os colaboradores do Notepadqq</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

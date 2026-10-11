@@ -18,17 +18,20 @@ frmAbout::frmAbout(QWidget* parent)
 
     ui->lblVersion->setText("v" + QApplication::applicationVersion());
     ui->lblCopyright->setText(Notepadqq::copyright());
+    ui->lblMaintainer->setText(tr("Fork maintained by %1").arg(QStringLiteral("alamios")));
 
     QString linkStyle = "text-decoration: none; color:#606060;";
     ui->lblContributors->setText(tr("Contributors:") + " <a href=\"" + Notepadqq::contributorsUrl +
                                  "\"><span style=\"" + linkStyle + "\">" + tr("GitHub Contributors") + "</span></a>");
     ui->lblWebsite->setText("<a href=\"" + Notepadqq::website + "\"><span style=\"" + linkStyle + "\">" +
                             Notepadqq::website + "</span></a>");
+    ui->lblUpstreamContributors->setText(tr("Contributors:") +
+        " <a href=\"https://github.com/notepadqq/notepadqq/graphs/contributors\"><span style=\"" +
+        linkStyle + "\">" + tr("GitHub Contributors") + "</span></a>");
 
     ui->btnLicense->setStyleSheet("QPushButton {color: black;}");
     ui->pushButton->setStyleSheet("QPushButton {color: black;}");
 
-    setFixedSize(this->width(), this->height());
     setWindowFlags((windowFlags() | Qt::CustomizeWindowHint) & ~Qt::WindowMaximizeButtonHint);
 }
 

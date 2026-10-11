@@ -2014,6 +2014,26 @@ Wilt u het tóch opslaan?</translation>
         <source>GitHub Contributors</source>
         <translation>GitHub-bijdragers</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Deze versie is een fork van Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Deze fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Oorspronkelijk project</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Fork onderhouden door %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli en de bijdragers aan Notepadqq</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

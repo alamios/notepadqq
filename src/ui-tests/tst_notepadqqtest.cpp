@@ -10,6 +10,7 @@
 #include "include/Sessions/backupservice.h"
 #include "include/Sessions/persistentcache.h"
 #include "include/frmpreferences.h"
+#include "include/frmabout.h"
 
 #include <QCloseEvent>
 #include <QContextMenuEvent>
@@ -36,6 +37,7 @@
 #include <QTranslator>
 #include <QFormLayout>
 #include <QLabel>
+#include <QGroupBox>
 #include <QProxyStyle>
 #include <QStyleFactory>
 #include <QStackedWidget>
@@ -76,6 +78,8 @@ private Q_SLOTS:
     void comparisonRestoresMissingView();
     void forkTranslations_data();
     void forkTranslations();
+    void aboutForkAttribution_data();
+    void aboutForkAttribution();
     void removesLegacyTelemetrySettings();
     void tabColorSession_data();
     void tabColorSession();
@@ -865,10 +869,73 @@ void NotepadqqTest::forkTranslations()
         QVERIFY2(!translator.translate("frmPreferences", source).isEmpty(), source);
     for (const char* source : {"Comparison exceeds the size or work limit.", "Documents are identical."})
         QVERIFY2(!translator.translate("ComparisonController", source).isEmpty(), source);
+    for (const char* source : {"This version is a fork of Notepadqq.", "This fork", "Original project",
+                              "Fork maintained by %1", "Daniele Di Sarli and the Notepadqq contributors"})
+        QVERIFY2(!translator.translate("frmAbout", source).isEmpty(), source);
     if (locale == "es") {
         QCoreApplication::installTranslator(&translator);
         QCOMPARE(QCoreApplication::translate("MainWindow", "Tab Color"), QString("Color de la pestaña"));
         QCoreApplication::removeTranslator(&translator);
+    }
+}
+
+void NotepadqqTest::aboutForkAttribution_data()
+{
+    QTest::addColumn<QString>("locale");
+    QTest::addColumn<bool>("largeText");
+    for (const QString& locale : {"en", "de", "es", "fr", "hu", "it", "ja", "nl", "pl", "pt", "ru", "sl", "sv", "uk", "zh"})
+        QTest::newRow(qPrintable(locale)) << locale << false;
+    QTest::newRow("es-large-text") << QString("es") << true;
+}
+
+void NotepadqqTest::aboutForkAttribution()
+{
+    QFETCH(QString, locale);
+    QFETCH(bool, largeText);
+    QTranslator translator;
+    if (locale != "en") {
+        QVERIFY(translator.load(QCoreApplication::applicationDirPath() + "/notepadqq_" + locale + ".qm"));
+        QCoreApplication::installTranslator(&translator);
+    }
+    const QString previousVersion = QCoreApplication::applicationVersion();
+    QCoreApplication::setApplicationVersion(Notepadqq::version);
+    auto cleanup = qScopeGuard([&translator, previousVersion] {
+        QCoreApplication::removeTranslator(&translator);
+        QCoreApplication::setApplicationVersion(previousVersion);
+    });
+    frmAbout about;
+    if (largeText) {
+        QFont font = about.font();
+        font.setPointSize(18);
+        about.setFont(font);
+    }
+    about.show();
+    QCoreApplication::processEvents();
+    auto* fork = about.findChild<QGroupBox*>("forkGroup");
+    auto* original = about.findChild<QGroupBox*>("originalGroup");
+    QVERIFY(fork && original);
+    auto* maintainer = fork->findChild<QLabel*>("lblMaintainer");
+    auto* authors = original->findChild<QLabel*>("lblOriginalAuthors");
+    auto* copyright = original->findChild<QLabel*>("lblCopyright");
+    auto* forkLink = fork->findChild<QLabel*>("lblContributors");
+    auto* originalLink = original->findChild<QLabel*>("lblUpstreamContributors");
+    QVERIFY(maintainer && authors && copyright && forkLink && originalLink);
+    QVERIFY(maintainer->text().contains("alamios"));
+    QVERIFY(authors->text().contains("Daniele Di Sarli"));
+    QVERIFY(!authors->text().contains("alamios"));
+    QCOMPARE(copyright->text(), Notepadqq::copyright());
+    QVERIFY(forkLink->text().contains("https://github.com/alamios/notepadqq/graphs/contributors"));
+    QVERIFY(originalLink->text().contains("https://github.com/notepadqq/notepadqq/graphs/contributors"));
+    QVERIFY(fork->geometry().bottom() < original->geometry().top());
+    QCOMPARE(about.findChild<QLabel*>("lblVersion")->text(), "v" + Notepadqq::version);
+    for (QLabel* label : {maintainer, authors, copyright, forkLink, originalLink}) {
+        QVERIFY(label->parentWidget()->rect().contains(label->geometry()));
+        QVERIFY(label->height() >= label->heightForWidth(label->width()));
+    }
+    if (locale == "es" && !largeText) {
+        QCOMPARE(maintainer->text(), QString("Fork mantenido por alamios"));
+        QCOMPARE(about.findChild<QLabel*>("lblForkDescription")->text(), QString("Esta versión es un fork de Notepadqq."));
+        QVERIFY(about.grab().save(QCoreApplication::applicationDirPath() + "/about-fork-preview.png"));
     }
 }
 

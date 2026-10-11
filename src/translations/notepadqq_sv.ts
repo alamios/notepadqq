@@ -1571,6 +1571,26 @@ Vill du spara den i alla fall?</translation>
         <source>GitHub Contributors</source>
         <translation>GitHub-medhjälpare</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Denna version är en fork av Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Denna fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Ursprungligt projekt</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Fork underhållen av %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli och Notepadqqs bidragsgivare</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

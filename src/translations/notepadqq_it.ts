@@ -2011,6 +2011,26 @@ Vuoi salvare comunque?</translation>
         <source>GitHub Contributors</source>
         <translation>Partecipazioni GitHub</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Questa versione è un fork di Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Questo fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Progetto originale</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Fork mantenuto da %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli e i collaboratori di Notepadqq</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

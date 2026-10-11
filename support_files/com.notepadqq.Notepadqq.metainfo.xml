@@ -21,4 +21,11 @@
   <provides>
     <binary>notepadqq</binary>
   </provides>
+  <releases>
+    <release version="2.3.0" date="2026-10-11" type="development">
+      <description>
+        <p>First alamios fork version with comment shortcuts, multi-row colored tabs, unsaved tab titles, document comparison, and a per-user installer.</p>
+      </description>
+    </release>
+  </releases>
 </component>

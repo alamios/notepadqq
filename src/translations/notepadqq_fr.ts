@@ -1503,6 +1503,26 @@ Voulez-vous tout de même l&apos;enregistrer ?</translation>
         <source>GitHub Contributors</source>
         <translation>Contributeurs GitHub</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Cette version est un fork de Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Ce fork</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Projet original</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Fork maintenu par %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli et les contributeurs de Notepadqq</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

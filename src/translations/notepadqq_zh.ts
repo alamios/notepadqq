@@ -1993,6 +1993,26 @@ Do you want to save it anyway?</source>
         <source>GitHub Contributors</source>
         <translation>GitHub贡献者</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>此版本是 Notepadqq 的分支。</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>此分支</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>原始项目</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>分支维护者：%1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli 和 Notepadqq 贡献者</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>

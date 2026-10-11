@@ -1504,6 +1504,26 @@ Do you want to save it anyway?</source>
         <source>GitHub Contributors</source>
         <translation>Участники GitHub</translation>
     </message>
+    <message>
+        <source>This version is a fork of Notepadqq.</source>
+        <translation>Эта версия является форком Notepadqq.</translation>
+    </message>
+    <message>
+        <source>This fork</source>
+        <translation>Этот форк</translation>
+    </message>
+    <message>
+        <source>Original project</source>
+        <translation>Исходный проект</translation>
+    </message>
+    <message>
+        <source>Fork maintained by %1</source>
+        <translation>Форк поддерживает %1</translation>
+    </message>
+    <message>
+        <source>Daniele Di Sarli and the Notepadqq contributors</source>
+        <translation>Daniele Di Sarli и участники проекта Notepadqq</translation>
+    </message>
 </context>
 <context>
     <name>frmEncodingChooser</name>
