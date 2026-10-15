@@ -180,10 +180,13 @@ void ComparisonController::calculate()
                     emit guard->statusChanged(tr("Comparison exceeds the size or work limit."));
                 } else {
                     guard->m_left->sendMessage("C_CMD_DIFF_MARKS", QVariantMap{
-                        {"revision", left.toMap().value("revision")}, {"side", "removed"}, {"lines", lines(worker->result.removed)}});
+                        {"revision", left.toMap().value("revision")}, {"side", "removed"}, {"lines", lines(worker->result.removed)},
+                        {"modifiedLines", lines(worker->result.modifiedLeft)}});
                     guard->m_right->sendMessage("C_CMD_DIFF_MARKS", QVariantMap{
-                        {"revision", right.toMap().value("revision")}, {"side", "added"}, {"lines", lines(worker->result.added)}});
+                        {"revision", right.toMap().value("revision")}, {"side", "added"}, {"lines", lines(worker->result.added)},
+                        {"modifiedLines", lines(worker->result.modifiedRight)}});
                     emit guard->statusChanged(worker->result.removed.isEmpty() && worker->result.added.isEmpty()
+                        && worker->result.modifiedLeft.isEmpty() && worker->result.modifiedRight.isEmpty()
                         ? tr("Documents are identical.") : QString());
                 }
                 emit guard->updated();

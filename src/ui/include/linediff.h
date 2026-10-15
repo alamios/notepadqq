@@ -9,6 +9,8 @@ namespace LineDiff {
 struct Result {
     QVector<int> removed;
     QVector<int> added;
+    QVector<int> modifiedLeft;
+    QVector<int> modifiedRight;
     bool limited = false;
 };
 // Compare normalized lines, including the final newline, with bounded work.

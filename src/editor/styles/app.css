@@ -76,3 +76,4 @@ div.CodeMirror span.CodeMirror-matchingbracket {
 /* Translucent line backgrounds retain syntax colors in light and dark themes. */
 .CodeMirror .nqq-diff-removed { background: rgba(230, 65, 65, 0.28) !important; }
 .CodeMirror .nqq-diff-added { background: rgba(45, 185, 80, 0.28) !important; }
+.CodeMirror .nqq-diff-modified { background: rgba(230, 180, 35, 0.28) !important; }

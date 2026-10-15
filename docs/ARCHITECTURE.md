@@ -55,7 +55,11 @@ GUI thread and are checked against current revisions before applying marks.
 `LineDiff::compare` trims equal edges, normalizes line endings and computes a
 bounded longest common subsequence. Limits are documented in the
 [feature guide](FEATURES.md). Exceeding them stops comparison and restores editing.
-CodeMirror background classes provide red/green line highlights without
+Within each unmatched region, old/new lines are paired in order as modifications;
+excess lines remain additions or removals. Pairing is positional, without
+character-level similarity scoring. All three mark categories are sent in one
+revision-checked message per document, avoiding one category clearing another.
+CodeMirror background classes provide red/green/yellow line highlights without
 replacing syntax colors or changing text, dirty state or undo history.
 
 Temporary locks retain the exact prior read-only state. Programmatic edits and

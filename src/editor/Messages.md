@@ -20,8 +20,9 @@
 
 - `C_FUN_DIFF_SNAPSHOT`: asynchronous result `{text, revision}`; text uses LF.
 - `C_CMD_DIFF_LOCK`: retain the previous read-only option and lock editing.
-- `C_CMD_DIFF_MARKS`: `{revision, side: "removed"|"added", lines: [zeroBasedLine]}`;
-  ignore stale revisions and apply background classes without text changes.
+- `C_CMD_DIFF_MARKS`: `{revision, side: "removed"|"added", lines: [zeroBasedLine], modifiedLines: [zeroBasedLine]}`;
+  ignore stale revisions and replace all marks atomically. `lines` use red/green
+  according to `side`; optional `modifiedLines` use yellow on either side.
 - `C_CMD_DIFF_CLEAR`: remove comparison-owned marks, retaining the editing lock.
 - `C_CMD_DIFF_END`: clear marks and restore the previous read-only option.
 

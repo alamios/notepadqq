@@ -38,12 +38,32 @@ LineDiff::Result LineDiff::compare(QString left, QString right, const std::atomi
         }
     }
     int i = 0, j = 0;
+    int removedStart = 0, addedStart = 0;
+    const auto finishHunk = [&] {
+        // Pair replacements in document order within each unmatched region.
+        // Surplus lines remain pure additions or removals.
+        const int paired = qMin(i - removedStart, j - addedStart);
+        for (int offset = 0; offset < paired; ++offset) {
+            result.modifiedLeft.append(start + removedStart + offset);
+            result.modifiedRight.append(start + addedStart + offset);
+        }
+        for (int line = removedStart + paired; line < i; ++line)
+            result.removed.append(start + line);
+        for (int line = addedStart + paired; line < j; ++line)
+            result.added.append(start + line);
+    };
     while (i < n || j < m) {
         if (canceled.load()) return {};
-        if (i < n && j < m && a[start + i] == b[start + j]) { ++i; ++j; }
+        if (i < n && j < m && a[start + i] == b[start + j]) {
+            finishHunk();
+            ++i; ++j;
+            removedStart = i;
+            addedStart = j;
+        }
         else if (i < n && (j == m || table[size_t(i + 1) * stride + j] >= table[size_t(i) * stride + j + 1]))
-            result.removed.append(start + i++);
-        else result.added.append(start + j++);
+            ++i;
+        else ++j;
     }
+    finishHunk();
     return result;
 }

@@ -47,8 +47,11 @@ automatic backups, including empty titled documents.
 3. Choose another open document. Paths and view/tab positions distinguish
    documents with identical titles.
 
-The reference appears on the left with removed/replaced lines in red. The
-other document appears on the right with added/replaced lines in green.
+The reference appears on the left with removed lines in red. The other
+document appears on the right with added lines in green. Modified lines are
+yellow on both sides. Within each unmatched block, lines are paired in document
+order as replacements; surplus lines remain red or green. This is a line-level
+heuristic, without character-level matching.
 Comparison uses current contents, including unsaved edits. Syntax highlighting
 remains visible, and both documents are temporarily read-only.
 

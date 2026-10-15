@@ -39,6 +39,10 @@ UiDriver.registerEventHandler("C_CMD_DIFF_MARKS", function(msg, data) {
             if (line >= 0 && line < editor.lineCount())
                 diffLines.push({handle: editor.addLineClass(line, "background", style), style: style});
         });
+        (data.modifiedLines || []).forEach(function(line) {
+            if (line >= 0 && line < editor.lineCount())
+                diffLines.push({handle: editor.addLineClass(line, "background", "nqq-diff-modified"), style: "nqq-diff-modified"});
+        });
     });
 });
 

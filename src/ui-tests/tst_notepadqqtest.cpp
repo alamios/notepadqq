@@ -556,29 +556,38 @@ void NotepadqqTest::lineDifferences_data()
     QTest::addColumn<QString>("right");
     QTest::addColumn<QVector<int>>("removed");
     QTest::addColumn<QVector<int>>("added");
-    QTest::newRow("equal") << QString("a\nb\n") << QString("a\nb\n") << QVector<int>{} << QVector<int>{};
-    QTest::newRow("insert") << QString("a\nb") << QString("a\nx\nb") << QVector<int>{} << QVector<int>{1};
-    QTest::newRow("delete") << QString("a\nx\nb") << QString("a\nb") << QVector<int>{1} << QVector<int>{};
-    QTest::newRow("replace") << QString("a\nx\nb") << QString("a\ny\nb") << QVector<int>{1} << QVector<int>{1};
-    QTest::newRow("duplicates") << QString("x\na\nx") << QString("x\nx") << QVector<int>{1} << QVector<int>{};
-    QTest::newRow("empty") << QString() << QString() << QVector<int>{} << QVector<int>{};
-    QTest::newRow("empty-left") << QString() << QString("x") << QVector<int>{} << QVector<int>{0};
-    QTest::newRow("empty-right") << QString("x") << QString() << QVector<int>{0} << QVector<int>{};
-    QTest::newRow("unicode") << QString("猫\nα") << QString("猫\nβ") << QVector<int>{1} << QVector<int>{1};
-    QTest::newRow("eol") << QString("a\r\nb\r\n") << QString("a\nb\n") << QVector<int>{} << QVector<int>{};
-    QTest::newRow("final-newline") << QString("a") << QString("a\n") << QVector<int>{} << QVector<int>{1};
-    QTest::newRow("blank-lines") << QString("a\n\nb") << QString("a\nb") << QVector<int>{1} << QVector<int>{};
+    QTest::addColumn<QVector<int>>("modifiedLeft");
+    QTest::addColumn<QVector<int>>("modifiedRight");
+    QTest::newRow("equal") << QString("a\nb\n") << QString("a\nb\n") << QVector<int>{} << QVector<int>{} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("insert") << QString("a\nb") << QString("a\nx\nb") << QVector<int>{} << QVector<int>{1} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("delete") << QString("a\nx\nb") << QString("a\nb") << QVector<int>{1} << QVector<int>{} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("replace") << QString("a\nx\nb") << QString("a\ny\nb") << QVector<int>{} << QVector<int>{} << QVector<int>{1} << QVector<int>{1};
+    QTest::newRow("duplicates") << QString("x\na\nx") << QString("x\nx") << QVector<int>{1} << QVector<int>{} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("empty") << QString() << QString() << QVector<int>{} << QVector<int>{} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("empty-left") << QString() << QString("x") << QVector<int>{} << QVector<int>{0} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("empty-right") << QString("x") << QString() << QVector<int>{0} << QVector<int>{} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("unicode") << QString("猫\nα") << QString("猫\nβ") << QVector<int>{} << QVector<int>{} << QVector<int>{1} << QVector<int>{1};
+    QTest::newRow("eol") << QString("a\r\nb\r\n") << QString("a\nb\n") << QVector<int>{} << QVector<int>{} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("final-newline") << QString("a") << QString("a\n") << QVector<int>{} << QVector<int>{1} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("blank-lines") << QString("a\n\nb") << QString("a\nb") << QVector<int>{1} << QVector<int>{} << QVector<int>{} << QVector<int>{};
+    QTest::newRow("replace-and-add") << QString("a\nx\nb") << QString("a\ny\nz\nb") << QVector<int>{} << QVector<int>{2} << QVector<int>{1} << QVector<int>{1};
+    QTest::newRow("replace-and-remove") << QString("a\nx\ny\nb") << QString("a\nz\nb") << QVector<int>{2} << QVector<int>{} << QVector<int>{1} << QVector<int>{1};
+    QTest::newRow("separate-hunks") << QString("x\nanchor\nold\nend") << QString("anchor\nnew\nend\nextra") << QVector<int>{0} << QVector<int>{3} << QVector<int>{2} << QVector<int>{1};
+    QTest::newRow("all-replaced") << QString("a\nb") << QString("x\ny") << QVector<int>{} << QVector<int>{} << QVector<int>{0,1} << QVector<int>{0,1};
 }
 
 void NotepadqqTest::lineDifferences()
 {
     QFETCH(QString, left); QFETCH(QString, right);
     QFETCH(QVector<int>, removed); QFETCH(QVector<int>, added);
+    QFETCH(QVector<int>, modifiedLeft); QFETCH(QVector<int>, modifiedRight);
     std::atomic_bool canceled(false);
     const auto result = LineDiff::compare(left, right, canceled);
     QVERIFY(!result.limited);
     QCOMPARE(result.removed, removed);
     QCOMPARE(result.added, added);
+    QCOMPARE(result.modifiedLeft, modifiedLeft);
+    QCOMPARE(result.modifiedRight, modifiedRight);
 }
 
 void NotepadqqTest::comparisonUi()
@@ -603,8 +612,8 @@ void NotepadqqTest::comparisonUi()
     auto* lp = left->findChild<QWebEngineView*>()->page();
     auto* rp = right->findChild<QWebEngineView*>()->page();
     QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(rp, "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
-    left->setValue("same\nold\ntail").wait();
-    right->setValue("same\nnew\ntail").wait();
+    left->setValue("same\nold\nanchor\nremoved\nend\ntail").wait();
+    right->setValue("same\nnew\nanchor\nend\nadded\ntail").wait();
     left->markClean().wait();
     evaluateEditor(lp, "editor.replaceRange('!', {line:0,ch:4}); editor.setCursor(1,1)");
     const QString history = evaluateEditor(lp, "JSON.stringify(editor.getHistory())").toString();
@@ -639,7 +648,12 @@ void NotepadqqTest::comparisonUi()
     QTRY_VERIFY(evaluateEditor(lp, "!!document.querySelector('.nqq-diff-removed')").toBool());
     QCOMPARE(evaluateEditor(lp, "getComputedStyle(document.querySelector('.nqq-diff-removed')).backgroundColor").toString(),
         QString("rgba(230, 65, 65, 0.28)"));
-    QCOMPARE(evaluateEditor(rp, "editor.lineInfo(1).bgClass").toString(), QString("nqq-diff-added"));
+    QCOMPARE(evaluateEditor(rp, "editor.lineInfo(4).bgClass").toString(), QString("nqq-diff-added"));
+    QVERIFY(evaluateEditor(lp, "editor.lineInfo(1).bgClass").toString().split(' ').contains("nqq-diff-modified"));
+    QCOMPARE(evaluateEditor(rp, "editor.lineInfo(1).bgClass").toString(), QString("nqq-diff-modified"));
+    QTRY_VERIFY(evaluateEditor(rp, "!!document.querySelector('.nqq-diff-modified')").toBool());
+    QCOMPARE(evaluateEditor(rp, "getComputedStyle(document.querySelector('.nqq-diff-modified')).backgroundColor").toString(),
+        QString("rgba(230, 180, 35, 0.28)"));
     QTest::qWait(250); // WebEngine must submit the frame after decoration updates.
     QVERIFY(window.grab().save(QCoreApplication::applicationDirPath() + "/comparison-preview.png"));
     const auto value = left->value();
@@ -655,8 +669,9 @@ void NotepadqqTest::comparisonUi()
     QCOMPARE(evaluateEditor(lp, "JSON.stringify(editor.getCursor())"), cursor);
     QCOMPARE(evaluateEditor(lp, "isCleanOrForced(changeGeneration)"), clean);
     // Revision validation rejects old results, without altering live marks.
-    evaluateEditor(lp, "UiDriver.messageReceived('C_CMD_DIFF_MARKS', {revision:diffRevision-1, side:'added', lines:[0]})");
+    evaluateEditor(lp, "UiDriver.messageReceived('C_CMD_DIFF_MARKS', {revision:diffRevision-1, side:'added', lines:[0], modifiedLines:[3]})");
     QCOMPARE(evaluateEditor(lp, "diffLines[0].style").toString(), QString("nqq-diff-removed"));
+    QVERIFY(evaluateEditor(lp, "editor.lineInfo(1).bgClass").toString().split(' ').contains("nqq-diff-modified"));
     QVERIFY(compare->isChecked());
     QCOMPARE(compare->text(), QString("End Comparison"));
     auto* button = qobject_cast<QToolButton*>(window.getToolBar()->widgetForAction(compare));
@@ -691,10 +706,13 @@ void NotepadqqTest::comparisonCancellation()
     QVERIFY(LineDiff::compare(QString("a\n").repeated(2500), QString("b\n").repeated(2500), canceled).limited);
     const auto local = LineDiff::compare(QString("a\n").repeated(10000) + "old", QString("a\n").repeated(10000) + "new", canceled);
     QVERIFY(!local.limited);
-    QCOMPARE(local.removed, QVector<int>{10000});
+    QVERIFY(local.removed.isEmpty() && local.added.isEmpty());
+    QCOMPARE(local.modifiedLeft, QVector<int>{10000});
+    QCOMPARE(local.modifiedRight, QVector<int>{10000});
     canceled.store(true);
     const auto stopped = LineDiff::compare("a\nb", "c\nd", canceled);
     QVERIFY(stopped.removed.isEmpty() && stopped.added.isEmpty());
+    QVERIFY(stopped.modifiedLeft.isEmpty() && stopped.modifiedRight.isEmpty());
     TopEditorContainer container;
     auto* pane = container.currentTabWidget();
     pane->addEditorTab(false, "left"); pane->addEditorTab(false, "right");
