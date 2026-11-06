@@ -64,6 +64,12 @@ locks, cancellation and pane restoration; translations; and legacy telemetry
 setting cleanup. Installer tests use temporary fixtures and mocked build
 commands, never the real user installation.
 
+`comparisonClose` exercises normal document closure and direct editor destruction
+on either side of a highlighted comparison, checking surviving pane selection,
+unlocking, decoration cleanup and rejection of late marks.
+`savedIconRefreshesVisibleRows` checks the displayed wrapped-row icon after editing
+and saving without changing tabs.
+
 `backupCleanupPreservesRecoveryFiles` checks that cleanup and disabling autosave
 preserve document bytes and incomplete XML in distinct timestamped archives,
 that archives do not trigger crash detection, and that repeated cleanup without

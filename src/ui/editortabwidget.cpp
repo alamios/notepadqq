@@ -603,10 +603,11 @@ int EditorTabWidget::transferEditorTab(bool setFocus, EditorTabWidget* source, i
 
 void EditorTabWidget::closeEditorTab(int index)
 {
-    Editor* closingEditor = editor(index);
+    QPointer<Editor> closingEditor = editor(index);
     removeTab(index);
     if (closingEditor)
         closingEditor->deleteLater();
+    emit editorRemoved();
 }
 
 /**
@@ -742,6 +743,9 @@ void EditorTabWidget::setSavedIcon(int index, bool saved)
         this->setTabIcon(index, IconProvider::fromTheme("document-saved"));
     else
         this->setTabIcon(index, IconProvider::fromTheme("document-unsaved"));
+    // Wrapped rows copy icons from the model; same-sized icons do not trigger
+    // QTabBar::tabLayoutChange(). Refresh those copies on clean-state changes.
+    static_cast<EditorTabBar*>(tabBar())->scheduleLayout();
 }
 
 void EditorTabWidget::setTabBarHidden(bool yes)

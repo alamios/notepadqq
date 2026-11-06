@@ -101,6 +101,7 @@ private:
     EditorTabWidget* m_currentTabWidget;
 
 signals:
+    void editorRemoved();
     /**
      * @brief Emitted when any of the tab widgets switch tab
      * @param tabWidget

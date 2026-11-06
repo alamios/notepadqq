@@ -18,6 +18,8 @@ EditorTabWidget* TopEditorContainer::addTabWidget()
     EditorTabWidget* tabWidget = new EditorTabWidget(this);
     addWidget(tabWidget);
 
+    connect(tabWidget, &EditorTabWidget::editorRemoved, this, &TopEditorContainer::editorRemoved);
+
     // Detect tab switches
     connect(tabWidget, &EditorTabWidget::currentChanged, this, &TopEditorContainer::on_currentTabChanged);
     connect(tabWidget, &EditorTabWidget::gotFocus, this, &TopEditorContainer::on_currentTabWidgetChanged);

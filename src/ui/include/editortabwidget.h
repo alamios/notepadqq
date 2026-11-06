@@ -108,6 +108,7 @@ private slots:
     void on_tabColorChanged();
     void on_unsavedTitleChanged();
 signals:
+    void editorRemoved();
     void gotFocus();
     void editorAdded(int index);
     void editorMouseWheel(int tab, QWheelEvent* ev);

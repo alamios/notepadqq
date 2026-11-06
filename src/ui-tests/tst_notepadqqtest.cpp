@@ -71,6 +71,9 @@ private Q_SLOTS:
     void tabInsertionPreview();
     void lineDifferences_data();
     void lineDifferences();
+    void savedIconRefreshesVisibleRows();
+    void comparisonClose_data();
+    void comparisonClose();
     void comparisonUi();
     void comparisonCancellation();
     void comparisonRestoresViews_data();
@@ -589,6 +592,89 @@ void NotepadqqTest::lineDifferences()
     QCOMPARE(result.added, added);
     QCOMPARE(result.modifiedLeft, modifiedLeft);
     QCOMPARE(result.modifiedRight, modifiedRight);
+}
+
+void NotepadqqTest::savedIconRefreshesVisibleRows()
+{
+    auto& appearance = NqqSettings::getInstance().Appearance;
+    const bool oldWrap = appearance.getWrapTabs();
+    auto restore = qScopeGuard([&] { appearance.setWrapTabs(oldWrap); });
+    appearance.setWrapTabs(true);
+    MainWindow window(QStringList{});
+    window.show();
+    auto* pane = window.topEditorContainer()->currentTabWidget();
+    auto* editor = window.currentEditor();
+    editor->setValue("initial").wait();
+    editor->markClean().wait();
+    auto visibleIcon = [pane] {
+        for (auto* row : pane->tabBar()->findChildren<QTabBar*>())
+            if (!row->isHidden() && row->count()) return row->tabIcon(0).cacheKey();
+        return qint64(0);
+    };
+    QTRY_VERIFY(visibleIcon() != 0);
+    QTRY_COMPARE(visibleIcon(), pane->tabIcon(0).cacheKey());
+    const auto saved = pane->tabIcon(0).cacheKey();
+    auto* page = editor->findChild<QWebEngineView*>()->page();
+    evaluateEditor(page, "editor.replaceRange('edit', {line:0,ch:0})");
+    QTRY_VERIFY(pane->tabIcon(0).cacheKey() != saved);
+    QTRY_COMPARE(visibleIcon(), pane->tabIcon(0).cacheKey());
+    const auto dirty = pane->tabIcon(0).cacheKey();
+    QTemporaryDir directory;
+    QCOMPARE(window.getDocEngine()->saveDocument(pane, 0, QUrl::fromLocalFile(directory.filePath("saved.txt"))),
+        int(DocEngine::saveFileResult_Saved));
+    QTRY_VERIFY(pane->tabIcon(0).cacheKey() != dirty);
+    QTRY_COMPARE(visibleIcon(), pane->tabIcon(0).cacheKey());
+    QCOMPARE(pane->currentIndex(), 0);
+}
+
+void NotepadqqTest::comparisonClose_data()
+{
+    QTest::addColumn<bool>("closeLeft");
+    QTest::addColumn<bool>("destroyDirectly");
+    QTest::newRow("close-left") << true << false;
+    QTest::newRow("close-right") << false << false;
+    QTest::newRow("destroy-left") << true << true;
+    QTest::newRow("destroy-right") << false << true;
+}
+
+void NotepadqqTest::comparisonClose()
+{
+    QFETCH(bool, closeLeft);
+    QFETCH(bool, destroyDirectly);
+    MainWindow window(QStringList{});
+    window.show();
+    auto* container = window.topEditorContainer();
+    auto* pane = container->currentTabWidget();
+    auto* left = window.currentEditor();
+    pane->addEditorTab(false, "right");
+    auto* right = pane->editor(1);
+    left->setValue("old").wait();
+    right->setValue("new").wait();
+    auto* survivor = closeLeft ? right : left;
+    auto* closing = closeLeft ? left : right;
+    auto* page = survivor->findChild<QWebEngineView*>()->page();
+    auto* controller = container->findChild<ComparisonController*>();
+    QSignalSpy activeChanged(controller, &ComparisonController::activeChanged);
+    QVERIFY(controller->start(left, right));
+    QTRY_VERIFY(evaluateEditor(page, "diffLines.length > 0").toBool());
+    if (destroyDirectly)
+        delete closing;
+    else {
+        auto* closingPane = container->tabWidgetFromEditor(closing);
+        closing->markClean().wait();
+        emit closingPane->tabCloseRequested(closingPane->indexOf(closing));
+    }
+    QTRY_VERIFY(!activeChanged.isEmpty() && !activeChanged.last().at(0).toBool());
+    QVERIFY(!controller->active());
+    QTRY_COMPARE(evaluateEditor(page, "diffLines.length").toInt(), 0);
+    QTRY_COMPARE(evaluateEditor(page, "editor.getOption('readOnly')").toBool(), false);
+    QCOMPARE(container->count(), 1);
+    QCOMPARE(container->currentTabWidget()->currentEditor(), survivor);
+    // Late decoration messages must not repaint an editor after comparison ends.
+    evaluateEditor(page, "UiDriver.messageReceived('C_CMD_DIFF_MARKS', {revision:diffRevision, side:'added', lines:[0]})");
+    QCOMPARE(evaluateEditor(page, "diffLines.length").toInt(), 0);
+    evaluateEditor(page, "editor.replaceRange('editable', {line:0,ch:0})");
+    QVERIFY(survivor->value().startsWith("editable"));
 }
 
 void NotepadqqTest::comparisonUi()

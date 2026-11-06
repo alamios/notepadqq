@@ -31,7 +31,7 @@ UiDriver.registerEventHandler("C_FUN_DIFF_SNAPSHOT", function() {
 });
 UiDriver.registerEventHandler("C_CMD_DIFF_CLEAR", function() { clearDiffMarks(); });
 UiDriver.registerEventHandler("C_CMD_DIFF_MARKS", function(msg, data) {
-    if (data.revision !== diffRevision) return;
+    if (diffPreviousReadOnly === undefined || data.revision !== diffRevision) return;
     clearDiffMarks();
     var style = data.side === "removed" ? "nqq-diff-removed" : "nqq-diff-added";
     editor.operation(function() {

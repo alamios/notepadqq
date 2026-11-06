@@ -77,7 +77,15 @@ Stopping clears the active pair before moving surviving documents home.
 Original tab order is restored in ascending index order. Missing origin panes
 can be recreated; documents moved to another window remain there. Only an empty
 pane created specifically for comparison is removed. Window destruction and
-closing a compared document clear controller state safely.
+closing a compared document clear controller state safely. Tab removal is
+reported by the container even when the document engine disconnects editor
+signals. Validation and destruction cleanup run on queued connections so pane
+restoration cannot delete a pane inside its editor's destructor. JavaScript
+rejects decoration messages when the comparison lock is no longer active.
+
+Wrapped tab rows copy icons from the underlying tab model. Clean-state changes
+explicitly schedule a row refresh, including when the icon dimensions stay the
+same and Qt does not emit a layout change.
 
 ## Version and attribution
 

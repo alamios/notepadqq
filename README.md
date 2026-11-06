@@ -17,7 +17,8 @@ Based on the work of **Daniele Di Sarli and the original Notepadqq contributors*
 
 - Toggle line and block comments with `Ctrl+Shift+C`.
 - Compact tabs with full titles, optional width limits and multiple rows.
-- Tab colors, custom titles for unsaved documents and drag insertion previews.
+- Tab colors, live saved/modified icons, custom titles for unsaved documents
+  and drag insertion previews.
 - Side-by-side document comparison with red/green/yellow line highlights.
 - A per-user installer with a normal **Notepadqq** menu entry and session migration.
 - Timestamped recovery archives retained when closing or disabling autosave;

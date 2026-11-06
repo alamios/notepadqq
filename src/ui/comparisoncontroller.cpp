@@ -27,15 +27,16 @@ ComparisonController::ComparisonController(TopEditorContainer* container)
     m_timer.setSingleShot(true);
     m_timer.setInterval(200);
     connect(&m_timer, &QTimer::timeout, this, &ComparisonController::calculate);
-    // Tab transfers briefly detach an editor; validate after the move completes.
-    connect(container, &TopEditorContainer::currentEditorChanged, this, [this] {
-        QTimer::singleShot(0, this, [this] {
-            if (!active()) return;
-            auto* left = m_container->tabWidgetFromEditor(m_left);
-            auto* right = m_container->tabWidgetFromEditor(m_right);
-            if (!left || !right || left == right) stop();
-        });
-    });
+    // Validate after tab removal/transfers and QObject destruction finish. Never
+    // delete a temporary pane from inside one of its children's destructors.
+    const auto validate = [this] {
+        if (!m_left && !m_right && !m_temporaryPane) return;
+        auto* left = m_left ? m_container->tabWidgetFromEditor(m_left) : nullptr;
+        auto* right = m_right ? m_container->tabWidgetFromEditor(m_right) : nullptr;
+        if (!left || !right || left == right) stop();
+    };
+    connect(container, &TopEditorContainer::currentEditorChanged, this, validate, Qt::QueuedConnection);
+    connect(container, &TopEditorContainer::editorRemoved, this, validate, Qt::QueuedConnection);
 }
 ComparisonController::~ComparisonController()
 { stop(); }
@@ -91,7 +92,10 @@ bool ComparisonController::start(Editor* left, Editor* right)
     right->sendMessage("C_CMD_DIFF_LOCK");
     for (auto* editor : {left, right}) {
         m_connections.append(connect(editor, &Editor::contentChanged, this, &ComparisonController::schedule));
-        m_connections.append(connect(editor, &QObject::destroyed, this, &ComparisonController::stop));
+        m_connections.append(connect(editor, &QObject::destroyed, this, [this] {
+            // A queued callback from an old pair must not stop a new comparison.
+            if (!active()) stop();
+        }, Qt::QueuedConnection));
     }
     emit activeChanged(true);
     schedule();
