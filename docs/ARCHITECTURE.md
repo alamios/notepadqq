@@ -43,6 +43,13 @@ of a named, empty unsaved document. Titles are never used as cache filenames.
 Metadata changes participate in automatic-backup change detection even when
 text is unchanged. These additions retain the existing XML/cache lifecycle.
 
+`BackupService::clearBackupData()` archives the active `backupCache` directory
+using a UTC timestamp and UUID instead of deleting it. Both normal shutdown and
+disabling autosave use this operation. Failed renames preserve the source and
+tracking state and emit a warning. Archived siblings do not trigger crash
+recovery; their bytes, including absolute XML cache references, are unchanged.
+See [manual recovery](../PACKAGING.md#manual-recovery) for access and limitations.
+
 ## Comparison
 
 `ComparisonController` owns one guarded document pair per window. It records
@@ -82,6 +89,15 @@ contributor links. Original copyright attribution remains unchanged. Qt layouts
 fit translated text and larger fonts, with translations in all 14 catalogs.
 
 ## Privacy
+
+`DiagnosticLog` installs a Qt message handler in the primary process before
+window creation. Writes and rotation are serialized with a mutex; each record
+is flushed, and the previous handler (or stderr) still receives messages.
+Files are bounded to four approximately 2 MiB generations. The handler avoids
+Qt logging calls to prevent recursion, and closes its file on write/rotation
+failure. Debug payloads are excluded from persistence. Lifecycle, session and
+editor events provide diagnostic context without new document-content logging.
+See [diagnostic logs](DEVELOPMENT.md#diagnostic-logs) for limits and collection.
 
 The upstream telemetry collection/transmission code, timers, consent dialog
 and preference are removed. Startup compatibility handling deletes legacy

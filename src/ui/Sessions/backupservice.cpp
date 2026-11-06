@@ -5,6 +5,9 @@
 #include "include/mainwindow.h"
 
 #include <QApplication>
+#include <QDateTime>
+#include <QDebug>
+#include <QUuid>
 
 #include <set>
 
@@ -14,6 +17,7 @@ std::set<BackupService::WindowData> BackupService::s_backupWindowData;
 
 void BackupService::executeBackup()
 {
+    qInfo() << "backup.cycle.start windows=" << MainWindow::instances().size();
     const auto& backupPath = PersistentCache::backupDirPath();
 
     std::set<WindowData> newData, savedData, temp;
@@ -41,7 +45,8 @@ void BackupService::executeBackup()
     for (const auto& item : temp) {
         const auto ptrToInt = reinterpret_cast<uintptr_t>(item.ptr);
         const QString cachePath = backupPath + QString("/window_%1").arg(ptrToInt);
-        QDir(cachePath).removeRecursively();
+        const bool removed = QDir(cachePath).removeRecursively();
+        qInfo() << "backup.closedWindow.cleanup window=" << ptrToInt << "ok=" << removed;
     }
 
     // Find all newly created windows and create their backups
@@ -82,6 +87,7 @@ void BackupService::executeBackup()
     }
 
     s_backupWindowData = savedData;
+    qInfo() << "backup.cycle.end savedWindows=" << savedData.size();
 }
 
 bool BackupService::writeBackup(MainWindow* wnd)
@@ -102,7 +108,13 @@ bool BackupService::writeBackup(MainWindow* wnd)
         return false;
     }
 
-    return Sessions::saveSession(wnd->getDocEngine(), wnd->topEditorContainer(), sessPath, cachePath);
+    qInfo() << "backup.window.start window=" << ptrToInt;
+    const bool ok = Sessions::saveSession(wnd->getDocEngine(), wnd->topEditorContainer(), sessPath, cachePath);
+    if (ok)
+        qInfo() << "backup.window.end window=" << ptrToInt;
+    else
+        qWarning() << "backup.window.failed window=" << ptrToInt;
+    return ok;
 }
 
 bool BackupService::restoreFromBackup()
@@ -114,6 +126,7 @@ bool BackupService::restoreFromBackup()
     QDir autosaveDir(backupPath);
     autosaveDir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot);
     const auto& dirs = autosaveDir.entryInfoList();
+    qInfo() << "recovery.scan windows=" << dirs.size();
 
     if (dirs.isEmpty())
         return false;
@@ -124,15 +137,18 @@ bool BackupService::restoreFromBackup()
         QMessageBox::Yes | QMessageBox::No,
         QMessageBox::Yes);
 
+    qInfo() << "recovery.prompt accepted=" << (ret == QMessageBox::Yes);
     if (ret == QMessageBox::No)
         return false;
 
     for (const auto& dirInfo : dirs) {
         const auto sessPath = dirInfo.filePath() + "/window.xml";
+        qInfo() << "recovery.window.start directory=" << dirInfo.fileName();
 
         MainWindow* wnd = new MainWindow(QStringList(), nullptr);
         Sessions::loadSession(wnd->getDocEngine(), wnd->topEditorContainer(), sessPath);
         wnd->show();
+        qInfo() << "recovery.window.scheduled directory=" << dirInfo.fileName();
     }
 
     return true;
@@ -160,9 +176,11 @@ void BackupService::enableAutosave(int intervalInSeconds)
 
             switch (state) {
             case Qt::ApplicationInactive:
+                qInfo() << "backup.timer.paused reason=application-inactive";
                 s_autosaveTimer.stop();
                 break;
             case Qt::ApplicationActive:
+                qInfo() << "backup.timer.resumed reason=application-active";
                 s_autosaveTimer.start();
                 break;
             default:
@@ -172,6 +190,7 @@ void BackupService::enableAutosave(int intervalInSeconds)
     }
 
     s_autosaveEnabled = true;
+    qInfo() << "backup.enabled intervalSeconds=" << intervalInSeconds;
     s_autosaveTimer.setTimerType(Qt::VeryCoarseTimer);
     s_autosaveTimer.setInterval(intervalInSeconds * 1000);
     s_autosaveTimer.start();
@@ -183,6 +202,7 @@ void BackupService::disableAutosave()
         return;
 
     s_autosaveEnabled = false;
+    qInfo() << "backup.disabled";
     s_autosaveTimer.stop();
     clearBackupData();
 }
@@ -192,8 +212,18 @@ void BackupService::clearBackupData()
     const auto& backupPath = PersistentCache::backupDirPath();
     QDir backupDir(backupPath);
 
-    if (backupDir.exists())
-        backupDir.removeRecursively();
+    if (backupDir.exists()) {
+        // Keep even incomplete recovery data for manual inspection. A unique suffix
+        // prevents consecutive cleanups from replacing an earlier archive.
+        const QString archivePath = backupPath + "-" +
+            QDateTime::currentDateTimeUtc().toString("yyyyMMdd-HHmmss-zzz'Z'") + "-" +
+            QUuid::createUuid().toString(QUuid::WithoutBraces);
+        if (!QDir().rename(backupPath, archivePath)) {
+            qWarning() << "Could not archive recovery data; keeping it at" << backupPath;
+            return;
+        }
+        qInfo() << "backup.archived directory=" << QFileInfo(archivePath).fileName();
+    }
 
     s_backupWindowData.clear();
 }

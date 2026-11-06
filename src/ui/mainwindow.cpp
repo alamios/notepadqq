@@ -170,6 +170,7 @@ MainWindow::MainWindow(const QStringList& arguments, QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    qInfo() << "window.destroy window=" << static_cast<void*>(this);
     MainWindow::m_instances.removeAll(this);
 
     m_comparisonController->stop();
@@ -593,15 +594,18 @@ void MainWindow::on_actionRedo_triggered()
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
+    qInfo() << "window.close.request window=" << static_cast<void*>(this);
     QMainWindow::closeEvent(event);
 
     // Only save tabs to cache if the closing window is the last one in the process.
     if (!m_documentController->prepareToClose()) {
+        qInfo() << "window.close.cancelled window=" << static_cast<void*>(this);
         event->ignore();
         return;
     }
 
     m_settings.MainWindow.setGeometry(saveGeometry());
+    qInfo() << "window.close.accepted window=" << static_cast<void*>(this);
     m_settings.MainWindow.setWindowState(saveState());
 
     // Disconnect signals to avoid handling events while

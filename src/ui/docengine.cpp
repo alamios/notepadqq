@@ -292,6 +292,7 @@ QList<std::pair<Editor*, QtPromise::QPromise<Editor*>>> DocEngine::loadDocuments
                     }
 
                     while (readResult.isRejected()) {
+                        qWarning() << "document.read.failed error=" << file.errorString();
                         // Handle error
                         QMessageBox msgBox;
                         msgBox.setWindowTitle(QCoreApplication::applicationName());
@@ -480,6 +481,7 @@ QtPromise::QPromise<void> DocEngine::loadDocuments(const DocEngine::DocumentLoad
             QtPromise::QPromise<void> readResult = this->read(&file, editor, codec, bom).wait(); // FIXME To async!
 
             while (readResult.isRejected()) {
+                qWarning() << "document.read.failed error=" << file.errorString();
                 // Handle error
                 QMessageBox msgBox;
                 msgBox.setWindowTitle(QCoreApplication::applicationName());
@@ -813,6 +815,9 @@ bool DocEngine::write(QUrl outFileName, Editor* editor)
 {
     QFile file(outFileName.toLocalFile());
     bool result = write(&file, editor);
+    if (!result)
+        qWarning() << "document.write.failed editor=" << static_cast<void*>(editor)
+                   << "error=" << file.errorString();
     file.close();
 
     return result;

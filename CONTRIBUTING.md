@@ -14,6 +14,11 @@ opening a report. Include:
 - Reproduction steps, expected result and actual result.
 - Relevant sanitized logs or screenshots, and whether unsaved data is affected.
 
+For crashes or recovery failures, preserve the rotating files in
+`~/.config/Notepadqq/logs/` promptly and include the approximate local time and
+timezone. See [diagnostic logs](docs/DEVELOPMENT.md#diagnostic-logs) for alternate
+profiles, event interpretation and limitations.
+
 Distinguish an observed fault from a suspected cause. Reproduce session problems
 with an isolated profile and disposable or copied documents. Do not delete real
 session caches to investigate a failure. Reports about an original distribution

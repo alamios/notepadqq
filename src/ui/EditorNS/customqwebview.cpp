@@ -2,12 +2,22 @@
 
 #include <QMenu>
 #include <QMimeData>
+#include <QDebug>
 
 namespace EditorNS {
 
 CustomQWebView::CustomQWebView(QWidget* parent)
     : QWebEngineView(parent)
 {
+    connect(this, &QWebEngineView::renderProcessTerminated, this,
+        [this](QWebEnginePage::RenderProcessTerminationStatus status, int code) {
+            qCritical() << "editor.renderer.terminated view=" << static_cast<void*>(this)
+                        << "status=" << status << "exitCode=" << code;
+        });
+    connect(this, &QWebEngineView::loadFinished, this, [this](bool ok) {
+        if (!ok)
+            qWarning() << "editor.load.failed view=" << static_cast<void*>(this);
+    });
 }
 
 void CustomQWebView::wheelEvent(QWheelEvent* ev)

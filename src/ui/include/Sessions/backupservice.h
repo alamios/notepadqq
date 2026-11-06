@@ -42,6 +42,8 @@ public:
      */
     static void disableAutosave();
 
+    // Rename backupCache to a timestamped sibling for manual recovery. On failure,
+    // retain the active directory and tracking state; never delete recovery data.
     static void clearBackupData();
 
     /**

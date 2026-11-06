@@ -58,6 +58,34 @@ The installer retains this list and refreshes the desktop MIME cache when
 
 ## Sessions and updates
 
+### Manual recovery
+
+The normal profile is `${XDG_CONFIG_HOME:-~/.config}/Notepadqq`. Development
+launchers may instead use `build/profile/config/Notepadqq` in the checkout.
+`backupCache/window_*/` contains crash-recovery documents and `window.xml`;
+`tabCache` and `session.xml` hold the saved session.
+
+On normal shutdown or when autosave is disabled, `backupCache` is renamed to
+`backupCache-YYYYMMDD-HHMMSS-mmmZ-<uuid>` beside the original directory. The
+timestamp is UTC, and the suffix prevents name collisions. Archives are not
+automatically restored or deleted. If renaming fails, the original directory
+is retained and a warning is logged. Archives accumulate until manually removed.
+
+To recover manually, first copy the profile somewhere safe. Open cached document
+files from the chosen archive's `window_*` directories in the editor, then use
+Save As. Even if `window.xml` is damaged, individual documents may still be
+usable. XML is preserved unchanged and contains absolute cache paths pointing
+to the former `backupCache` location; opening the archived XML as a session
+does not automatically relocate those references.
+
+This archive preserves what remains at cleanup time. Autosave still replaces
+each active window's cache by deleting its previous contents before writing;
+a crash during that operation can leave an incomplete backup. Closed windows'
+active backups are also removed during autosave. Archiving cannot recover
+content that was never written or was already lost.
+
+### Installation migration
+
 On the first install, `build/profile/config/Notepadqq` is copied if it exists.
 Preferences, `session.xml`, `tabCache` and `backupCache` are included; unrelated
 KDE settings, recent-file lists and GPU/font caches are excluded. Cache references

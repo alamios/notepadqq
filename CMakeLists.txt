@@ -44,6 +44,7 @@ set(NQQ_SUPPORT_DIR "${NQQ_ROOT_DIR}/support_files")
 set(NQQ_STAGED_APPDATA_DIR "${CMAKE_CURRENT_BINARY_DIR}/appdata")
 
 set(NQQ_APP_SOURCES
+    src/ui/diagnosticlog.cpp
     src/ui/main.cpp
     src/ui/mainwindow.cpp
     src/ui/linediff.cpp
@@ -103,6 +104,7 @@ set(NQQ_APP_SOURCES
 )
 
 set(NQQ_APP_HEADERS
+    src/ui/include/diagnosticlog.h
     src/ui/include/mainwindow.h
     src/ui/include/linediff.h
     src/ui/include/comparisoncontroller.h
@@ -444,6 +446,13 @@ if(NQQ_BUILD_TESTS)
     )
     target_compile_definitions(cpp-correctness-tests PRIVATE NQQ_CPP_CORRECTNESS_TESTS)
     add_test(NAME cpp-correctness-tests COMMAND cpp-correctness-tests)
+    qt_add_executable(diagnostic-log-tests
+        src/ui-tests/tst_diagnosticlog.cpp
+        src/ui/diagnosticlog.cpp
+    )
+    target_include_directories(diagnostic-log-tests PRIVATE src/ui)
+    target_link_libraries(diagnostic-log-tests PRIVATE Qt6::Core Qt6::Test)
+    add_test(NAME diagnostic-log-tests COMMAND diagnostic-log-tests)
 endif()
 
 if(APPLE)

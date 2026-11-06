@@ -5,6 +5,7 @@
 #include "include/topeditorcontainer.h"
 
 #include <QDateTime>
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QLatin1StringView>
@@ -271,7 +272,9 @@ namespace Sessions {
 
 bool saveSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QString sessionPath, QString cacheDirPath)
 {
+    qInfo() << "session.save.start cache=" << !cacheDirPath.isEmpty();
     if (editorContainer == nullptr) {
+        qWarning() << "session.save.failed reason=no-container";
         return false;
     }
 
@@ -285,13 +288,17 @@ bool saveSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
 
         bool success = false;
 
+        qInfo() << "session.cache.replace.start";
         if (cacheDir.exists())
             success = cacheDir.removeRecursively();
 
         success |= cacheDir.mkpath(cacheDirPath);
 
-        if (!success)
+        if (!success) {
+            qWarning() << "session.save.failed reason=cache-directory";
             return false;
+        }
+        qInfo() << "session.cache.replace.end";
     }
 
     std::vector<ViewData> viewData;
@@ -333,6 +340,7 @@ bool saveSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
                 td.cachedClean = namedOrphan && isClean;
 
                 if (!docEngine->write(cacheFilePath, editor)) {
+                    qWarning() << "session.save.failed reason=document-write view=" << i << "tab=" << j;
                     return false;
                 }
             } else if (isOrphan) {
@@ -380,22 +388,34 @@ bool saveSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
 
     // Write all information to a session file
     QFile file(sessionPath);
-    if (!file.open(QIODevice::WriteOnly))
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning() << "session.save.failed reason=xml-open error=" << file.errorString();
         return false;
+    }
 
-    SessionWriter sessionWriter(file);
-
-    for (const auto& view : viewData)
-        sessionWriter.addViewData(view);
+    {
+        SessionWriter sessionWriter(file);
+        for (const auto& view : viewData)
+            sessionWriter.addViewData(view);
+    }
+    // The writer closes the XML in its destructor; report only after flushing it.
+    if (!file.flush() || file.error() != QFileDevice::NoError) {
+        qWarning() << "session.save.failed reason=xml-write error=" << file.errorString();
+        return false;
+    }
+    qInfo() << "session.save.end views=" << viewData.size();
 
     return true;
 }
 
 void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QString sessionPath)
 {
+    qInfo() << "session.load.start recovery=" << (QFileInfo(sessionPath).fileName() == "window.xml");
     QFile file(sessionPath);
-    if (!file.open(QIODevice::ReadOnly))
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning() << "session.load.failed reason=xml-open error=" << file.errorString();
         return;
+    }
 
     SessionReader reader(file);
 
@@ -403,10 +423,13 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
     const auto& views = reader.readData(&success);
 
     if (!success || views.empty()) {
+        qWarning() << "session.load.failed reason=invalid-or-empty-xml parseOk=" << success
+                   << "error=" << reader.getError();
         return;
     }
 
     int viewCounter = 0;
+    int scheduledTabs = 0;
     for (const auto& view : views) {
         // Each new view must be created if it does not yet exist.
         EditorTabWidget* tabW = editorContainer->tabWidget(viewCounter);
@@ -429,8 +452,12 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
             // This is the file to load the document from
             const QUrl& loadUrl = cacheFileExists ? cacheFileUrl : fileUrl;
 
-            if (!fileExists && !cacheFileExists)
+            if (!fileExists && !cacheFileExists) {
+                qWarning() << "session.tab.skipped reason=missing-source view=" << viewCounter;
                 continue;
+            }
+            if (!tab.cacheFilePath.isEmpty() && !cacheFileExists)
+                qWarning() << "session.tab.cache-missing fallbackToOriginal=" << fileExists;
 
             auto loader = docEngine->getDocumentLoader()
                               .setUrl(loadUrl)
@@ -439,6 +466,8 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
                               .setFileSizeWarning(DocEngine::FileSizeActionYesToAll)
                               .setPriorityIdx(tab.active ? ALL_MAXIMUM_PRIORITY : ALL_MINIMUM_PRIORITY)
                               .setManualEditorInitialization([=](Editor* editor, const QUrl& /*url*/) {
+                                  qInfo() << "session.tab.initialize.start editor=" << static_cast<void*>(editor)
+                                          << "fromCache=" << cacheFileExists;
                                   int idx = tabW->indexOf(editor);
 
                                   editor->setCursorPosition(tab.cursorX, tab.cursorY);
@@ -504,6 +533,7 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
                                       // round-trip.
                                       emit editor->cleanChanged(!cacheFileExists || cachedClean);
                                   }
+                                  qInfo() << "session.tab.initialized editor=" << static_cast<void*>(editor);
                               });
 
             if (tab.filePath.isEmpty()) {
@@ -513,6 +543,7 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
             auto loadedDocs = loader.executeInBackground();
 
             if (loadedDocs.length() == 0) {
+                qWarning() << "session.tab.skipped reason=loader-rejected";
                 // For some reason it hasn't been loaded
                 continue;
             }
@@ -521,6 +552,7 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
             // the UI will jump around changing the width of the tabs while they
             // are loading.
             auto loadingEditor = loadedDocs.first().first;
+            ++scheduledTabs;
             loadingEditor->setTabColor(tab.tabColor);
             // Reserve the real document URL before the asynchronous load finishes so a
             // command-line request can reuse this loading tab instead of opening a duplicate.
@@ -554,6 +586,7 @@ void loadSession(DocEngine* docEngine, TopEditorContainer* editorContainer, QStr
 
     } // end for
 
+    qInfo() << "session.load.scheduled tabs=" << scheduledTabs;
     // Stop if we haven't added any views at all, otherwise we have to clean up after ourselves.
     if (viewCounter <= 0)
         return;

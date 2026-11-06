@@ -1,6 +1,7 @@
 #include "include/EditorNS/asyncrequesttracker.h"
 
 #include <QTimer>
+#include <QDebug>
 
 #include <algorithm>
 #include <limits>
@@ -62,6 +63,8 @@ int AsyncRequestTracker::pendingCount() const
 
 void AsyncRequestTracker::rejectAll()
 {
+    if (!m_pendingRequests.isEmpty())
+        qInfo() << "editor.requests.cancelled count=" << m_pendingRequests.size();
     QHash<unsigned int, PendingRequest> requests;
     requests.swap(m_pendingRequests);
 
@@ -85,6 +88,8 @@ void AsyncRequestTracker::reject(unsigned int id)
         return;
 
     PendingRequest request = take(id);
+    qWarning() << "editor.request.timeout id=" << id << "operation=" << request.message
+               << "timeoutMs=" << m_timeout.count();
     const auto error = timeoutError(request.message);
     if (request.reject)
         (*request.reject)(error);

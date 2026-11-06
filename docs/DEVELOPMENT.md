@@ -64,10 +64,54 @@ locks, cancellation and pane restoration; translations; and legacy telemetry
 setting cleanup. Installer tests use temporary fixtures and mocked build
 commands, never the real user installation.
 
+`backupCleanupPreservesRecoveryFiles` checks that cleanup and disabling autosave
+preserve document bytes and incomplete XML in distinct timestamped archives,
+that archives do not trigger crash detection, and that repeated cleanup without
+an active backup leaves existing archives untouched.
+
 Preview images are written under `build/dev` by selected UI tests. Native
 Plasma/Wayland input and appearance should also be checked when a change
 depends on desktop behavior. A passing offscreen suite alone does not establish
 that all desktop styles or package formats have been validated.
+
+## Diagnostic logs
+
+The primary application process writes `logs/notepadqq.log` beside its settings
+file: normally `~/.config/Notepadqq/logs/`, or
+`build/profile/config/Notepadqq/logs/` with the development profile above.
+Existing logs are appended across restarts. Rotation retains the current file
+plus `.1`, `.2` and `.3` (newest to oldest), each up to approximately 2 MiB.
+Logs use owner-only read/write permissions. No logs are uploaded.
+
+Each record contains UTC time, severity, PID, thread ID and Qt message category.
+Info, warning, critical and fatal Qt messages are persisted; debug messages
+remain console-only because older debug calls may expose bridge payloads.
+Added events record startup configuration, window closure, autosave stages,
+session write/read failures, missing recovery sources, scheduled/initialized
+tabs, editor request timeouts, renderer termination and orderly shutdown.
+Document contents, search strings and tab titles are not added to these events.
+Existing Qt/library warnings may include paths or other contextual information;
+review logs before sharing them.
+
+After a failure, copy the entire `logs` directory along with recovery data before
+extended use rotates old records away. Search for `lifecycle.start` and
+`lifecycle.shutdown.complete` to delimit runs. A missing completion marker may
+indicate an abrupt termination; it is not proof of its cause. Compare the last
+`backup.*`, `session.*` and `editor.*` events with system-journal/coredump times.
+`session.load.scheduled` does not mean asynchronous document loading completed;
+`session.tab.initialized` records each completed initialization callback.
+
+Logging starts after single-instance forwarding, before primary-window creation.
+Very early Qt initialization failures and secondary launchers are console-only.
+Each record is flushed through QFile immediately, without an fsync guarantee
+against power loss. This logger does not install signal handlers or collect
+native stack traces: SIGSEGV, SIGKILL and Chromium's direct stderr output still
+need system journal/core diagnostics. An open/write/rotation failure is reported
+to stderr and the app continues; it does not delete recovery data or abort.
+
+`diagnostic-log-tests` uses temporary directories to verify immediate persistence,
+restart append, permissions, debug filtering, concurrent rotation, and graceful
+failure when opening or rotating files.
 
 ## Documentation and ownership
 

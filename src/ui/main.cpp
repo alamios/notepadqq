@@ -8,6 +8,8 @@
 #include "include/notepadqq.h"
 #include "include/nqqsettings.h"
 #include "include/singleapplication.h"
+#include "include/diagnosticlog.h"
+#include <QSysInfo>
 
 #include <QDateTime>
 #include <QFileInfo>
@@ -108,6 +110,15 @@ int main(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
+    DiagnosticLog::start(QFileInfo(QSettings().fileName()).dir().filePath("logs"));
+    qInfo() << "lifecycle.start version=" << Notepadqq::version << "Qt=" << qVersion()
+            << "OS=" << QSysInfo::prettyProductName() << "platform=" << a.platformName()
+            << "autosaveSeconds=" << settings.General.getAutosaveInterval()
+            << "rememberTabs=" << settings.General.getRememberTabsOnExit();
+    QObject::connect(&a, &QCoreApplication::aboutToQuit, [] {
+        qInfo() << "lifecycle.aboutToQuit";
+    });
+
     // Arguments received from another instance
     QObject::connect(&a,
         &SingleApplication::receivedArguments,
@@ -153,6 +164,7 @@ int main(int argc, char* argv[])
 
     // Check whether Nqq was properly shut down. If not, attempt to restore from the last autosave backup if enabled.
     const bool wantToRestore = settings.General.getAutosaveInterval() > 0 && BackupService::detectImproperShutdown();
+    qInfo() << "recovery.startup requested=" << wantToRestore;
     if (wantToRestore) {
         // Attempt to restore from backup. Don't forget to handle commandline arguments.
         if (BackupService::restoreFromBackup())
@@ -180,12 +192,15 @@ int main(int argc, char* argv[])
     qDebug() << QString("Started in " + QString::number(__aet_elapsed / 1000 / 1000) + "msec").toStdString().c_str();
 #endif
 
+    qInfo() << "lifecycle.eventLoop.start";
     auto retVal = a.exec();
+    qInfo() << "lifecycle.eventLoop.end code=" << retVal;
 
     // Properly cleanup cached editors
     Editor::invalidateEditorBuffer();
 
-    BackupService::clearBackupData(); // Clear autosave cache on proper shutdown
+    BackupService::clearBackupData(); // Archive autosave cache on proper shutdown
+    qInfo() << "lifecycle.shutdown.complete code=" << retVal;
     return retVal;
 }
 

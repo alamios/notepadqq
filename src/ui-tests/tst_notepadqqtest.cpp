@@ -88,6 +88,7 @@ private Q_SLOTS:
     void tabAppearancePreferences();
     void appearancePreferencesAlignment();
     void tabColorAutosave();
+    void backupCleanupPreservesRecoveryFiles();
     void tabColorContextMenu();
     void unsavedTabTitle();
     void unsavedTitleSession_data();
@@ -1161,6 +1162,57 @@ void NotepadqqTest::appearancePreferencesAlignment()
     QVERIFY(preview);
     QTRY_VERIFY_WITH_TIMEOUT(evaluateEditor(preview->page(), "typeof editor !== 'undefined' && !!editor").toBool(), 10000);
     QVERIFY(preferences.grab().save(QCoreApplication::applicationDirPath() + "/preferences-appearance-preview.png"));
+}
+
+void NotepadqqTest::backupCleanupPreservesRecoveryFiles()
+{
+    BackupService::disableAutosave();
+    BackupService::clearBackupData();
+    const QString backupPath = PersistentCache::backupDirPath();
+    const QDir profile = QFileInfo(backupPath).dir();
+    auto archives = [&] {
+        return profile.entryList({"backupCache-*"}, QDir::Dirs | QDir::NoDotAndDotDot);
+    };
+    const QStringList originalArchives = archives();
+    QStringList createdArchives;
+    const QByteArray contents("unsaved text\n\0binary tail", 25);
+    // Preserve partial XML too: cleanup must not depend on a valid session.
+    const QByteArray xml("<Notepadqq><broken");
+    for (int i = 0; i < 2; ++i) {
+        QVERIFY(QDir().mkpath(backupPath + "/window_123"));
+        for (const auto& name : {QString("document.123"), QString("window.xml")}) {
+            QFile file(backupPath + "/window_123/" + name);
+            QVERIFY(file.open(QIODevice::WriteOnly));
+            const auto& data = name == "window.xml" ? xml : contents;
+            QCOMPARE(file.write(data), qint64(data.size()));
+        }
+        QVERIFY(BackupService::detectImproperShutdown());
+        if (i == 0) {
+            BackupService::clearBackupData();
+        } else {
+            BackupService::enableAutosave(3600);
+            BackupService::disableAutosave();
+        }
+        QVERIFY(!QFileInfo::exists(backupPath));
+        QVERIFY(!BackupService::detectImproperShutdown());
+        QStringList added = archives();
+        for (const auto& name : originalArchives + createdArchives)
+            added.removeAll(name);
+        QCOMPARE(added.size(), 1);
+        QVERIFY(QRegularExpression("^backupCache-\\d{8}-\\d{6}-\\d{3}Z-").match(added.first()).hasMatch());
+        createdArchives.append(added.first());
+    }
+    for (const auto& archive : createdArchives) {
+        QFile file(profile.filePath(archive + "/window_123/document.123"));
+        QVERIFY(file.open(QIODevice::ReadOnly));
+        QCOMPARE(file.readAll(), contents);
+        QFile manifest(profile.filePath(archive + "/window_123/window.xml"));
+        QVERIFY(manifest.open(QIODevice::ReadOnly));
+        QCOMPARE(manifest.readAll(), xml);
+    }
+    const auto before = archives();
+    BackupService::clearBackupData();
+    QCOMPARE(archives(), before);
 }
 
 void NotepadqqTest::tabColorAutosave()
